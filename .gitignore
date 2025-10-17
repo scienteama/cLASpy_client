@@ -1,0 +1,46 @@
+# System files
+.DS_Store
+Thumbs.db
+
+# Node
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Quasar
+.quasar
+/dist
+/quasar.config.*.temporary.compiled*
+/.quasar/*-dev
+
+# Vue / Vite / TS
+*.tsbuildinfo
+vite.config.*.local
+
+# Cordova
+/src-cordova/node_modules
+/src-cordova/platforms
+/src-cordova/plugins
+/src-cordova/www
+
+# Capacitor
+/src-capacitor/www
+/src-capacitor/node_modules
+/src-capacitor/.webassets
+/src-capacitor/android/app/build
+/src-capacitor/ios/App/App.xcworkspace/xcuserdata
+
+# IDE / editor
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# Local env files
+.env.local*
+
+# Test coverage
+/coverage
+/.nyc_output
