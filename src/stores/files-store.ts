@@ -3,7 +3,7 @@ import { ref, computed } from 'vue';
 import { fileService } from 'src/services/files.services';
 import { useQuasar } from 'quasar';
 import { api } from 'boot/axios';
-import type { FolderModel } from 'src/types/files.type';
+import type { FileUploadProgress, FolderModel } from 'src/types/files.type';
 import type { AxiosProgressEvent } from 'axios';
 
 export const useFilesStore = defineStore('files', () => {
@@ -15,10 +15,13 @@ export const useFilesStore = defineStore('files', () => {
   const loading = ref(false);
 
   // --- Suivi upload ---
-  const fileUploadProgress = ref({
+  const fileUploadProgress = ref<FileUploadProgress>({
     percent: 0,
     color: 'green-2',
     error: false,
+    icon: 'insert_drive_file',
+    uploading: false,
+    speed: 0,
   });
 
   // --- Getters ---
@@ -65,22 +68,58 @@ export const useFilesStore = defineStore('files', () => {
     currentPath.value = [...currentPath.value, name];
   }
 
+  function goToHome() {
+    currentPath.value = [];
+  }
+
   // --- Upload fichier ---
   async function uploadFile(file: File, subPath: string): Promise<void> {
     if (!file) return;
 
-    fileUploadProgress.value = { percent: 0, color: 'green-2', error: false };
+    // Déterminer une icône selon le type du fichier
+    const icon = file.type.startsWith('video/')
+      ? 'movie'
+      : file.type.startsWith('image/')
+        ? 'photo'
+        : file.type.startsWith('audio/')
+          ? 'audiotrack'
+          : 'insert_drive_file';
+
+    fileUploadProgress.value = {
+      percent: 0,
+      color: 'green-2',
+      error: false,
+      icon,
+      uploading: true,
+      speed: 0,
+    };
     $q.notify({ message: `Téléversement de "${file.name}"...`, color: 'primary', timeout: 1000 });
 
     const formData = new FormData();
     formData.append('file', file);
     formData.append('sub_path', subPath);
 
+    let lastLoaded = 0;
+    let lastTime = Date.now();
+
     try {
-      const res = await api.post('/files/upload', formData, {
+      await api.post('/files/upload', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
         onUploadProgress: (progressEvent: AxiosProgressEvent) => {
           if (progressEvent.total && progressEvent.loaded) {
+            const now = Date.now();
+            const deltaTime = now - lastTime; // ms
+            const deltaBytes = progressEvent.loaded - lastLoaded;
+
+            if (deltaTime > 0 && deltaBytes > 0) {
+              const bytesPerSecond = (deltaBytes / deltaTime) * 1000;
+              const megaPerSecond = bytesPerSecond / (1024 * 1024);
+              fileUploadProgress.value.speed = parseFloat(megaPerSecond.toFixed(2));
+            }
+
+            lastLoaded = progressEvent.loaded;
+            lastTime = now;
+
             const percent = progressEvent.loaded / progressEvent.total;
             fileUploadProgress.value.percent = percent;
             fileUploadProgress.value.color = percent < 1 ? 'green-2' : 'green-4';
@@ -88,14 +127,32 @@ export const useFilesStore = defineStore('files', () => {
         },
       });
 
-      console.log('✅ Upload réussi :', res.data);
       await reloadRoot();
+      fileUploadProgress.value.color = 'green-4';
       $q.notify({ type: 'positive', message: 'Fichier uploadé avec succès ✅' });
     } catch (err) {
       console.error('❌ Erreur upload :', err);
       fileUploadProgress.value.error = true;
       fileUploadProgress.value.color = 'red-4';
       $q.notify({ type: 'negative', message: 'Erreur lors du téléversement.' });
+    } finally {
+      fileUploadProgress.value.uploading = false;
+      fileUploadProgress.value.speed = 0;
+    }
+  }
+
+  async function createFolder(name: string, subPath: string): Promise<void> {
+    try {
+      const ok = await fileService.createDirectory(name, subPath);
+      if (ok) {
+        await reloadRoot();
+        $q.notify({ type: 'positive', message: 'Dossier créé.' });
+      } else {
+        $q.notify({ type: 'negative', message: 'Échec création dossier.' });
+      }
+    } catch (err) {
+      console.error(err);
+      $q.notify({ type: 'negative', message: 'Erreur serveur.' });
     }
   }
 
@@ -144,7 +201,9 @@ export const useFilesStore = defineStore('files', () => {
     canGoBack,
     currentPathDisplay,
     fileUploadProgress,
+    createFolder,
     reloadRoot,
+    goToHome,
     goBack,
     goToFolder,
     uploadFile,

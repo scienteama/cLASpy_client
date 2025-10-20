@@ -2,7 +2,9 @@ export interface FileUploadProgress {
   error: boolean;
   color: string;
   percent: number;
-  icon: string;
+  icon?: string;
+  uploading: boolean;
+  speed?: number; // Mo per second
 }
 
 export interface FileModel {

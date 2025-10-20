@@ -7,9 +7,10 @@ class FileService {
     return response.data;
   }
 
-  // async createDir(): Promise<FolderModel> {
-
-  // }
+  async createDirectory(name: string, subPath: string): Promise<boolean> {
+    const response = await api.post<boolean>('/files/create-directory', { name, subPath });
+    return response.data;
+  }
 
   async removeFileOrDir(itemId: string): Promise<boolean> {
     const response = await api.delete<boolean>(`files/remove/${itemId}`);

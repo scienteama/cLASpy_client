@@ -34,6 +34,13 @@
         <q-space />
 
         <div class="q-pl-sm q-gutter-sm row items-center no-wrap">
+          <q-badge v-if="fileUploadProgress.uploading" color="accent" text-color="white" rounded size="md"
+            :label="(fileUploadProgress.percent * 100).toFixed(0) + '%'">
+            <q-tooltip>
+              Upload en cours : {{ fileUploadProgress.speed }} Mo/s
+            </q-tooltip>
+          </q-badge>
+
           <q-btn v-if="$q.screen.gt.xs" dense flat round size="sm" icon="notifications" />
           <q-btn v-if="$q.screen.gt.xs" dense flat>
             <div class="row items-center no-wrap">
@@ -66,7 +73,7 @@
           <q-btn dense flat no-wrap>
             <q-avatar color="grey" rounded size="20px" text-color="white">
               <!-- <img src="https://cdn.quasar.dev/img/avatar3.jpg"> -->
-               VG
+              VG
             </q-avatar>
             <q-icon name="arrow_drop_down" size="16px" />
 
@@ -121,12 +128,16 @@
 
 <script setup lang="ts">
 
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { dom } from 'quasar'
 import AnimatedBackground from 'src/components/animations/AnimatedBackground.vue';
+import { useFilesStore } from 'src/stores/files-store';
 
 const { style } = dom;
 const headerHeight = ref('0px');
+
+const fileStore = useFilesStore();
+const fileUploadProgress = computed(() => fileStore.fileUploadProgress);
 
 onMounted(() => {
   const toolbar = document.querySelector('.q-header .q-toolbar');
@@ -147,55 +158,74 @@ onMounted(() => {
     .default-type {
       visibility: hidden;
     }
+
     &:hover {
       background: #0366d6;
       color: white;
+
       .q-item__section--side {
         color: white;
       }
+
       .default-type {
         visibility: visible;
       }
     }
   }
+
   &__toolbar-link {
     a {
       color: white;
       text-decoration: none;
+
       &:hover {
         opacity: 0.7;
       }
     }
   }
+
   &__menu-link:hover {
     background: #0366d6;
     color: white;
   }
+
   &__menu-link-signed-in,
   &__menu-link-status {
     &:hover {
-      & > div {
+      &>div {
         background: white !important;
       }
     }
   }
+
   &__menu-link-status {
     color: $blue-grey-6;
+
     &:hover {
       color: $light-blue-9;
     }
   }
+
   &__toolbar-select.q-field--focused {
     width: 450px !important;
+
     .q-field__append {
       display: none;
     }
   }
 }
-@keyframes gradientShift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
 
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
 </style>

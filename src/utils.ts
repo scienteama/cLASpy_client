@@ -146,3 +146,14 @@ export function convertMimeType(mimeType: string | undefined): string {
 
   return 'Fichier';
 }
+
+export function splitFileName(fullName: string) {
+  const lastDotIndex = fullName.lastIndexOf('.');
+  if (lastDotIndex <= 0) {
+    return { base: fullName, ext: '' };
+  }
+
+  const base = fullName.substring(0, lastDotIndex);
+  const ext = fullName.substring(lastDotIndex);
+  return { base, ext };
+}
