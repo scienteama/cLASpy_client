@@ -52,6 +52,7 @@ export const useFilesStore = defineStore('files', () => {
     try {
       const res = await fileService.getRoot();
       rootTree.value = res;
+      //console.log('Arborescence fichiers rechargée.', res);
     } catch (err) {
       console.error(err);
       $q.notify({ type: 'negative', message: 'Impossible de charger les fichiers.' });

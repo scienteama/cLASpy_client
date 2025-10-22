@@ -2,7 +2,7 @@ import { defineConfig } from '#q-app/wrappers';
 
 export default defineConfig(() => {
   return {
-    boot: ['axios'],
+    boot: ['axios', 'plugin-loader'],
     css: ['app.scss'],
     extras: [
       'ionicons-v4',

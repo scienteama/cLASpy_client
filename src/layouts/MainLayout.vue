@@ -1,13 +1,87 @@
 <template>
   <q-layout class="bg-grey-1" view="lHh lpR fFf">
 
-    <q-drawer show-if-above side="left" bordered>
-      <div class="column no-wrap">
-        <div class="text-center text-h4 text-white q-pa-sm glossy"
-          :style="{ height: headerHeight, background: 'rgba(0, 0, 0, 0.5)' }">
-          ClasPy_T
+    <q-drawer show-if-above side="left" bordered class="column no-wrap">
+
+      <!-- Header -->
+      <div class="text-center text-h4 text-white q-pa-sm q-mx-xs q-mt-xs glossy"
+        :style="{ height: headerHeight, background: 'rgba(0, 0, 0, 0.5)' }">
+        ClasPy_T
+      </div>
+
+      <AnimatedBackground class="q-mt-xs q-mx-xs" />
+
+      <!-- Left Drawer -->
+      <div class="column justify-between fit">
+
+        <div class="q-mx-xs">
+          <q-list>
+            <template v-for="(menuItem, index) in topMenu" :key="'top-' + index">
+              <q-item clickable v-ripple
+                :class="['q-mb-xs text-h6', menuItem.bgColor ? `bg-${menuItem.bgColor} glossy text-white` : '']">
+                <q-item-section avatar>
+                  <q-icon :name="menuItem.icon" />
+                </q-item-section>
+                <q-item-section>{{ menuItem.label }}</q-item-section>
+              </q-item>
+              <q-separator v-if="menuItem.separator" />
+            </template>
+          </q-list>
         </div>
-        <AnimatedBackground />
+
+
+        <div class="q-mx-xs">
+          <q-separator spaced />
+
+          <q-list>
+            <template v-for="(menuItem, index) in bottomMenu" :key="'bottom-' + index">
+
+              <!-- Plugins -->
+              <template v-if="menuItem.label === 'Plugins'">
+                <q-expansion-item expand-separator icon="extension" label="Plugins" :header-class="[
+                  'q-mb-xs text-h6',
+                  menuItem.bgColor ? `bg-${menuItem.bgColor} glossy text-white` : ''
+                ]" dense>
+                  <q-list dense class="q-pl-sm">
+                    <q-item v-for="(plugin) in plugins" :key="plugin.name" clickable v-ripple>
+                      <q-item-section avatar>
+                        <q-icon :name="plugin.enable ? 'check_box' : 'disabled_by_default'"
+                          :color="plugin.enable ? 'positive' : 'negative'" />
+                      </q-item-section>
+
+                      <q-item-section>
+                        {{ plugin.name }}
+                        <q-tooltip>{{ plugin.tooltip }}</q-tooltip>
+                      </q-item-section>
+
+                      <!-- Actions installer / désinstaller -->
+                      <q-item-section side class="row justify-end">
+                        <q-btn v-if="!plugin.enable" size="sm" color="primary" flat round label="Installer"
+                          @click.stop="addPlugin(plugin.name)" />
+                        <q-btn v-else size="sm" color="negative" flat round label="Désinstaller"
+                          @click.stop="removePlugin(plugin.name)" />
+                      </q-item-section>
+                    </q-item>
+                  </q-list>
+                </q-expansion-item>
+              </template>
+
+              <!-- Autres items du menu -->
+              <template v-else>
+                <q-item clickable v-ripple
+                  :class="['q-mb-xs text-h6', menuItem.bgColor ? `bg-${menuItem.bgColor} glossy text-white` : '']">
+                  <q-item-section avatar>
+                    <q-icon :name="menuItem.icon" :color="menuItem.iconColor" />
+                  </q-item-section>
+                  <q-item-section>{{ menuItem.label }}</q-item-section>
+                </q-item>
+              </template>
+
+              <q-separator v-if="menuItem.separator" />
+            </template>
+          </q-list>
+        </div>
+
       </div>
     </q-drawer>
 
@@ -132,12 +206,31 @@ import { ref, onMounted, computed } from 'vue'
 import { dom } from 'quasar'
 import AnimatedBackground from 'src/components/animations/AnimatedBackground.vue';
 import { useFilesStore } from 'src/stores/files-store';
+import { usePluginStore } from 'src/stores/plugins-store';
+import { storeToRefs } from 'pinia';
 
 const { style } = dom;
 const headerHeight = ref('0px');
 
 const fileStore = useFilesStore();
 const fileUploadProgress = computed(() => fileStore.fileUploadProgress);
+
+const pluginStore = usePluginStore()
+const { plugins } = storeToRefs(pluginStore)
+const { addPlugin, removePlugin } = pluginStore;
+
+
+const topMenu = [
+  { icon: 'home', iconColor: undefined, label: 'Dashboard', bgColor: null, separator: false },
+  { icon: 'terminal', iconColor: undefined, label: 'Console', bgColor: null, separator: false },
+  { icon: 'view_timeline', iconColor: undefined, label: 'Logs', bgColor: null, separator: true },
+]
+
+const bottomMenu = [
+  { icon: 'extension', iconColor: undefined, label: 'Plugins', bgColor: null, separator: false },
+  { icon: 'settings', iconColor: undefined, label: 'Settings', bgColor: null, separator: true },
+  { icon: 'help', iconColor: 'primary', label: 'Help', bgColor: null, separator: false },
+]
 
 onMounted(() => {
   const toolbar = document.querySelector('.q-header .q-toolbar');
