@@ -2,9 +2,9 @@ import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import { fileService } from 'src/services/files.services';
 import { useQuasar } from 'quasar';
-import { api } from 'boot/axios';
 import type { FileUploadProgress, FolderModel } from 'src/types/files.type';
-import type { AxiosProgressEvent } from 'axios';
+import type { AxiosError, AxiosProgressEvent } from 'axios';
+import { type ErrorResponse, isAxiosErrorResponse } from 'src/types/api.type';
 
 export const useFilesStore = defineStore('files', () => {
   const $q = useQuasar();
@@ -51,7 +51,7 @@ export const useFilesStore = defineStore('files', () => {
     loading.value = true;
     try {
       const res = await fileService.getRoot();
-      rootTree.value = res;
+      if (res.isOk) rootTree.value = res.data;
       //console.log('Arborescence fichiers rechargée.', res);
     } catch (err) {
       console.error(err);
@@ -73,11 +73,9 @@ export const useFilesStore = defineStore('files', () => {
     currentPath.value = [];
   }
 
-  // --- Upload fichier ---
   async function uploadFile(file: File, subPath: string): Promise<void> {
     if (!file) return;
 
-    // Déterminer une icône selon le type du fichier
     const icon = file.type.startsWith('video/')
       ? 'movie'
       : file.type.startsWith('image/')
@@ -86,6 +84,7 @@ export const useFilesStore = defineStore('files', () => {
           ? 'audiotrack'
           : 'insert_drive_file';
 
+    // Initialisation de la progression
     fileUploadProgress.value = {
       percent: 0,
       color: 'green-2',
@@ -94,6 +93,7 @@ export const useFilesStore = defineStore('files', () => {
       uploading: true,
       speed: 0,
     };
+
     $q.notify({ message: `Téléversement de "${file.name}"...`, color: 'primary', timeout: 1000 });
 
     const formData = new FormData();
@@ -104,12 +104,12 @@ export const useFilesStore = defineStore('files', () => {
     let lastTime = Date.now();
 
     try {
-      await api.post('/files/upload', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-        onUploadProgress: (progressEvent: AxiosProgressEvent) => {
-          if (progressEvent.total && progressEvent.loaded) {
+      const res = await fileService.uploadFile({
+        data: formData,
+        onUploadProgress: (progressEvent?: AxiosProgressEvent) => {
+          if (progressEvent?.total && progressEvent.loaded) {
             const now = Date.now();
-            const deltaTime = now - lastTime; // ms
+            const deltaTime = now - lastTime;
             const deltaBytes = progressEvent.loaded - lastLoaded;
 
             if (deltaTime > 0 && deltaBytes > 0) {
@@ -128,24 +128,46 @@ export const useFilesStore = defineStore('files', () => {
         },
       });
 
-      await reloadRoot();
-      fileUploadProgress.value.color = 'green-4';
-      $q.notify({ type: 'positive', message: 'Fichier uploadé avec succès ✅' });
-    } catch (err) {
-      console.error('❌ Erreur upload :', err);
-      fileUploadProgress.value.error = true;
-      fileUploadProgress.value.color = 'red-4';
-      $q.notify({ type: 'negative', message: 'Erreur lors du téléversement.' });
-    } finally {
+      // Mise à jour de l'état après upload
       fileUploadProgress.value.uploading = false;
       fileUploadProgress.value.speed = 0;
+
+      if (res.isOk) {
+        await reloadRoot();
+        fileUploadProgress.value.percent = 1;
+        fileUploadProgress.value.color = 'green-4';
+        $q.notify({ type: 'positive', message: res.result || 'Fichier uploadé avec succès' });
+      } else {
+        fileUploadProgress.value.error = true;
+        fileUploadProgress.value.color = 'red-4';
+        $q.notify({ type: 'negative', message: res.result || 'Erreur lors du téléversement' });
+      }
+    } catch (err) {
+      fileUploadProgress.value.error = true;
+      fileUploadProgress.value.color = 'red-4';
+      fileUploadProgress.value.uploading = false;
+      fileUploadProgress.value.speed = 0;
+
+      let msg = 'Erreur lors du téléversement';
+
+      if (
+        (err as AxiosError)?.response?.data &&
+        isAxiosErrorResponse((err as AxiosError).response?.data)
+      ) {
+        const data = (err as AxiosError).response?.data as ErrorResponse;
+        msg = data.data?.detail || data.result || msg;
+      } else if (err instanceof Error) {
+        msg = err.message;
+      }
+
+      $q.notify({ type: 'negative', message: msg });
     }
   }
 
   async function createFolder(name: string, subPath: string): Promise<void> {
     try {
-      const ok = await fileService.createDirectory(name, subPath);
-      if (ok) {
+      const res = await fileService.createDirectory(name, subPath);
+      if (res.isOk) {
         await reloadRoot();
         $q.notify({ type: 'positive', message: 'Dossier créé.' });
       } else {
@@ -160,8 +182,8 @@ export const useFilesStore = defineStore('files', () => {
   // --- Renommer un fichier ou dossier ---
   async function renameItem(id: string, newName: string) {
     try {
-      const ok = await fileService.renameFileOrDir(id, newName);
-      if (ok) {
+      const res = await fileService.renameFileOrDir(id, newName);
+      if (res.isOk) {
         await reloadRoot();
         $q.notify({ type: 'positive', message: 'Nom modifié.' });
       } else {
@@ -176,8 +198,8 @@ export const useFilesStore = defineStore('files', () => {
   // --- Supprimer un fichier ou dossier ---
   async function deleteItem(id: string) {
     try {
-      const ok = await fileService.removeFileOrDir(id);
-      if (ok) {
+      const res = await fileService.removeFileOrDir(id);
+      if (res.isOk) {
         await reloadRoot();
         $q.notify({ type: 'positive', message: 'Supprimé.' });
 

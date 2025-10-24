@@ -1,3 +1,5 @@
+import type { AxiosProgressEvent } from 'axios';
+
 export interface FileUploadProgress {
   error: boolean;
   color: string;
@@ -5,6 +7,11 @@ export interface FileUploadProgress {
   icon?: string;
   uploading: boolean;
   speed?: number; // Mo per second
+}
+
+export interface UploadFileParams {
+  data: FormData;
+  onUploadProgress?: (event: AxiosProgressEvent) => void;
 }
 
 export interface FileModel {

@@ -3,15 +3,17 @@
 
     <q-drawer show-if-above side="left" bordered class="column no-wrap">
 
-      <!-- Header -->
-      <div class="text-center text-h4 text-white q-pa-sm q-mx-xs q-mt-xs glossy"
-        :style="{ height: headerHeight, background: 'rgba(0, 0, 0, 0.5)' }">
+      <!-- Header Left Drawer -->
+      <div class="text-center text-h4 text-white q-pa-sm q-mx-xs q-mt-xs glossy bg-grey-7"
+        :style="{ minHeight: headerHeight }">
         ClasPy_T
+        <!-- Shadow overlay -->
+        <div class="drawer-header"></div>
       </div>
 
       <AnimatedBackground class="q-mt-xs q-mx-xs" />
 
-      <!-- Left Drawer -->
+      <!-- Body Left Drawer -->
       <div class="column justify-between fit">
 
         <div class="q-mx-xs">
@@ -35,32 +37,41 @@
 
           <q-list>
             <template v-for="(menuItem, index) in bottomMenu" :key="'bottom-' + index">
-
               <!-- Plugins -->
               <template v-if="menuItem.label === 'Plugins'">
-                <q-expansion-item expand-separator icon="extension" label="Plugins" :header-class="[
+                <q-expansion-item expand-separator :header-class="[
                   'q-mb-xs text-h6',
                   menuItem.bgColor ? `bg-${menuItem.bgColor} glossy text-white` : ''
-                ]" dense>
-                  <q-list dense class="q-pl-sm">
+                ]" dense expand-icon-class="text-white text-h4">
+                  <template v-slot:header>
+                    <q-item-section avatar>
+                      <q-icon :color="menuItem.iconColor" name="extension" />
+                    </q-item-section>
+                    <q-item-section>
+                      Plugins
+                    </q-item-section>
+                  </template>
+                  <q-list dense class="bg-grey-4">
                     <q-item v-for="(plugin) in plugins" :key="plugin.name" clickable v-ripple>
                       <q-item-section avatar>
                         <q-icon :name="plugin.enable ? 'check_box' : 'disabled_by_default'"
                           :color="plugin.enable ? 'positive' : 'negative'" />
                       </q-item-section>
 
-                      <q-item-section>
-                        {{ plugin.name }}
-                        <q-tooltip>{{ plugin.tooltip }}</q-tooltip>
-                      </q-item-section>
+                      <q-chip class="glossy bg-orange-3 inset-shadow-down" square style="width: 70%;">
+                        <q-item-section>
+                          {{ plugin.name }}
+                          <q-tooltip>{{ plugin.tooltip }}</q-tooltip>
+                        </q-item-section>
 
-                      <!-- Actions installer / désinstaller -->
-                      <q-item-section side class="row justify-end">
-                        <q-btn v-if="!plugin.enable" size="sm" color="primary" flat round label="Installer"
-                          @click.stop="addPlugin(plugin.name)" />
-                        <q-btn v-else size="sm" color="negative" flat round label="Désinstaller"
-                          @click.stop="removePlugin(plugin.name)" />
-                      </q-item-section>
+                        <!-- Actions installer / désinstaller -->
+                        <q-item-section side class="row justify-end">
+                          <q-btn v-if="!plugin.enable" size="sm" color="primary" flat round label="Installer"
+                            @click="installPlugin(plugin)" />
+                          <q-btn v-else size="sm" color="negative" flat round label="Désinstaller"
+                            @click="uninstallPlugin(plugin)" />
+                        </q-item-section>
+                      </q-chip>
                     </q-item>
                   </q-list>
                 </q-expansion-item>
@@ -85,8 +96,8 @@
       </div>
     </q-drawer>
 
-    <q-header elevated class="text-white glossy" style="background: #24292e" height-hint="61.59">
-      <q-toolbar class="q-py-sm q-px-md">
+    <q-header elevated class="text-white glossy q-pa-sm q-mx-xs q-mt-xs" :style="{ background: '#24292e' }">
+      <q-toolbar>
 
         <q-btn round dense flat :ripple="false" icon="menu" size="19px" color="white" class="q-mr-sm" no-caps />
 
@@ -201,10 +212,12 @@
 </template>
 
 <script setup lang="ts">
-
+import type { Plugin } from 'src/types/plugins.types';
 import { ref, onMounted, computed } from 'vue'
-import { dom } from 'quasar'
+import { dom, useQuasar } from 'quasar'
 import AnimatedBackground from 'src/components/animations/AnimatedBackground.vue';
+import FullScreenSpinner from 'src/components/tools/FullScreenSpinner.vue';
+import ConfirmDialog from 'src/components/tools/ConfirmDialog.vue';
 import { useFilesStore } from 'src/stores/files-store';
 import { usePluginStore } from 'src/stores/plugins-store';
 import { storeToRefs } from 'pinia';
@@ -212,10 +225,12 @@ import { storeToRefs } from 'pinia';
 const { style } = dom;
 const headerHeight = ref('0px');
 
+const $q = useQuasar();
 const fileStore = useFilesStore();
+const pluginStore = usePluginStore();
+
 const fileUploadProgress = computed(() => fileStore.fileUploadProgress);
 
-const pluginStore = usePluginStore()
 const { plugins } = storeToRefs(pluginStore)
 const { addPlugin, removePlugin } = pluginStore;
 
@@ -227,13 +242,101 @@ const topMenu = [
 ]
 
 const bottomMenu = [
-  { icon: 'extension', iconColor: undefined, label: 'Plugins', bgColor: null, separator: false },
-  { icon: 'settings', iconColor: undefined, label: 'Settings', bgColor: null, separator: true },
+  { icon: 'extension', iconColor: 'green-4', label: 'Plugins', bgColor: 'grey-7', separator: false },
+  { icon: 'settings', iconColor: 'amber', label: 'Settings', bgColor: null, separator: true },
   { icon: 'help', iconColor: 'primary', label: 'Help', bgColor: null, separator: false },
 ]
 
+function installPlugin(p: Plugin) {
+  $q.dialog({
+    component: ConfirmDialog,
+    componentProps: {
+      title: 'Confirmer l\'installation',
+      message: `<p>Êtes-vous sûr de installer le plugin : <strong>${p.name}</strong> ?</p>`,
+      confirmLabel: 'Confirmer',
+      cancelLabel: 'Annuler'
+    }
+  }).onOk(() => {
+    void (async () => {
+      const loading = $q.dialog({
+        component: FullScreenSpinner,
+        componentProps: {
+          message: `Installation ${p.name} en cours...`,
+          color: 'amber',
+          size: '60px'
+        }
+      })
+      try {
+        const success = await addPlugin(p.name)
+        if (success) {
+          $q.notify({
+            type: 'positive',
+            message: `Le plugin "${p.name}" a été installé avec succès.`
+          })
+        } else {
+          $q.notify({
+            type: 'negative',
+            message: `Le plugin "${p.name}" n'a pas pu être installé.`
+          })
+        }
+      } catch (err) {
+        $q.notify({
+          type: 'negative',
+          message: `Erreur serveur : ${(err as Error).message}`
+        })
+      } finally {
+        loading.hide();
+      }
+    })()
+  })
+}
+
+function uninstallPlugin(p: Plugin) {
+  $q.dialog({
+    component: ConfirmDialog,
+    componentProps: {
+      title: 'Confirmer la suppression',
+      message: `<p>Êtes-vous sûr de vouloir désinstaller le plugin : <strong>${p.name}</strong> ?</p>`,
+      confirmLabel: 'Confirmer',
+      cancelLabel: 'Annuler'
+    }
+  }).onOk(() => {
+    void (async () => {
+      const loading = $q.dialog({
+        component: FullScreenSpinner,
+        componentProps: {
+          message: `Désinstallation ${p.name} en cours...`,
+          color: 'amber',
+          size: '60px'
+        }
+      })
+      try {
+        const success = await removePlugin(p.name)
+        if (success) {
+          $q.notify({
+            type: 'positive',
+            message: `Le plugin "${p.name}" a été désinstallé avec succès.`
+          })
+        } else {
+          $q.notify({
+            type: 'negative',
+            message: `Le plugin "${p.name}" n'a pas pu être désinstallé.`
+          })
+        }
+      } catch (err) {
+        $q.notify({
+          type: 'negative',
+          message: `Erreur serveur : ${(err as Error).message}`
+        })
+      } finally {
+        loading.hide();
+      }
+    })()
+  })
+}
+
 onMounted(() => {
-  const toolbar = document.querySelector('.q-header .q-toolbar');
+  const toolbar = document.querySelector('.q-header');
   if (toolbar) {
     headerHeight.value = style(toolbar, 'height');
   }
@@ -320,5 +423,20 @@ onMounted(() => {
   100% {
     background-position: 0% 50%;
   }
+}
+
+.drawer-header {
+  position: relative;
+}
+
+.drawer-header:after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -10px;
+  height: 10px;
+  box-shadow: 0 10px 10px -10px rgba(0, 0, 0, 0.3);
+  pointer-events: none;
 }
 </style>
