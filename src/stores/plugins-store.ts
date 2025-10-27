@@ -14,7 +14,7 @@ export const usePluginStore = defineStore('plugins', () => {
     loading.value = true;
     try {
       const plu = await pluginService.getPlugins();
-      plugins.value = plu;
+      if (plu.isOk) plugins.value = plu.data;
       loaded.value = true;
     } finally {
       loading.value = false;
@@ -23,13 +23,13 @@ export const usePluginStore = defineStore('plugins', () => {
 
   async function addPlugin(pluginName: string) {
     const res = await pluginService.installPlugin(pluginName);
-    await getPluginsList(true);
+    if (res.isOk) await getPluginsList(true);
     return res;
   }
 
   async function removePlugin(pluginName: string) {
     const res = await pluginService.uninstallPlugin(pluginName);
-    await getPluginsList(true);
+    if (res.isOk) await getPluginsList(true);
     return res;
   }
 
