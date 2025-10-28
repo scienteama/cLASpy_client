@@ -4,7 +4,7 @@
     <q-drawer show-if-above side="left" bordered class="column no-wrap">
 
       <!-- Header Left Drawer -->
-      <div class="text-center text-h4 text-white q-pa-sm q-mx-xs q-mt-xs glossy bg-grey-7"
+      <div class="text-center text-h4 text-white q-pa-sm q-mx-xs q-mt-xs glossy bg-grey-7 inset-shadow-down"
         :style="{ minHeight: headerHeight }">
         ClasPy_T
         <!-- Shadow overlay -->
@@ -96,7 +96,7 @@
       </div>
     </q-drawer>
 
-    <q-header elevated class="text-white glossy q-pa-sm q-mx-xs q-mt-xs" :style="{ background: '#24292e' }">
+    <q-header elevated class="text-white glossy q-pa-sm q-mx-xs q-mt-xs bg-claspy-dark1">
       <q-toolbar>
 
         <q-btn round dense flat :ripple="false" icon="menu" size="19px" color="white" class="q-mr-sm" no-caps />
@@ -112,9 +112,9 @@
           <a href="javascript:void(0)" class="text-white">
             Menu3
           </a>
-          <a href="javascript:void(0)" class="text-white">
-            Menu4
-          </a>
+          <router-link to="/users" class="text-white">
+            Utilisateurs
+          </router-link>
         </div>
         <q-space />
 
@@ -126,11 +126,11 @@
             </q-tooltip>
           </q-badge>
 
-          <q-btn v-if="$q.screen.gt.xs" dense flat round size="sm" icon="notifications" />
+          <q-btn v-if="$q.screen.gt.xs" dense flat round size="md" icon="notifications" />
           <q-btn v-if="$q.screen.gt.xs" dense flat>
             <div class="row items-center no-wrap">
-              <q-icon name="add" size="20px" />
-              <q-icon name="arrow_drop_down" size="16px" style="margin-left: -2px" />
+              <q-icon name="add" size="md" />
+              <q-icon name="arrow_drop_down" size="sm" style="margin-left: -2px" />
             </div>
             <q-menu auto-close>
               <q-list dense style="min-width: 100px">
@@ -156,11 +156,11 @@
           </q-btn>
 
           <q-btn dense flat no-wrap>
-            <q-avatar color="grey" rounded size="20px" text-color="white">
+            <q-avatar color="grey" rounded size="md" text-color="white">
               <!-- <img src="https://cdn.quasar.dev/img/avatar3.jpg"> -->
               VG
             </q-avatar>
-            <q-icon name="arrow_drop_down" size="16px" />
+            <q-icon name="arrow_drop_down" size="sm" />
 
             <q-menu auto-close>
               <q-list dense>

@@ -2,6 +2,10 @@ import { api } from 'src/boot/axios';
 import type { WorkDone } from 'src/types/api.type';
 import type { Plugin } from 'src/types/plugins.types';
 
+/**
+ * Gestion des plugins additionnels
+ *
+ */
 class PluginService {
   async getPlugins(): Promise<WorkDone<Plugin[]>> {
     const response = await api.get<WorkDone<Plugin[]>>('/modules/list/claspy-modules');

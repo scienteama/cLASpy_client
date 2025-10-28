@@ -1,5 +1,7 @@
 import { defineBoot } from '#q-app/wrappers';
-import axios, { type AxiosInstance } from 'axios';
+import axios, { type AxiosError, type AxiosInstance } from 'axios';
+import { Notify } from 'quasar';
+import { isAxiosErrorResponse } from 'src/types/api.type';
 
 declare module 'vue' {
   interface ComponentCustomProperties {
@@ -8,13 +10,29 @@ declare module 'vue' {
   }
 }
 
-// Be careful when using SSR for cross-request state pollution
-// due to creating a Singleton instance here;
-// If any client changes this (global) instance, it might be a
-// good idea to move this instance creation inside of the
-// "export default () => {}" function below (which runs individually
-// for each client)
-const api = axios.create({ baseURL: 'http://localhost:8000/api' });
+const api = axios.create({
+  baseURL: 'http://localhost:8000/api',
+  withCredentials: true,
+});
+
+api.interceptors.response.use(
+  (response) => response,
+  (error: AxiosError) => {
+    let msg = 'Erreur lors de la requête';
+
+    if (error.response?.data && isAxiosErrorResponse(error.response.data)) {
+      const data = error.response.data;
+      msg = data.data?.detail || data.result || msg;
+    } else if (error instanceof Error) {
+      msg = error.message;
+    }
+
+    // Notification Quasar
+    Notify.create({ type: 'negative', message: msg });
+
+    return Promise.reject(error);
+  },
+);
 
 export default defineBoot(({ app }) => {
   // for use inside Vue files (Options API) through this.$axios and this.$api

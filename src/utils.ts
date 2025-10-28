@@ -157,3 +157,25 @@ export function splitFileName(fullName: string) {
   const ext = fullName.substring(lastDotIndex);
   return { base, ext };
 }
+
+// Expressions régulières pour les validations
+export const regex = {
+  password: /^(?=.*\d)(?=.*[A-Z])(?=.*[a-z])(?=.*[^\w\d\s:])([^\s]){8,16}$/,
+  email: /^((?!\.)[\w\-_.]*[^.])(@\w+)(\.\w+(\.\w+)?[^.\W])$/,
+};
+
+// Règles de validation pour les formulaires utilisateurs
+export const formUserRules = {
+  required:
+    (field = 'Ce champ') =>
+    (val: string) =>
+      !!val || `${field} est requis`,
+  password: (val: string) =>
+    regex.password.test(val) ||
+    'Au moins 1 majuscule, 1 chiffre, 1 caractère spécial et 8 à 16 caractères',
+  email: (val: string) => regex.email.test(val) || "Merci d'entrer une adresse mail valide",
+};
+
+export function isRequired(val: string) {
+  return !!val && val.length > 0;
+}
