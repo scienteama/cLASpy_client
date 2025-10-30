@@ -6,12 +6,12 @@
       <!-- Header Left Drawer -->
       <div class="text-center text-h4 text-white q-pa-sm q-mx-xs q-mt-xs glossy bg-grey-7 inset-shadow-down"
         :style="{ minHeight: headerHeight }">
-        ClasPy_T
+        cLASpy_Client
         <!-- Shadow overlay -->
         <div class="drawer-header"></div>
       </div>
 
-      <AnimatedBackground class="q-mt-xs q-mx-xs" />
+      <AnimatedBackground class="q-mt-xs q-mx-xs" :is-drawer="true" />
 
       <!-- Body Left Drawer -->
       <div class="column justify-between fit">

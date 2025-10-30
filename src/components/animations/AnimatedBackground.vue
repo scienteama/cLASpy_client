@@ -1,27 +1,48 @@
 <template>
-  <div style="position: relative; display: inline-block;">
-    <div class="image-wrapper">
+  <div class="background-wrapper">
+    <div v-if="isDrawer" class="image-wrapper">
       <canvas ref="canvas" class="background-canvas"></canvas>
       <q-img :src="classPyIcon" fit="contain" class="foreground-img filtered-img" />
       <q-img :src="classPyIcon" fit="contain" class="foreground-img base-img" />
     </div>
+    <div v-else>
+      <canvas ref="canvas" class="background-canvas"></canvas>
+    </div>
   </div>
 </template>
+
 
 <script lang="ts" setup>
 import { ref, onMounted, onBeforeUnmount } from "vue";
 import classPyIcon from '../../assets/pythie_alpha_hd_miroir.png';
 import Trianglify from "trianglify";
 
-
 const pal = {
-  'ocean': ["#03045e", "#023e8a", "#0077b6", "#0096c7", "#00b4d8", "#48cae4", "#90e0ef", "#ade8f4", "#caf0f8"],
-  'sunset': ["#cc5803", "#e2711d", "#ff9505", "#ffb627", "#ffc971"],
-  'earth': ["#582f0e", "#7f4f24", "#936639", "#a68a64", "#b6ad90", "#c2c5aa", "#a4ac86", "#656d4a", "#414833", "#333d29"],
-  'forest': ["#797d62", "#9b9b7a", "#baa587", "#d9ae94", "#f1dca7", "#ffcb69", "#e8ac65", "#d08c60", "#b58463", "#997b66"],
-  'fire': ["#7f0000", "#b30000", "#e60000", "#ff1a1a", "#ff4d4d", "#ff8080", "#ffb3b3", "#ffe6e6"],
-  'grayscale': ["#000000", "#1a1a1a", "#333333", "#4d4d4d", "#666666", "#808080", "#999999", "#b3b3b3", "#cccccc", "#e6e6e6", "#ffffff"]
-}
+  ocean: ["#03045e", "#023e8a", "#0077b6", "#0096c7", "#00b4d8", "#48cae4", "#90e0ef", "#ade8f4", "#caf0f8"],
+  sunset: ["#cc5803", "#e2711d", "#ff9505", "#ffb627", "#ffc971"],
+  earth: ["#582f0e", "#7f4f24", "#936639", "#a68a64", "#b6ad90", "#c2c5aa", "#a4ac86", "#656d4a", "#414833", "#333d29"],
+  forest: ["#797d62", "#9b9b7a", "#baa587", "#d9ae94", "#f1dca7", "#ffcb69", "#e8ac65", "#d08c60", "#b58463", "#997b66"],
+  fire: ["#7f0000", "#b30000", "#e60000", "#ff1a1a", "#ff4d4d", "#ff8080", "#ffb3b3", "#ffe6e6"],
+  grayscale: ["#000000", "#1a1a1a", "#333333", "#4d4d4d", "#666666", "#808080", "#999999", "#b3b3b3", "#cccccc", "#e6e6e6", "#ffffff"]
+};
+
+
+type PaletteName = keyof typeof pal;
+
+const props = withDefaults(defineProps<{
+  isDrawer?: boolean
+  numPoints?: number
+  lineWidth?: number
+  theme?: PaletteName
+}>(), {
+  isDrawer: false,
+  numPoints: 35,
+  lineWidth: 0.1,
+  theme: 'forest'
+});
+
+
+
 
 //const isDarkMode = false;
 //const currentPal = isDarkMode ? colorPal.dark : colorPal.light;
@@ -45,13 +66,13 @@ onMounted(() => {
   ctxCanvas.width = width;
   ctxCanvas.height = height;
 
-  const numPoints = 35;
+  //const numPoints = 35;
   const points: Point[] = [];
 
   // Random small direction changes for point movement
   const randomDir = () => (Math.random() - 0.5) * 0.3;
 
-  for (let i = 0; i < numPoints; i++) {
+  for (let i = 0; i < props.numPoints; i++) {
     points.push({ x: Math.random() * width, y: Math.random() * height, dx: randomDir(), dy: randomDir(), fixed: false });
   }
 
@@ -101,7 +122,7 @@ onMounted(() => {
       width,
       height,
       points: vertices,
-      xColors: pal.ocean,
+      xColors: props.theme ? pal[props.theme] : pal.ocean,
     });
 
     pattern.polys.forEach(poly => {
@@ -117,7 +138,7 @@ onMounted(() => {
       ctx.fill();
 
       //ctx.strokeStyle = "#AAAAAA";
-      ctx.lineWidth = 0.1;
+      ctx.lineWidth = props.lineWidth;
       ctx.stroke();
     });
 

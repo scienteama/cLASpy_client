@@ -1,49 +1,47 @@
 import { defineBoot } from '#q-app/wrappers';
-import axios, { type AxiosError, type AxiosInstance } from 'axios';
+import axios, { type AxiosError } from 'axios';
 import { Notify } from 'quasar';
+import { useAuth } from 'src/stores/auth-store';
 import { isAxiosErrorResponse } from 'src/types/api.type';
 
-declare module 'vue' {
-  interface ComponentCustomProperties {
-    $axios: AxiosInstance;
-    $api: AxiosInstance;
-  }
-}
-
 const api = axios.create({
-  baseURL: 'http://localhost:8000/api',
+  baseURL: 'https://localhost:5000/api',
   withCredentials: true,
 });
 
-api.interceptors.response.use(
-  (response) => response,
-  (error: AxiosError) => {
-    let msg = 'Erreur lors de la requête';
+export default defineBoot(({ app, router }) => {
+  const auth = useAuth();
 
-    if (error.response?.data && isAxiosErrorResponse(error.response.data)) {
-      const data = error.response.data;
-      msg = data.data?.detail || data.result || msg;
-    } else if (error instanceof Error) {
-      msg = error.message;
-    }
+  api.interceptors.response.use(
+    (response) => response,
+    async (error: AxiosError) => {
+      let msg = 'Une erreur est survenue.';
 
-    // Notification Quasar
-    Notify.create({ type: 'negative', message: msg });
+      if (error.response?.data && isAxiosErrorResponse(error.response.data)) {
+        const api_error = error.response.data;
+        msg = api_error.data?.detail || api_error.result || msg;
 
-    return Promise.reject(error);
-  },
-);
+        if (
+          api_error.data?.code == 401 &&
+          api_error.data?.detail == 'Session utilisateur expirée'
+        ) {
+          auth.isAuthenticated = false;
+          auth.checked = true;
+          await router.push('/auth/login');
+        }
+      } else if (error instanceof Error) {
+        msg = error.message;
+      }
 
-export default defineBoot(({ app }) => {
-  // for use inside Vue files (Options API) through this.$axios and this.$api
+      Notify.create({ type: 'negative', message: msg });
 
+      return Promise.reject(error);
+    },
+  );
+
+  // pour accès global via this.$axios / this.$api
   app.config.globalProperties.$axios = axios;
-  // ^ ^ ^ this will allow you to use this.$axios (for Vue Options API form)
-  //       so you won't necessarily have to import axios in each vue file
-
   app.config.globalProperties.$api = api;
-  // ^ ^ ^ this will allow you to use this.$api (for Vue Options API form)
-  //       so you can easily perform requests against your app's API
 });
 
 export { api };

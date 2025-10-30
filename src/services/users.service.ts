@@ -22,6 +22,11 @@ class UserService {
     return user.data;
   }
 
+  async getCurrentUser(): Promise<WorkDone<User>> {
+    const user = await api.get<WorkDone<User>>('/users/me');
+    return user.data;
+  }
+
   async addUser(newUser: User): Promise<WorkDone<User>> {
     const createdUser = await api.post<WorkDone<User>>('/users/add', newUser);
     return createdUser.data;

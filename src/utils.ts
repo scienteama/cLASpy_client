@@ -179,3 +179,17 @@ export const formUserRules = {
 export function isRequired(val: string) {
   return !!val && val.length > 0;
 }
+
+/**
+ * Vérifie si une chaîne de caractères ou un tableau est vide ou null
+ * @param value - La valeur à vérifier (string ou array)
+ * @returns true si la valeur est null, undefined, une chaîne vide ou un tableau vide ; sinon false
+ */
+export function isNullOrEmpty(value: unknown): boolean {
+  return (
+    value === null ||
+    value === undefined ||
+    (typeof value === 'string' && value.trim() === '') ||
+    (Array.isArray(value) && value.length === 0)
+  );
+}

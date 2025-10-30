@@ -77,6 +77,20 @@ export const useUserStore = defineStore('user', () => {
     if (res.isOk) return res.data;
   }
 
+  async function getMe() {
+    const res = await userService.getCurrentUser();
+    if (res.isOk) {
+      currentUser.value = res.data;
+      return currentUser.value;
+    } else {
+      return null;
+    }
+  }
+
+  function clearUser() {
+    currentUser.value = null;
+  }
+
   const getAllowedRoles = computed(() => {
     const role = currentUser.value?.roleId;
 
@@ -113,5 +127,7 @@ export const useUserStore = defineStore('user', () => {
     getById,
     getByEmail,
     getAllUsers,
+    getMe,
+    clearUser,
   };
 });

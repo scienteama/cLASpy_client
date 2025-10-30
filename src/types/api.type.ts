@@ -4,6 +4,10 @@ export interface WorkDone<T> {
   data: T;
 }
 
+export interface Dictionnary<T> {
+  [key: string]: T;
+}
+
 export interface ErrorResponse {
   isOk: boolean;
   result: string;

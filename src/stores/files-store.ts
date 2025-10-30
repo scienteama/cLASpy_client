@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
-import { fileService } from 'src/services/files.services';
+import { fileService } from 'src/services/files.service';
 import { useQuasar } from 'quasar';
 import type { FileUploadProgress, FolderModel } from 'src/types/files.type';
 import type { AxiosError, AxiosProgressEvent } from 'axios';
@@ -54,8 +54,8 @@ export const useFilesStore = defineStore('files', () => {
       if (res.isOk) rootTree.value = res.data;
       //console.log('Arborescence fichiers rechargée.', res);
     } catch (err) {
-      console.error(err);
       $q.notify({ type: 'negative', message: 'Impossible de charger les fichiers.' });
+      throw err;
     } finally {
       loading.value = false;
     }
@@ -161,6 +161,7 @@ export const useFilesStore = defineStore('files', () => {
       }
 
       $q.notify({ type: 'negative', message: msg });
+      throw err;
     }
   }
 
@@ -174,8 +175,8 @@ export const useFilesStore = defineStore('files', () => {
         $q.notify({ type: 'negative', message: 'Échec création dossier.' });
       }
     } catch (err) {
-      console.error(err);
       $q.notify({ type: 'negative', message: 'Erreur serveur.' });
+      throw err;
     }
   }
 
@@ -190,8 +191,8 @@ export const useFilesStore = defineStore('files', () => {
         $q.notify({ type: 'negative', message: 'Échec du renommage.' });
       }
     } catch (err) {
-      console.error(err);
       $q.notify({ type: 'negative', message: 'Erreur serveur.' });
+      throw err;
     }
   }
 
@@ -210,8 +211,8 @@ export const useFilesStore = defineStore('files', () => {
         $q.notify({ type: 'negative', message: 'Échec suppression.' });
       }
     } catch (err) {
-      console.error(err);
       $q.notify({ type: 'negative', message: 'Erreur serveur.' });
+      throw err;
     }
   }
 

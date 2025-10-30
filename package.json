@@ -1,8 +1,8 @@
 {
   "name": "claspy-client",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Tools for classification of LAS file with python and machine learning algorithms",
-  "productName": "cLASpy_T",
+  "productName": "cLASpy_Client",
   "author": "VGautier <valentin.gautier@scienteama.com>",
   "type": "module",
   "private": true,
