@@ -92,12 +92,13 @@
 </template>
 
 <script setup lang="ts">
+import ConfirmDialog from 'src/components/tools/ConfirmDialog.vue';
 import { storeToRefs } from 'pinia';
 import type { QTableColumn } from 'quasar';
 import { useQuasar } from 'quasar';
 import { computed, onMounted, ref } from 'vue';
 import { formUserRules } from 'src/utils';
-import type { User } from 'src/types/users.type';
+import type { User, UserIn } from 'src/types/users.type';
 import { useUserStore } from 'src/stores/users-store';
 
 const $q = useQuasar();
@@ -149,9 +150,41 @@ function openEditDialog(user: User) {
 
 async function submitUserForm() {
   if (editingUser.value && formUser.value.id) {
-    await userStore.updateUser(formUser.value.id, formUser.value);
+    const userData = formUser.value as UserIn;
+    if (passwordChanged.value && newPassword.value) {
+      userData.password = newPassword.value;
+    };
+    $q.dialog({
+      component: ConfirmDialog,
+      componentProps: {
+        title: 'Modification utilisateur',
+        message: 'Êtes-vous sûr de vouloir modifier cet utilisateur ?',
+        confirmLabel: 'Confirmer',
+        cancelLabel: 'Annuler'
+      },
+      persistent: true
+    }).onOk(() => {
+      void (async () => {
+        await userStore.updateUser(formUser.value.id!, userData);
+      })();
+    });
   } else {
-    await userStore.addUser(formUser.value as User);
+    const newUser = formUser.value as UserIn;
+    newUser.password = newPassword.value;
+    $q.dialog({
+      component: ConfirmDialog,
+      componentProps: {
+        title: 'Création utilisateur',
+        message: 'Êtes-vous sûr de vouloir créer cet utilisateur ?',
+        confirmLabel: 'Confirmer',
+        cancelLabel: 'Annuler'
+      },
+      persistent: true
+    }).onOk(() => {
+      void (async () => {
+        await userStore.addUser(newUser);
+      })();
+    });
   }
   createCard.value = false;
   await userStore.getAllUsers();
@@ -170,19 +203,13 @@ function resetUserForm() {
 
 function confirmDelete(user: User) {
   $q.dialog({
-    title: 'Suppression',
-    message: `Supprimer utilisateur : <br><br><strong>${user.firstname} ${user.lastname}</strong> ?`,
-    cancel: {
-      label: 'Annuler',
-      color: 'negative',
-      flat: true
+    component: ConfirmDialog,
+    componentProps: {
+      title: 'Confirmer Suppression',
+      message: 'Êtes-vous sûr de vouloir supprimer cet utilisateur ?',
+      confirmLabel: 'Confirmer',
+      cancelLabel: 'Annuler'
     },
-    ok: {
-      label: 'Valider',
-      color: 'primary',
-      flat: true
-    },
-    html: true,
     persistent: true
   }).onOk(() => {
     void (async () => {

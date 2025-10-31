@@ -52,9 +52,11 @@ export const useAuth = defineStore('auth', () => {
     if (result.isOk) {
       userStore.clearUser();
       isAuthenticated.value = false;
-      $q.notify({ type: 'negative', message: 'Déconnexion réussie' });
+      $q.notify({ type: 'positive', message: 'Déconnexion réussie' });
+      return true;
     } else {
       $q.notify({ type: 'negative', message: 'Erreur lors de la déconnexion.' });
+      return false;
     }
   }
 

@@ -149,6 +149,7 @@ import InputFile from 'src/components/files/InputFile.vue'
 import { iconForFile, colorForFile, iconForFolder, formatFileSize, computeFolderSize, convertMimeType, splitFileName } from 'src/utils'
 import { useQuasar, type QTableColumn } from 'quasar'
 import type { FileModel, FolderModel } from 'src/types/files.type'
+import ConfirmDialog from '../tools/ConfirmDialog.vue'
 
 const filesStore = useFilesStore();
 const $q = useQuasar();
@@ -238,18 +239,10 @@ function confirmRename() {
   const newName = renameDialog.value.baseName + renameDialog.value.extension;
 
   $q.dialog({
-    title: 'Confirmer l\'action :',
-    html: true,
-    message: `Voulez-vous renommer :<br><br><strong>"${it.name}"</strong> en <strong>"${newName}"</strong> ?`,
-    cancel: {
-      label: 'Annuler',
-      color: 'negative',
-      flat: true
-    },
-    ok: {
-      label: 'Valider',
-      color: 'primary',
-      flat: true
+    component: ConfirmDialog,
+    componentProps: {
+      title: 'Confirmation de modification :',
+      message: `Voulez-vous renommer :<br><br><strong>"${it.name}"</strong> en <strong>"${newName}"</strong> ?`
     },
     persistent: true
   }).onOk(() => {
@@ -276,11 +269,11 @@ function confirmFolderCreation() {
   const message = `Voulez-vous créer ce dossier :<br><br><strong>${path === '/' ? `${path}${dir}` : `${path}/${dir}`}</strong> ?`;
 
   $q.dialog({
-    title: 'Confirmer l\'action :',
-    message: message,
-    html: true,
-    cancel: { label: 'Annuler', color: 'negative', flat: true },
-    ok: { label: 'Valider', color: 'primary', flat: true },
+    component: ConfirmDialog,
+    componentProps: {
+      title: 'Confirmation de création',
+      message: message
+    },
     persistent: true
   }).onOk(() => {
     createFolder(dir, path).catch((err: unknown) => {
@@ -304,18 +297,10 @@ function removeItem(item: { id: string; name: string; type: string }) {
     : `Voulez-vous vraiment supprimer le fichier :<br><br><strong>"${item.name}</strong>" ?`;
 
   $q.dialog({
-    title: 'Confirmer l\'action :',
-    html: true,
-    message: message,
-    cancel: {
-      label: 'Annuler',
-      color: 'negative',
-      flat: true
-    },
-    ok: {
-      label: 'Valider',
-      color: 'primary',
-      flat: true
+    component: ConfirmDialog,
+    componentProps: {
+      title: 'Confirmation de suppression',
+      message: message
     },
     persistent: true
   }).onOk(() => {

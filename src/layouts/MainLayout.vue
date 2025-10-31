@@ -19,7 +19,7 @@
         <div class="q-mx-xs">
           <q-list>
             <template v-for="(menuItem, index) in topMenu" :key="'top-' + index">
-              <q-item clickable v-ripple
+              <q-item clickable v-ripple :to="menuItem.link"
                 :class="['q-mb-xs text-h6', menuItem.bgColor ? `bg-${menuItem.bgColor} glossy text-white` : '']">
                 <q-item-section avatar>
                   <q-icon :name="menuItem.icon" />
@@ -156,9 +156,8 @@
           </q-btn>
 
           <q-btn dense flat no-wrap>
-            <q-avatar color="grey" rounded size="md" text-color="white">
-              <!-- <img src="https://cdn.quasar.dev/img/avatar3.jpg"> -->
-              VG
+            <q-avatar v-if="currentUser" color="grey" rounded size="md" text-color="white">
+              {{ getUserInitials(currentUser) }}
             </q-avatar>
             <q-icon name="arrow_drop_down" size="sm" />
 
@@ -166,7 +165,7 @@
               <q-list dense>
                 <q-item class="GL__menu-link-signed-in">
                   <q-item-section>
-                    <div><strong>Valentin Gautier</strong></div>
+                    <div><strong>{{ currentUser?.firstname }} {{ currentUser?.lastname }}</strong></div>
                   </q-item-section>
                 </q-item>
                 <q-separator />
@@ -195,7 +194,7 @@
                 <q-item clickable class="GL__menu-link">
                   <q-item-section>Paramètres</q-item-section>
                 </q-item>
-                <q-item clickable class="GL__menu-link">
+                <q-item clickable class="GL__menu-link" @click="disconnect()">
                   <q-item-section>Déconnexion</q-item-section>
                 </q-item>
               </q-list>
@@ -221,6 +220,10 @@ import ConfirmDialog from 'src/components/tools/ConfirmDialog.vue';
 import { useFilesStore } from 'src/stores/files-store';
 import { usePluginStore } from 'src/stores/plugins-store';
 import { storeToRefs } from 'pinia';
+import { useUserStore } from 'src/stores/users-store';
+import { getUserInitials } from 'src/utils'
+import { useAuth } from 'src/stores/auth-store';
+import { useRouter } from 'vue-router';
 
 const { style } = dom;
 const headerHeight = ref('0px');
@@ -228,6 +231,9 @@ const headerHeight = ref('0px');
 const $q = useQuasar();
 const fileStore = useFilesStore();
 const pluginStore = usePluginStore();
+const { currentUser } = useUserStore();
+const { userLogout } = useAuth();
+const router = useRouter();
 
 const fileUploadProgress = computed(() => fileStore.fileUploadProgress);
 
@@ -236,9 +242,9 @@ const { addPlugin, removePlugin } = pluginStore;
 
 
 const topMenu = [
-  { icon: 'home', iconColor: undefined, label: 'Dashboard', bgColor: null, separator: false },
-  { icon: 'terminal', iconColor: undefined, label: 'Console', bgColor: null, separator: false },
-  { icon: 'view_timeline', iconColor: undefined, label: 'Logs', bgColor: null, separator: true },
+  { icon: 'home', iconColor: undefined, label: 'Home', bgColor: null, separator: false, link: '/' },
+  { icon: 'terminal', iconColor: undefined, label: 'Console', bgColor: null, separator: false, link: '' },
+  { icon: 'view_timeline', iconColor: undefined, label: 'Logs', bgColor: null, separator: true, link: '' },
 ]
 
 const bottomMenu = [
@@ -252,7 +258,7 @@ function installPlugin(p: Plugin) {
     component: ConfirmDialog,
     componentProps: {
       title: 'Confirmer l\'installation',
-      message: `<p>Êtes-vous sûr de installer le plugin : <strong>${p.name}</strong> ?</p>`,
+      message: `Êtes-vous sûr de vouloir installer le plugin : <strong>${p.name}</strong> ?`,
       confirmLabel: 'Confirmer',
       cancelLabel: 'Annuler'
     }
@@ -331,6 +337,24 @@ function uninstallPlugin(p: Plugin) {
       } finally {
         loading.hide();
       }
+    })()
+  })
+}
+
+function disconnect() {
+  $q.dialog({
+    component: ConfirmDialog,
+    componentProps: {
+      title: 'Déconnexion',
+      message: `Êtes-vous sûr de vouloir vous déconnecter ?`,
+      confirmLabel: 'Confirmer',
+      cancelLabel: 'Annuler'
+    }
+  }).onOk(() => {
+    void (async () => {
+      const res = await userLogout();
+      if (res)
+        await router.push('/auth/login')
     })()
   })
 }

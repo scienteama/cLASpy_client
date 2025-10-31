@@ -1,4 +1,5 @@
 import type { FolderModel } from './types/files.type';
+import type { User } from './types/users.type';
 
 export function iconForFile(mimetype: string) {
   if (!mimetype) return 'fa-regular fa-file';
@@ -192,4 +193,11 @@ export function isNullOrEmpty(value: unknown): boolean {
     (typeof value === 'string' && value.trim() === '') ||
     (Array.isArray(value) && value.length === 0)
   );
+}
+
+export function getUserInitials(user: User): string {
+  if (!user) return '';
+  const firstInitial = user.firstname?.[0]?.toUpperCase() || '';
+  const lastInitial = user.lastname?.[0]?.toUpperCase() || '';
+  return firstInitial + lastInitial;
 }

@@ -1,6 +1,6 @@
 import { api } from 'src/boot/axios';
 import type { WorkDone } from 'src/types/api.type';
-import type { User } from 'src/types/users.type';
+import type { User, UserIn } from 'src/types/users.type';
 
 /**
  * Gestion des utilisateurs
@@ -27,7 +27,7 @@ class UserService {
     return user.data;
   }
 
-  async addUser(newUser: User): Promise<WorkDone<User>> {
+  async addUser(newUser: UserIn): Promise<WorkDone<User>> {
     const createdUser = await api.post<WorkDone<User>>('/users/add', newUser);
     return createdUser.data;
   }

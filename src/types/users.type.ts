@@ -9,6 +9,14 @@ export interface User {
   roleId: number;
 }
 
+export interface UserIn {
+  firstname: string;
+  lastname: string;
+  email: string;
+  password: string;
+  role_id: number;
+}
+
 export interface Role {
   id: number;
   name: string;
