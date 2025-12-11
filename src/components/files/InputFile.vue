@@ -43,11 +43,12 @@
 <script setup lang="ts">
 import { ref, computed, onBeforeUnmount } from 'vue'
 import { useFilesStore } from 'src/stores/files-store'
+import { storeToRefs } from 'pinia';
 
 const props = defineProps<{ currentPath: string }>()
 const filesStore = useFilesStore()
 const { uploadFile } = filesStore
-const fileUploadProgress = computed(() => filesStore.fileUploadProgress);
+const { fileUploadProgress } = storeToRefs(filesStore);
 
 const file = ref<File | null>(null)
 const canUpload = computed(() => file.value !== null)
@@ -62,11 +63,22 @@ function updateFile(newFile: File | null) {
 
 async function upload() {
   if (!file.value) return
+
   try {
     await uploadFile(file.value, props.currentPath)
-    cancelFile()
   } catch (err) {
     console.error('Upload error:', err)
+  }
+  finally {
+    cancelFile();
+    filesStore.fileUploadProgress = {
+      percent: 0,
+      color: 'green-2',
+      error: false,
+      icon: 'fa-regular fa-file',
+      uploading: false,
+      speed: 0,
+    }
   }
 }
 

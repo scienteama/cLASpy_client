@@ -32,4 +32,5 @@ export interface FolderModel {
   children: Array<FileModel | FolderModel>;
   created_at: string;
   modified_at: string;
+  depth: number;
 }

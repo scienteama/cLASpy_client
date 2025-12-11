@@ -1,4 +1,4 @@
-import type { FolderModel } from './types/files.type';
+import type { FileModel, FolderModel } from './types/files.type';
 import type { User } from './types/users.type';
 
 export function iconForFile(mimetype: string) {
@@ -200,4 +200,20 @@ export function getUserInitials(user: User): string {
   const firstInitial = user.firstname?.[0]?.toUpperCase() || '';
   const lastInitial = user.lastname?.[0]?.toUpperCase() || '';
   return firstInitial + lastInitial;
+}
+
+export function printFolderTree(folder: FolderModel, depth = 0) {
+  const indent = '  '.repeat(depth);
+  console.log(`${indent}- 📁 ${folder.name}`);
+  for (const child of folder.children) {
+    if (isFolder(child)) {
+      printFolderTree(child, depth + 1);
+    } else {
+      console.log(`${indent}  - 📄 ${child.name}`);
+    }
+  }
+}
+
+export function isFolder(item: FileModel | FolderModel): item is FolderModel {
+  return item.type === 'folder';
 }

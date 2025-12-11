@@ -3,10 +3,10 @@ export interface User {
   firstname: string;
   lastname: string;
   email: string;
-  createdAt: string;
-  updatedAt: string;
-  lastLogin?: string;
-  roleId: number;
+  created_at: string;
+  updated_at: string;
+  last_login?: string;
+  role_id: number;
 }
 
 export interface UserIn {
@@ -21,8 +21,8 @@ export interface Role {
   id: number;
   name: string;
   description: string;
-  createdAt: string;
-  updatedAt: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export enum UserRoleEnum {

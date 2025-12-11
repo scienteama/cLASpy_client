@@ -32,7 +32,7 @@
                 </div>
               </template>
 
-              <template v-else-if="col.name === 'createdAt' || col.name === 'updatedAt'">
+              <template v-else-if="col.name === 'created_at' || col.name === 'updated_at'">
                 {{ new Date(props.row[col.name]).toLocaleString() }}
               </template>
 
@@ -45,7 +45,7 @@
       </q-table>
 
       <!-- Modale Créer/Modifier un utilisateur -->
-      <q-dialog v-model="createCard">
+      <q-dialog v-model="createCard" persistent>
         <q-card style="width: 95vw; max-width: 500px;">
           <q-form @submit.prevent="submitUserForm" @reset.prevent="resetUserForm">
             <q-card-section>
@@ -75,8 +75,8 @@
                 </template>
               </q-input>
 
-              <q-select dense filled label="Rôle" :options="getAllowedRoles" :model-value="formUser.roleId"
-                @update:model-value="val => formUser.roleId = val" option-value="id" option-label="name" emit-value
+              <q-select dense filled label="Rôle" :options="getAllowedRoles" :model-value="formUser.role_id"
+                @update:model-value="val => formUser.role_id = val" option-value="id" option-label="name" emit-value
                 map-options />
             </q-card-section>
 
@@ -117,15 +117,15 @@ const formUser = ref<Partial<User>>({
   firstname: '',
   lastname: '',
   email: '',
-  roleId: 3,
+  role_id: 3,
 });
 
 const columns: QTableColumn[] = [
   { name: 'firstname', label: 'Prénom :', field: 'firstname', sortable: true, align: 'left' },
   { name: 'lastname', label: 'Nom :', field: 'lastname', sortable: true, align: 'left' },
   { name: 'email', label: 'Email :', field: 'email', sortable: true, align: 'left' },
-  { name: 'createdAt', label: 'Créé le :', field: 'createdAt', sortable: true, align: 'left' },
-  { name: 'updatedAt', label: 'Modifié le :', field: 'updatedAt', sortable: true, align: 'left' },
+  { name: 'created_at', label: 'Créé le :', field: 'created_at', sortable: true, align: 'left' },
+  { name: 'updated_at', label: 'Modifié le :', field: 'updated_at', sortable: true, align: 'left' },
   { name: 'actions', label: 'Actions', field: 'actions', sortable: false, align: 'center' }
 ];
 
@@ -195,7 +195,7 @@ function resetUserForm() {
     firstname: '',
     lastname: '',
     email: '',
-    roleId: 3
+    role_id: 3
   };
   passwordChanged.value = false;
   newPassword.value = '';

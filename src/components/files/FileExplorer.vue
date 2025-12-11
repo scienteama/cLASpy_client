@@ -12,18 +12,33 @@
         <q-btn flat dense icon="home" color="primary" @click="goToHome">
           <q-tooltip>Accueil</q-tooltip>
         </q-btn>
-        <q-btn flat dense icon="refresh" color="secondary" @click="reloadRoot">
+        <q-btn flat dense icon="refresh" color="secondary" @click="refreshCurrentFolder">
           <q-tooltip>Rafraîchir</q-tooltip>
         </q-btn>
         <q-btn flat dense icon="arrow_back" color="negative" @click="goBack" :disable="!canGoBack" class="q-mr-sm">
           <q-tooltip>Retour</q-tooltip>
         </q-btn>
 
-        <div class="text-caption text-black text-ellipsis text-weight-bolder">
-          <strong>{{ path }}</strong>
-        </div>
+        <template v-if="currentFolder">
+          <div class="text-caption text-black text-ellipsis text-weight-bolder flex items-center">
+            <span class="cursor-pointer" style="white-space: pre;" @click="goToHome">
+              <strong v-if="currentFolder?.name === 'root'">/</strong>
+            </span>
 
-        <InputFile class="q-ml-auto" :current-path="currentPathDisplay" />
+            <template v-for="segment in breadcrumbPath" :key="segment.id">
+              <span class="cursor-pointer" style="white-space: pre;" @click="goToFolder(segment)">
+                <strong> / <span class="nav-path">{{ segment.name }}</span></strong>
+              </span>
+            </template>
+          </div>
+        </template>
+
+        <template v-else>
+          <span style="white-space: pre;"><strong>/</strong></span>
+        </template>
+
+        <!-- Composant upload -->
+        <InputFile class="q-ml-auto" :current-path="currentFolderPath" />
       </q-card-section>
 
       <!-- Table de fichiers -->
@@ -150,23 +165,18 @@ import { iconForFile, colorForFile, iconForFolder, formatFileSize, computeFolder
 import { useQuasar, type QTableColumn } from 'quasar'
 import type { FileModel, FolderModel } from 'src/types/files.type'
 import ConfirmDialog from '../tools/ConfirmDialog.vue'
+import { useUserStore } from 'src/stores/users-store'
 
 const filesStore = useFilesStore();
+const userStore = useUserStore();
 const $q = useQuasar();
 
-const { rows, loading, currentPathDisplay, canGoBack } = storeToRefs(filesStore);
-const { reloadRoot,
-  goBack,
-  goToFolder,
-  renameItem,
-  deleteItem,
-  goToHome,
-  createFolder
-} = filesStore;
+const { rows, loading, canGoBack, rootTree, currentFolder } = storeToRefs(filesStore);
+const { isAdmin } = storeToRefs(userStore);
+const { reloadRoot, goBack, goToFolder, renameItem, deleteItem, goToHome, createFolder, refreshCurrentFolder } = filesStore;
 
 const pagination = ref({ rowsPerPage: 0 });
 const createFolderDialog = ref<{ show: boolean; folderName: string }>({ show: false, folderName: '' });
-const path = computed(() => currentPathDisplay.value.replaceAll('/', ' / '));
 const renameDialog = ref<{
   show: boolean
   item: { id: string; name: string; type: string } | null
@@ -189,7 +199,35 @@ const columns: QTableColumn[] = [
   { name: 'actions', label: '', field: 'actions', align: 'right' }
 ]
 
-// --- Icon / couleur dynamique ---
+// Calcule dynamique du path
+const breadcrumbPath = computed(() => {
+  const path: FolderModel[] = []
+  function findPath(folder: FolderModel, targetId: string, trail: FolderModel[] = []): boolean {
+    if (folder.id === targetId) {
+      path.push(...trail, folder)
+      return true
+    }
+    for (const child of folder.children) {
+      if (child.type === 'folder' && findPath(child, targetId, [...trail, folder])) {
+        return true
+      }
+    }
+    return false
+  }
+
+  if (rootTree.value && currentFolder.value) {
+    findPath(rootTree.value, currentFolder.value.id)
+  }
+
+  return path.slice(1)
+})
+
+// Chemin actuel en texte
+const currentFolderPath = computed(() => {
+  return breadcrumbPath.value.map(p => p.name).join('/') || '/'
+})
+
+// Icon / couleur dynamique
 function iconForItem(item: { type: string; mimeType?: string }) {
   return item.type === 'folder' ? iconForFolder(true) : iconForFile(item.mimeType || '')
 };
@@ -199,8 +237,8 @@ function colorForItem(item: { type: string; mimeType?: string }) {
 };
 
 function onRowDblClick(evt: Event, row: FileModel | FolderModel) {
-  if ((row as FolderModel).type === 'folder') {
-    goToFolder(row.name)
+  if (row.type === 'folder') {
+    goToFolder(row)
   };
 };
 
@@ -258,21 +296,23 @@ function confirmRename() {
   renameDialog.value.show = false;
 }
 
+
+
 function confirmFolderCreation() {
   const dir = createFolderDialog.value.folderName
-  const path = currentPathDisplay.value
   if (!dir || dir.trim() === '') {
     createFolderDialog.value.show = false
     return
   }
 
-  const message = `Voulez-vous créer ce dossier :<br><br><strong>${path === '/' ? `${path}${dir}` : `${path}/${dir}`}</strong> ?`;
+  const path = currentFolderPath.value
+  const message = `Voulez-vous créer ce dossier :<br><br><strong>${path === '/' ? `${path}${dir}` : `${path}/${dir}`}</strong> ?`
 
   $q.dialog({
     component: ConfirmDialog,
     componentProps: {
       title: 'Confirmation de création',
-      message: message
+      message
     },
     persistent: true
   }).onOk(() => {
@@ -282,8 +322,10 @@ function confirmFolderCreation() {
         message: err instanceof Error ? err.message : 'Erreur création dossier.'
       })
     })
-  })
-};
+  }).onCancel(() => {
+  });
+  createFolderDialog.value.show = false
+}
 
 function downloadItem(id: string) {
   console.log('Download item id:', id);
@@ -315,6 +357,12 @@ function removeItem(item: { id: string; name: string; type: string }) {
 }
 
 onMounted(async () => {
-  await reloadRoot()
+  await reloadRoot();
+  if (isAdmin) goToHome();
 })
 </script>
+<style lang="scss" scoped>
+.nav-path:hover {
+  color: $accent
+}
+</style>

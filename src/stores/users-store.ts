@@ -12,10 +12,10 @@ export const useUserStore = defineStore(
     const users = ref<User[]>([]);
     const isLoggedIn = computed(() => !!currentUser.value);
 
-    const isAdmin = computed(() => currentUser.value?.roleId == UserRoleEnum.ADMIN);
-    const powerUser = computed(() => currentUser.value?.roleId == UserRoleEnum.POWER_USER);
-    const standardUser = computed(() => currentUser.value?.roleId == UserRoleEnum.STANDARD_USER);
-    const readOnly = computed(() => currentUser.value?.roleId == UserRoleEnum.READ_ONLY);
+    const isAdmin = computed(() => currentUser.value?.role_id == UserRoleEnum.ADMIN);
+    const powerUser = computed(() => currentUser.value?.role_id == UserRoleEnum.POWER_USER);
+    const standardUser = computed(() => currentUser.value?.role_id == UserRoleEnum.STANDARD_USER);
+    const readOnly = computed(() => currentUser.value?.role_id == UserRoleEnum.READ_ONLY);
 
     /**
      * Utilisateurs privilégiés :
@@ -23,7 +23,7 @@ export const useUserStore = defineStore(
      * - POWER_USER : accès avancé (édition, gestion restreinte)
      */
     const isPrivileged = computed(() =>
-      [UserRoleEnum.ADMIN, UserRoleEnum.POWER_USER].includes(currentUser.value?.roleId ?? 0),
+      [UserRoleEnum.ADMIN, UserRoleEnum.POWER_USER].includes(currentUser.value?.role_id ?? 0),
     );
 
     async function updateUser(userId: number, partial: Partial<User>) {
@@ -97,7 +97,7 @@ export const useUserStore = defineStore(
     }
 
     const getAllowedRoles = computed(() => {
-      const role = currentUser.value?.roleId;
+      const role = currentUser.value?.role_id;
 
       switch (role) {
         case UserRoleEnum.ADMIN:

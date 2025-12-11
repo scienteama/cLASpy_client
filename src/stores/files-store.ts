@@ -1,20 +1,23 @@
-import { defineStore } from 'pinia';
+import { defineStore, storeToRefs } from 'pinia';
 import { ref, computed } from 'vue';
-import { fileService } from 'src/services/files.service';
 import { useQuasar } from 'quasar';
-import type { FileUploadProgress, FolderModel } from 'src/types/files.type';
 import type { AxiosError, AxiosProgressEvent } from 'axios';
+import { fileService } from 'src/services/files.service';
+import type { FileUploadProgress, FolderModel } from 'src/types/files.type';
 import { type ErrorResponse, isAxiosErrorResponse } from 'src/types/api.type';
+import { useUserStore } from './users-store';
 
 export const useFilesStore = defineStore('files', () => {
   const $q = useQuasar();
+  const userStore = useUserStore();
+  const { isAdmin, currentUser } = storeToRefs(userStore);
 
   // --- État principal ---
   const rootTree = ref<FolderModel | null>(null);
-  const currentPath = ref<string[]>([]);
+  const currentFolder = ref<FolderModel | null>(null);
   const loading = ref(false);
 
-  // --- Suivi upload ---
+  // --- État upload ---
   const fileUploadProgress = ref<FileUploadProgress>({
     percent: 0,
     color: 'green-2',
@@ -25,34 +28,54 @@ export const useFilesStore = defineStore('files', () => {
   });
 
   // --- Getters ---
-  const canGoBack = computed(() => currentPath.value.length > 0);
-  const currentPathDisplay = computed(() => '/' + (currentPath.value.join('/') || ''));
+  const canGoBack = computed(() => (currentFolder.value?.depth ?? 0) > 0);
+  const rows = computed(() => currentFolder.value?.children || []);
 
-  function findFolderByPath(folder: FolderModel | null, path: string[] = []): FolderModel | null {
+  // --- Helpers récursifs ---
+  function findFolderById(folder: FolderModel | null, id: string): FolderModel | null {
     if (!folder) return null;
-    if (path.length === 0) return folder;
+    if (folder.id === id) return folder;
 
-    let cur: FolderModel | undefined = folder;
-    for (const segment of path) {
-      const next = cur.children.find(
-        (c) => (c as FolderModel).type === 'folder' && c.name === segment,
-      ) as FolderModel | undefined;
-      if (!next) return null;
-      cur = next;
+    for (const child of folder.children) {
+      if (child.type === 'folder') {
+        const found = findFolderById(child, id);
+        if (found) return found;
+      }
     }
-    return cur || null;
+    return null;
   }
 
-  const currentFolder = computed(() => findFolderByPath(rootTree.value, currentPath.value));
-  const rows = computed(() => currentFolder.value?.children || []);
+  function findParent(folder: FolderModel, childId: string): FolderModel | null {
+    for (const child of folder.children) {
+      if (child.id === childId) return folder;
+      if (child.type === 'folder') {
+        const found = findParent(child, childId);
+        if (found) return found;
+      }
+    }
+    return null;
+  }
 
   // --- Actions principales ---
   async function reloadRoot() {
     loading.value = true;
     try {
       const res = await fileService.getRoot();
-      if (res.isOk) rootTree.value = res.data;
-      //console.log('Arborescence fichiers rechargée.', res);
+      if (res.isOk) {
+        rootTree.value = res.data;
+
+        // --- Définition du dossier courant selon le rôle ---
+        if (isAdmin.value) {
+          currentFolder.value = rootTree.value;
+        } else {
+          const myId = currentUser.value?.id;
+          const myFolder = rootTree.value.children.find(
+            (f) => f.type === 'folder' && f.name.toLowerCase().startsWith(`${myId}_`),
+          ) as FolderModel | undefined;
+
+          currentFolder.value = myFolder || rootTree.value;
+        }
+      }
     } catch (err) {
       $q.notify({ type: 'negative', message: 'Impossible de charger les fichiers.' });
       throw err;
@@ -61,35 +84,42 @@ export const useFilesStore = defineStore('files', () => {
     }
   }
 
-  function goBack() {
-    if (canGoBack.value) currentPath.value.pop();
+  function goToFolder(folder: FolderModel) {
+    if (folder && folder.type === 'folder') {
+      currentFolder.value = folder;
+    }
   }
 
-  function goToFolder(name: string) {
-    currentPath.value = [...currentPath.value, name];
+  function goBack() {
+    if (!rootTree.value || !currentFolder.value) return;
+    const parent = findParent(rootTree.value, currentFolder.value.id);
+    if (parent) currentFolder.value = parent;
   }
 
   function goToHome() {
-    currentPath.value = [];
+    if (!rootTree.value) return;
+
+    if (isAdmin.value) {
+      currentFolder.value = rootTree.value;
+    } else {
+      const myId = currentUser.value?.id;
+      const myFolder = rootTree.value.children.find(
+        (f) => f.type === 'folder' && f.name.toLowerCase().startsWith(`${myId}_`),
+      ) as FolderModel | undefined;
+
+      currentFolder.value = myFolder || rootTree.value;
+    }
   }
 
+  // --- Upload ---
   async function uploadFile(file: File, subPath: string): Promise<void> {
     if (!file) return;
 
-    const icon = file.type.startsWith('video/')
-      ? 'movie'
-      : file.type.startsWith('image/')
-        ? 'photo'
-        : file.type.startsWith('audio/')
-          ? 'audiotrack'
-          : 'insert_drive_file';
-
-    // Initialisation de la progression
     fileUploadProgress.value = {
       percent: 0,
       color: 'green-2',
       error: false,
-      icon,
+      icon: 'fa-regular fa-file',
       uploading: true,
       speed: 0,
     };
@@ -128,19 +158,16 @@ export const useFilesStore = defineStore('files', () => {
         },
       });
 
-      // Mise à jour de l'état après upload
       fileUploadProgress.value.uploading = false;
       fileUploadProgress.value.speed = 0;
 
       if (res.isOk) {
-        await reloadRoot();
         fileUploadProgress.value.percent = 1;
         fileUploadProgress.value.color = 'green-4';
-        $q.notify({ type: 'positive', message: res.result || 'Fichier uploadé avec succès' });
+        await refreshCurrentFolder();
+        $q.notify({ type: 'positive', message: res.result || 'Fichier uploadé avec succès.' });
       } else {
-        fileUploadProgress.value.error = true;
-        fileUploadProgress.value.color = 'red-4';
-        $q.notify({ type: 'negative', message: res.result || 'Erreur lors du téléversement' });
+        throw new Error(res.result || 'Erreur upload.');
       }
     } catch (err) {
       fileUploadProgress.value.error = true;
@@ -149,7 +176,6 @@ export const useFilesStore = defineStore('files', () => {
       fileUploadProgress.value.speed = 0;
 
       let msg = 'Erreur lors du téléversement';
-
       if (
         (err as AxiosError)?.response?.data &&
         isAxiosErrorResponse((err as AxiosError).response?.data)
@@ -165,14 +191,15 @@ export const useFilesStore = defineStore('files', () => {
     }
   }
 
+  // --- Créer un dossier ---
   async function createFolder(name: string, subPath: string): Promise<void> {
     try {
       const res = await fileService.createDirectory(name, subPath);
       if (res.isOk) {
-        await reloadRoot();
+        await refreshCurrentFolder();
         $q.notify({ type: 'positive', message: 'Dossier créé.' });
       } else {
-        $q.notify({ type: 'negative', message: 'Échec création dossier.' });
+        $q.notify({ type: 'negative', message: res.result || 'Échec de la création du dossier.' });
       }
     } catch (err) {
       $q.notify({ type: 'negative', message: 'Erreur serveur.' });
@@ -180,58 +207,65 @@ export const useFilesStore = defineStore('files', () => {
     }
   }
 
-  // --- Renommer un fichier ou dossier ---
-  async function renameItem(id: string, newName: string) {
+  // --- Renommer ---
+  async function renameItem(id: string, newName: string): Promise<void> {
     try {
       const res = await fileService.renameFileOrDir(id, newName);
       if (res.isOk) {
-        await reloadRoot();
+        await refreshCurrentFolder();
         $q.notify({ type: 'positive', message: 'Nom modifié.' });
       } else {
         $q.notify({ type: 'negative', message: 'Échec du renommage.' });
       }
-    } catch (err) {
+    } catch {
       $q.notify({ type: 'negative', message: 'Erreur serveur.' });
-      throw err;
     }
   }
 
-  // --- Supprimer un fichier ou dossier ---
-  async function deleteItem(id: string) {
+  // --- Supprimer ---
+  async function deleteItem(id: string): Promise<void> {
     try {
       const res = await fileService.removeFileOrDir(id);
       if (res.isOk) {
-        await reloadRoot();
+        await refreshCurrentFolder();
         $q.notify({ type: 'positive', message: 'Supprimé.' });
-
-        // Vérifie que le dossier courant existe toujours
-        const stillExists = findFolderByPath(rootTree.value, currentPath.value);
-        if (!stillExists) currentPath.value = [];
       } else {
-        $q.notify({ type: 'negative', message: 'Échec suppression.' });
+        $q.notify({ type: 'negative', message: 'Échec de la suppression.' });
       }
-    } catch (err) {
+    } catch {
       $q.notify({ type: 'negative', message: 'Erreur serveur.' });
-      throw err;
+    }
+  }
+
+  async function refreshCurrentFolder(): Promise<void> {
+    const oldId = currentFolder.value?.id;
+
+    await reloadRoot();
+
+    if (oldId && rootTree.value) {
+      const sameFolder = findFolderById(rootTree.value, oldId);
+      if (sameFolder) {
+        currentFolder.value = sameFolder;
+      }
     }
   }
 
   return {
     rootTree,
-    currentPath,
+    currentFolder,
     loading,
     rows,
-    currentFolder,
     canGoBack,
-    currentPathDisplay,
     fileUploadProgress,
-    createFolder,
     reloadRoot,
     goToHome,
     goBack,
     goToFolder,
     uploadFile,
+    createFolder,
     renameItem,
     deleteItem,
+    findFolderById,
+    refreshCurrentFolder,
   };
 });
