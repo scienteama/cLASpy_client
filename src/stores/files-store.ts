@@ -87,7 +87,7 @@ export const useFilesStore = defineStore('files', () => {
 
   function goToHome() {
     if (!rootTree.value) return;
-      currentFolder.value = rootTree.value;
+    currentFolder.value = rootTree.value;
   }
 
   // --- Upload ---
@@ -109,13 +109,13 @@ export const useFilesStore = defineStore('files', () => {
     const formData = new FormData();
     formData.append('file', file);
 
-    if (currentFolder.value.id !== "root") {
+    if (currentFolder.value.id !== 'root') {
       formData.append('parent_id', currentFolder.value.id);
     }
-    
+
     let lastLoaded = 0;
     let lastTime = Date.now();
-    
+
     try {
       const res = await fileService.uploadFile({
         data: formData,
@@ -159,10 +159,7 @@ export const useFilesStore = defineStore('files', () => {
       fileUploadProgress.value.speed = 0;
 
       let msg = 'Erreur lors du téléversement';
-      if (
-        (err as AxiosError)?.response?.data &&
-        isAxiosErrorResponse((err as AxiosError).response?.data)
-      ) {
+      if ((err as AxiosError)?.response?.data && isAxiosErrorResponse((err as AxiosError).response?.data)) {
         const data = (err as AxiosError).response?.data as ErrorResponse;
         msg = data.data?.detail || data.result || msg;
       } else if (err instanceof Error) {
@@ -175,24 +172,24 @@ export const useFilesStore = defineStore('files', () => {
   }
 
   // --- Créer un dossier ---
-async function createFolder(name: string): Promise<void> {
-  if (!currentFolder.value || !currentUser.value) return;
+  async function createFolder(name: string): Promise<void> {
+    if (!currentFolder.value || !currentUser.value) return;
 
-  try {
-    const parentId = currentFolder.value.id === "root" ? null : currentFolder.value.id;
-    const userId = currentUser.value.id;
-    const res = await fileService.createDirectory(userId, name, parentId);
-    if (res.isOk) {
-      await refreshCurrentFolder();
-      $q.notify({ type: 'positive', message: 'Dossier créé.' });
-    } else {
-      $q.notify({ type: 'negative', message: res.result || 'Échec de la création du dossier.' });
+    try {
+      const parentId = currentFolder.value.id === 'root' ? null : currentFolder.value.id;
+      const userId = currentUser.value.id;
+      const res = await fileService.createDirectory(userId, name, parentId);
+      if (res.isOk) {
+        await refreshCurrentFolder();
+        $q.notify({ type: 'positive', message: 'Dossier créé.' });
+      } else {
+        $q.notify({ type: 'negative', message: res.result || 'Échec de la création du dossier.' });
+      }
+    } catch (err) {
+      $q.notify({ type: 'negative', message: (err as Error).message || 'Erreur serveur.' });
+      throw err;
     }
-  } catch (err) {
-    $q.notify({ type: 'negative', message: (err as Error).message || 'Erreur serveur.' });
-    throw err;
   }
-}
 
   // --- Renommer ---
   async function renameItem(id: string, newName: string): Promise<void> {

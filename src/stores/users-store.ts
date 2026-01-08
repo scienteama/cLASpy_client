@@ -22,9 +22,7 @@ export const useUserStore = defineStore(
      * - ADMIN : accès complet
      * - POWER_USER : accès avancé (édition, gestion restreinte)
      */
-    const isPrivileged = computed(() =>
-      [UserRoleEnum.ADMIN, UserRoleEnum.POWER_USER].includes(currentUser.value?.role_id ?? 0),
-    );
+    const isPrivileged = computed(() => [UserRoleEnum.ADMIN, UserRoleEnum.POWER_USER].includes(currentUser.value?.role_id ?? 0));
 
     async function updateUser(userId: number, partial: Partial<User>) {
       if (!isAdmin.value) {
@@ -101,12 +99,7 @@ export const useUserStore = defineStore(
 
       switch (role) {
         case UserRoleEnum.ADMIN:
-          return [
-            UserRoleEnum.ADMIN,
-            UserRoleEnum.POWER_USER,
-            UserRoleEnum.STANDARD_USER,
-            UserRoleEnum.READ_ONLY,
-          ];
+          return [UserRoleEnum.ADMIN, UserRoleEnum.POWER_USER, UserRoleEnum.STANDARD_USER, UserRoleEnum.READ_ONLY];
         case UserRoleEnum.POWER_USER:
           return [UserRoleEnum.STANDARD_USER, UserRoleEnum.READ_ONLY];
         case UserRoleEnum.STANDARD_USER:
@@ -140,5 +133,5 @@ export const useUserStore = defineStore(
     persist: {
       pick: ['currentUser'],
     },
-  },
+  }
 );

@@ -1,6 +1,5 @@
 <template>
   <q-layout view="lHh lpR fFf" class="auth-layout">
-
     <q-header class="bg-claspy-dark1 glossy text-white q-pa-md">
       <q-toolbar>
         <q-toolbar-title>
@@ -31,20 +30,17 @@
         </q-toolbar-title>
 
         <div class="text-caption text-grey-4 q-pr-sm q-pb-xs">
-          <q-badge outline align="middle" color="white">
-            v{{ appVersion }}
-          </q-badge>
+          <q-badge outline align="middle" color="white"> v{{ appVersion }} </q-badge>
         </div>
       </q-toolbar>
     </q-footer>
-
   </q-layout>
 </template>
 
 <script setup lang="ts">
 import AnimatedBackground from 'src/components/animations/AnimatedBackground.vue';
 import pythie from 'src/assets/pythie_alpha_hd_miroir_resized.png';
-const appVersion = "0.1.0"
+const appVersion = '0.1.0';
 </script>
 
 <style lang="scss" scoped>

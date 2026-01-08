@@ -1,7 +1,6 @@
 <template>
   <q-dialog ref="dialogRef" @hide="onDialogHide" persistent>
     <q-card class="q-dialog-plugin">
-
       <q-card-section class="row items-center justify-center">
         <q-icon :name="icon" :color="iconColor" size="2rem" />
         <div class="text-h6 q-ml-sm">{{ title }}</div>
@@ -15,13 +14,12 @@
         <q-btn flat :label="cancelLabel" color="negative" @click="onCancelClick" />
         <q-btn flat :label="confirmLabel" color="primary" @click="onOKClick" />
       </q-card-actions>
-
     </q-card>
   </q-dialog>
 </template>
 
 <script setup lang="ts">
-import { useDialogPluginComponent } from 'quasar'
+import { useDialogPluginComponent } from 'quasar';
 
 defineProps({
   title: { type: String, default: 'Confirmation' },
@@ -30,22 +28,15 @@ defineProps({
   cancelLabel: { type: String, default: 'Annuler' },
   icon: { type: String, default: 'warning' },
   iconColor: { type: String, default: 'warning' },
-})
+});
 
-defineEmits([
-  ...useDialogPluginComponent.emits
-])
+defineEmits([...useDialogPluginComponent.emits]);
 
-const {
-  dialogRef,
-  onDialogHide,
-  onDialogOK,
-  onDialogCancel
-} = useDialogPluginComponent()
+const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } = useDialogPluginComponent();
 
 function onOKClick() {
-  onDialogOK()
+  onDialogOK();
 }
 
-const onCancelClick = onDialogCancel
+const onCancelClick = onDialogCancel;
 </script>

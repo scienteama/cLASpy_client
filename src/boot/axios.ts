@@ -23,10 +23,7 @@ export default defineBoot(({ app, router }) => {
         const api_error = error.response.data;
         msg = api_error.data?.detail || api_error.result || msg;
 
-        if (
-          api_error.data?.code == 401 &&
-          api_error.data?.detail == 'Session utilisateur expirée'
-        ) {
+        if (api_error.data?.code == 401 && api_error.data?.detail == 'Session utilisateur expirée') {
           auth.isAuthenticated = false;
           auth.checked = true;
           await router.push('/auth/login');
@@ -38,7 +35,7 @@ export default defineBoot(({ app, router }) => {
       Notify.create({ type: 'negative', message: msg });
 
       return Promise.reject(error);
-    },
+    }
   );
 
   // pour accès global via this.$axios / this.$api

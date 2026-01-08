@@ -8,28 +8,25 @@
 </template>
 
 <script setup lang="ts">
-import { QSpinnerFacebook, QSpinnerGears, QSpinnerHourglass, useDialogPluginComponent } from 'quasar'
+import { QSpinnerFacebook, QSpinnerGears, QSpinnerHourglass, useDialogPluginComponent } from 'quasar';
 
 // Liste de spinners disponibles
 const spinnersMap = {
   gears: QSpinnerGears,
   facebook: QSpinnerFacebook,
-  hourglass: QSpinnerHourglass
-} as const
+  hourglass: QSpinnerHourglass,
+} as const;
 
 const props = defineProps({
   message: { type: String, default: 'Chargement en cours...' },
   color: { type: String, default: 'cyan' },
   size: { type: String, default: '50px' },
-  spinner: { type: String as () => keyof typeof spinnersMap, default: 'gears' }
-})
+  spinner: { type: String as () => keyof typeof spinnersMap, default: 'gears' },
+});
 
-const spinnerComponent = spinnersMap[props.spinner]
+const spinnerComponent = spinnersMap[props.spinner];
 
-const {
-  dialogRef,
-  onDialogHide,
-} = useDialogPluginComponent()
+const { dialogRef, onDialogHide } = useDialogPluginComponent();
 
-defineEmits([...useDialogPluginComponent.emits])
+defineEmits([...useDialogPluginComponent.emits]);
 </script>

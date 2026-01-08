@@ -9,21 +9,9 @@ export function iconForFile(mimetype: string) {
   if (mimetype.startsWith('audio/')) return 'fa-regular fa-file-audio';
   if (mimetype === 'application/pdf') return 'fa-regular fa-file-pdf';
   if (mimetype === 'application/las') return 'blur_on';
-  if (
-    mimetype === 'application/msword' ||
-    mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-  )
-    return 'fa-regular fa-file-word';
-  if (
-    mimetype === 'application/vnd.ms-excel' ||
-    mimetype === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-  )
-    return 'fa-regular fa-file-excel';
-  if (
-    mimetype === 'application/vnd.ms-powerpoint' ||
-    mimetype === 'application/vnd.openxmlformats-officedocument.presentationml.presentation'
-  )
-    return 'fa-regular fa-file-powerpoint';
+  if (mimetype === 'application/msword' || mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') return 'fa-regular fa-file-word';
+  if (mimetype === 'application/vnd.ms-excel' || mimetype === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') return 'fa-regular fa-file-excel';
+  if (mimetype === 'application/vnd.ms-powerpoint' || mimetype === 'application/vnd.openxmlformats-officedocument.presentationml.presentation') return 'fa-regular fa-file-powerpoint';
   if (mimetype.startsWith('text/')) return 'fa-regular fa-file-lines';
 
   // Icône par défaut
@@ -42,21 +30,9 @@ export function colorForFile(mimetype: string) {
   if (mimetype.startsWith('audio/')) return 'orange';
   if (mimetype === 'application/pdf') return 'red';
   if (mimetype === 'application/las') return 'amber';
-  if (
-    mimetype === 'application/msword' ||
-    mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-  )
-    return 'blue-grey';
-  if (
-    mimetype === 'application/vnd.ms-excel' ||
-    mimetype === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-  )
-    return 'green';
-  if (
-    mimetype === 'application/vnd.ms-powerpoint' ||
-    mimetype === 'application/vnd.openxmlformats-officedocument.presentationml.presentation'
-  )
-    return 'deep-orange';
+  if (mimetype === 'application/msword' || mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') return 'blue-grey';
+  if (mimetype === 'application/vnd.ms-excel' || mimetype === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') return 'green';
+  if (mimetype === 'application/vnd.ms-powerpoint' || mimetype === 'application/vnd.openxmlformats-officedocument.presentationml.presentation') return 'deep-orange';
   if (mimetype.startsWith('text/')) return 'teal';
 
   // Couleur par défaut
@@ -107,8 +83,7 @@ const MIME_TYPE_MAP: Record<string, string> = {
   'application/vnd.ms-excel': 'Tableur Excel',
   'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'Tableur Excel',
   'application/vnd.ms-powerpoint': 'Présentation PowerPoint',
-  'application/vnd.openxmlformats-officedocument.presentationml.presentation':
-    'Présentation PowerPoint',
+  'application/vnd.openxmlformats-officedocument.presentationml.presentation': 'Présentation PowerPoint',
 
   // Archives
   'application/zip': 'Archive',
@@ -171,9 +146,7 @@ export const formUserRules = {
     (field = 'Ce champ') =>
     (val: string) =>
       !!val || `${field} est requis`,
-  password: (val: string) =>
-    regex.password.test(val) ||
-    'Au moins 1 majuscule, 1 chiffre, 1 caractère spécial et 8 à 16 caractères',
+  password: (val: string) => regex.password.test(val) || 'Au moins 1 majuscule, 1 chiffre, 1 caractère spécial et 8 à 16 caractères',
   email: (val: string) => regex.email.test(val) || "Merci d'entrer une adresse mail valide",
 };
 
@@ -187,12 +160,7 @@ export function isRequired(val: string) {
  * @returns true si la valeur est null, undefined, une chaîne vide ou un tableau vide ; sinon false
  */
 export function isNullOrEmpty(value: unknown): boolean {
-  return (
-    value === null ||
-    value === undefined ||
-    (typeof value === 'string' && value.trim() === '') ||
-    (Array.isArray(value) && value.length === 0)
-  );
+  return value === null || value === undefined || (typeof value === 'string' && value.trim() === '') || (Array.isArray(value) && value.length === 0);
 }
 
 export function getUserInitials(user: User): string {

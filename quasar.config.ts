@@ -4,16 +4,7 @@ export default defineConfig(() => {
   return {
     boot: ['axios', 'plugin-loader'],
     css: ['app.scss'],
-    extras: [
-      'ionicons-v4',
-      'mdi-v7',
-      'fontawesome-v6',
-      'eva-icons',
-      'themify',
-      'line-awesome',
-      'roboto-font',
-      'material-icons',
-    ],
+    extras: ['ionicons-v4', 'mdi-v7', 'fontawesome-v6', 'eva-icons', 'themify', 'line-awesome', 'roboto-font', 'material-icons'],
 
     build: {
       target: {

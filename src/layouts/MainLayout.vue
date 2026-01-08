@@ -1,11 +1,8 @@
 <template>
   <q-layout class="bg-grey-1" view="lHh lpR fFf">
-
     <q-drawer show-if-above side="left" bordered class="column no-wrap">
-
       <!-- Header Left Drawer -->
-      <div class="text-center text-h4 text-white q-pa-sm q-mx-xs q-mt-xs glossy bg-grey-7 inset-shadow-down"
-        :style="{ minHeight: headerHeight }">
+      <div class="text-center text-h4 text-white q-pa-sm q-mx-xs q-mt-xs glossy bg-grey-7 inset-shadow-down" :style="{ minHeight: headerHeight }">
         cLASpy_Client
         <!-- Shadow overlay -->
         <div class="drawer-header"></div>
@@ -15,12 +12,10 @@
 
       <!-- Body Left Drawer -->
       <div class="column justify-between fit">
-
         <div class="q-mx-xs">
           <q-list>
             <template v-for="(menuItem, index) in topMenu" :key="'top-' + index">
-              <q-item clickable v-ripple :to="menuItem.link"
-                :class="['q-mb-xs text-h6', menuItem.bgColor ? `bg-${menuItem.bgColor} glossy text-white` : '']">
+              <q-item clickable v-ripple :to="menuItem.link" :class="['q-mb-xs text-h6', menuItem.bgColor ? `bg-${menuItem.bgColor} glossy text-white` : '']">
                 <q-item-section avatar>
                   <q-icon :name="menuItem.icon" />
                 </q-item-section>
@@ -31,7 +26,6 @@
           </q-list>
         </div>
 
-
         <div class="q-mx-xs">
           <q-separator spaced />
 
@@ -39,26 +33,20 @@
             <template v-for="(menuItem, index) in bottomMenu" :key="'bottom-' + index">
               <!-- Plugins -->
               <template v-if="menuItem.label === 'Plugins'">
-                <q-expansion-item expand-separator :header-class="[
-                  'q-mb-xs text-h6',
-                  menuItem.bgColor ? `bg-${menuItem.bgColor} glossy text-white` : ''
-                ]" dense expand-icon-class="text-white text-h4">
+                <q-expansion-item expand-separator :header-class="['q-mb-xs text-h6', menuItem.bgColor ? `bg-${menuItem.bgColor} glossy text-white` : '']" dense expand-icon-class="text-white text-h4">
                   <template v-slot:header>
                     <q-item-section avatar>
                       <q-icon :color="menuItem.iconColor" name="extension" />
                     </q-item-section>
-                    <q-item-section>
-                      Plugins
-                    </q-item-section>
+                    <q-item-section> Plugins </q-item-section>
                   </template>
                   <q-list dense class="bg-grey-4">
-                    <q-item v-for="(plugin) in plugins" :key="plugin.name" clickable v-ripple>
+                    <q-item v-for="plugin in plugins" :key="plugin.name" clickable v-ripple>
                       <q-item-section avatar>
-                        <q-icon :name="plugin.enable ? 'check_box' : 'disabled_by_default'"
-                          :color="plugin.enable ? 'positive' : 'negative'" />
+                        <q-icon :name="plugin.enable ? 'check_box' : 'disabled_by_default'" :color="plugin.enable ? 'positive' : 'negative'" />
                       </q-item-section>
 
-                      <q-chip class="glossy bg-orange-3 inset-shadow-down" square style="width: 70%;">
+                      <q-chip class="glossy bg-orange-3 inset-shadow-down" square style="width: 70%">
                         <q-item-section>
                           {{ plugin.name }}
                           <q-tooltip>{{ plugin.tooltip }}</q-tooltip>
@@ -66,10 +54,8 @@
 
                         <!-- Actions installer / désinstaller -->
                         <q-item-section side class="row justify-end">
-                          <q-btn v-if="!plugin.enable" size="sm" color="primary" flat round label="Installer"
-                            @click="installPlugin(plugin)" />
-                          <q-btn v-else size="sm" color="negative" flat round label="Désinstaller"
-                            @click="uninstallPlugin(plugin)" />
+                          <q-btn v-if="!plugin.enable" size="sm" color="primary" flat round label="Installer" @click="installPlugin(plugin)" />
+                          <q-btn v-else size="sm" color="negative" flat round label="Désinstaller" @click="uninstallPlugin(plugin)" />
                         </q-item-section>
                       </q-chip>
                     </q-item>
@@ -79,8 +65,7 @@
 
               <!-- Autres items du menu -->
               <template v-else>
-                <q-item clickable v-ripple
-                  :class="['q-mb-xs text-h6', menuItem.bgColor ? `bg-${menuItem.bgColor} glossy text-white` : '']">
+                <q-item clickable v-ripple :class="['q-mb-xs text-h6', menuItem.bgColor ? `bg-${menuItem.bgColor} glossy text-white` : '']">
                   <q-item-section avatar>
                     <q-icon :name="menuItem.icon" :color="menuItem.iconColor" />
                   </q-item-section>
@@ -92,38 +77,24 @@
             </template>
           </q-list>
         </div>
-
       </div>
     </q-drawer>
 
     <q-header elevated class="text-white glossy q-pa-sm q-mx-xs q-mt-xs bg-claspy-dark1">
       <q-toolbar>
-
         <q-btn round dense flat :ripple="false" icon="menu" size="19px" color="white" class="q-mr-sm" no-caps />
 
-        <div v-if="$q.screen.gt.sm"
-          class="GL__toolbar-link q-ml-xs q-gutter-md text-body2 text-weight-bold row items-center no-wrap">
-          <a href="javascript:void(0)" class="text-white">
-            Menu1
-          </a>
-          <a href="javascript:void(0)" class="text-white">
-            Menu2
-          </a>
-          <a href="javascript:void(0)" class="text-white">
-            Menu3
-          </a>
-          <router-link to="/users" class="text-white">
-            Utilisateurs
-          </router-link>
+        <div v-if="$q.screen.gt.sm" class="GL__toolbar-link q-ml-xs q-gutter-md text-body2 text-weight-bold row items-center no-wrap">
+          <a href="javascript:void(0)" class="text-white"> Menu1 </a>
+          <a href="javascript:void(0)" class="text-white"> Menu2 </a>
+          <a href="javascript:void(0)" class="text-white"> Menu3 </a>
+          <router-link to="/users" class="text-white"> Utilisateurs </router-link>
         </div>
         <q-space />
 
         <div class="q-pl-sm q-gutter-sm row items-center no-wrap">
-          <q-badge v-if="fileUploadProgress.uploading" color="accent" text-color="white" rounded size="md"
-            :label="(fileUploadProgress.percent * 100).toFixed(0) + '%'">
-            <q-tooltip>
-              Upload en cours : {{ fileUploadProgress.speed }} Mo/s
-            </q-tooltip>
+          <q-badge v-if="fileUploadProgress.uploading" color="accent" text-color="white" rounded size="md" :label="(fileUploadProgress.percent * 100).toFixed(0) + '%'">
+            <q-tooltip> Upload en cours : {{ fileUploadProgress.speed }} Mo/s </q-tooltip>
           </q-badge>
 
           <q-btn v-if="$q.screen.gt.xs" dense flat round size="md" icon="notifications" />
@@ -165,12 +136,13 @@
               <q-list dense>
                 <q-item class="GL__menu-link-signed-in">
                   <q-item-section>
-                    <div><strong>{{ currentUser?.firstname }} {{ currentUser?.lastname }}</strong></div>
+                    <div>
+                      <strong>{{ currentUser?.firstname }} {{ currentUser?.lastname }}</strong>
+                    </div>
                   </q-item-section>
                 </q-item>
                 <q-separator />
-                <q-item clickable class="GL__menu-link-status">
-                </q-item>
+                <q-item clickable class="GL__menu-link-status"> </q-item>
                 <q-separator />
                 <q-item clickable class="GL__menu-link">
                   <q-item-section>Profil</q-item-section>
@@ -212,8 +184,8 @@
 
 <script setup lang="ts">
 import type { Plugin } from 'src/types/plugins.types';
-import { ref, onMounted, computed } from 'vue'
-import { dom, useQuasar } from 'quasar'
+import { ref, onMounted, computed } from 'vue';
+import { dom, useQuasar } from 'quasar';
 import AnimatedBackground from 'src/components/animations/AnimatedBackground.vue';
 import FullScreenSpinner from 'src/components/tools/FullScreenSpinner.vue';
 import ConfirmDialog from 'src/components/tools/ConfirmDialog.vue';
@@ -221,7 +193,7 @@ import { useFilesStore } from 'src/stores/files-store';
 import { usePluginStore } from 'src/stores/plugins-store';
 import { storeToRefs } from 'pinia';
 import { useUserStore } from 'src/stores/users-store';
-import { getUserInitials } from 'src/utils'
+import { getUserInitials } from 'src/utils';
 import { useAuth } from 'src/stores/auth-store';
 import { useRouter } from 'vue-router';
 
@@ -237,31 +209,30 @@ const router = useRouter();
 
 const fileUploadProgress = computed(() => fileStore.fileUploadProgress);
 
-const { plugins } = storeToRefs(pluginStore)
+const { plugins } = storeToRefs(pluginStore);
 const { addPlugin, removePlugin } = pluginStore;
-
 
 const topMenu = [
   { icon: 'home', iconColor: undefined, label: 'Home', bgColor: null, separator: false, link: '/' },
   { icon: 'terminal', iconColor: undefined, label: 'Console', bgColor: null, separator: false, link: '' },
   { icon: 'view_timeline', iconColor: undefined, label: 'Logs', bgColor: null, separator: true, link: '' },
-]
+];
 
 const bottomMenu = [
   { icon: 'extension', iconColor: 'green-4', label: 'Plugins', bgColor: 'grey-7', separator: false },
   { icon: 'settings', iconColor: 'amber', label: 'Settings', bgColor: null, separator: true },
   { icon: 'help', iconColor: 'primary', label: 'Help', bgColor: null, separator: false },
-]
+];
 
 function installPlugin(p: Plugin) {
   $q.dialog({
     component: ConfirmDialog,
     componentProps: {
-      title: 'Confirmer l\'installation',
+      title: "Confirmer l'installation",
       message: `Êtes-vous sûr de vouloir installer le plugin : <strong>${p.name}</strong> ?`,
       confirmLabel: 'Confirmer',
-      cancelLabel: 'Annuler'
-    }
+      cancelLabel: 'Annuler',
+    },
   }).onOk(() => {
     void (async () => {
       const loading = $q.dialog({
@@ -269,32 +240,32 @@ function installPlugin(p: Plugin) {
         componentProps: {
           message: `Installation ${p.name} en cours...`,
           color: 'amber',
-          size: '60px'
-        }
-      })
+          size: '60px',
+        },
+      });
       try {
-        const success = await addPlugin(p.name)
+        const success = await addPlugin(p.name);
         if (success) {
           $q.notify({
             type: 'positive',
-            message: `Le plugin "${p.name}" a été installé avec succès.`
-          })
+            message: `Le plugin "${p.name}" a été installé avec succès.`,
+          });
         } else {
           $q.notify({
             type: 'negative',
-            message: `Le plugin "${p.name}" n'a pas pu être installé.`
-          })
+            message: `Le plugin "${p.name}" n'a pas pu être installé.`,
+          });
         }
       } catch (err) {
         $q.notify({
           type: 'negative',
-          message: `Erreur serveur : ${(err as Error).message}`
-        })
+          message: `Erreur serveur : ${(err as Error).message}`,
+        });
       } finally {
         loading.hide();
       }
-    })()
-  })
+    })();
+  });
 }
 
 function uninstallPlugin(p: Plugin) {
@@ -304,8 +275,8 @@ function uninstallPlugin(p: Plugin) {
       title: 'Confirmer la suppression',
       message: `<p>Êtes-vous sûr de vouloir désinstaller le plugin : <strong>${p.name}</strong> ?</p>`,
       confirmLabel: 'Confirmer',
-      cancelLabel: 'Annuler'
-    }
+      cancelLabel: 'Annuler',
+    },
   }).onOk(() => {
     void (async () => {
       const loading = $q.dialog({
@@ -313,32 +284,32 @@ function uninstallPlugin(p: Plugin) {
         componentProps: {
           message: `Désinstallation ${p.name} en cours...`,
           color: 'amber',
-          size: '60px'
-        }
-      })
+          size: '60px',
+        },
+      });
       try {
-        const success = await removePlugin(p.name)
+        const success = await removePlugin(p.name);
         if (success) {
           $q.notify({
             type: 'positive',
-            message: `Le plugin "${p.name}" a été désinstallé avec succès.`
-          })
+            message: `Le plugin "${p.name}" a été désinstallé avec succès.`,
+          });
         } else {
           $q.notify({
             type: 'negative',
-            message: `Le plugin "${p.name}" n'a pas pu être désinstallé.`
-          })
+            message: `Le plugin "${p.name}" n'a pas pu être désinstallé.`,
+          });
         }
       } catch (err) {
         $q.notify({
           type: 'negative',
-          message: `Erreur serveur : ${(err as Error).message}`
-        })
+          message: `Erreur serveur : ${(err as Error).message}`,
+        });
       } finally {
         loading.hide();
       }
-    })()
-  })
+    })();
+  });
 }
 
 function disconnect() {
@@ -348,15 +319,14 @@ function disconnect() {
       title: 'Déconnexion',
       message: `Êtes-vous sûr de vouloir vous déconnecter ?`,
       confirmLabel: 'Confirmer',
-      cancelLabel: 'Annuler'
-    }
+      cancelLabel: 'Annuler',
+    },
   }).onOk(() => {
     void (async () => {
       const res = await userLogout();
-      if (res)
-        await router.push('/auth/login')
-    })()
-  })
+      if (res) await router.push('/auth/login');
+    })();
+  });
 }
 
 onMounted(() => {
@@ -364,13 +334,8 @@ onMounted(() => {
   if (toolbar) {
     headerHeight.value = style(toolbar, 'height');
   }
-})
-
-
-
+});
 </script>
-
-
 
 <style scoped lang="scss">
 .GL {
@@ -412,7 +377,7 @@ onMounted(() => {
   &__menu-link-signed-in,
   &__menu-link-status {
     &:hover {
-      &>div {
+      & > div {
         background: white !important;
       }
     }

@@ -15,7 +15,6 @@
       <q-card-actions align="right">
         <q-btn flat label="Commencer" color="primary" to="/projects" />
       </q-card-actions>
-
     </q-card>
   </q-page>
 </template>

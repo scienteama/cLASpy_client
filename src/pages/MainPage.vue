@@ -20,6 +20,5 @@
 </template>
 <script setup lang="ts">
 import FileExplorer from 'src/components/files/FileExplorer.vue';
-
 </script>
 <style scoped lang="scss"></style>
