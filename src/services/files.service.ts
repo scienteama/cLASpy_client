@@ -19,10 +19,11 @@ class FileService {
     return response.data;
   }
 
-  async createDirectory(name: string, sub_path: string): Promise<WorkDone<string>> {
+  async createDirectory( userId: number | string, name: string, parentId: string | null ): Promise<WorkDone<string>> {
     const response = await api.post<WorkDone<string>>('/files/create-directory', {
+      user_id: userId,
       name,
-      sub_path: sub_path,
+      parent_id: parentId || null,
     });
     return response.data;
   }

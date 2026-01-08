@@ -10,7 +10,7 @@ import { useUserStore } from './users-store';
 export const useFilesStore = defineStore('files', () => {
   const $q = useQuasar();
   const userStore = useUserStore();
-  const { isAdmin, currentUser } = storeToRefs(userStore);
+  const { currentUser } = storeToRefs(userStore);
 
   // --- État principal ---
   const rootTree = ref<FolderModel | null>(null);
@@ -63,18 +63,7 @@ export const useFilesStore = defineStore('files', () => {
       const res = await fileService.getRoot();
       if (res.isOk) {
         rootTree.value = res.data;
-
-        // --- Définition du dossier courant selon le rôle ---
-        if (isAdmin.value) {
-          currentFolder.value = rootTree.value;
-        } else {
-          const myId = currentUser.value?.id;
-          const myFolder = rootTree.value.children.find(
-            (f) => f.type === 'folder' && f.name.toLowerCase().startsWith(`${myId}_`),
-          ) as FolderModel | undefined;
-
-          currentFolder.value = myFolder || rootTree.value;
-        }
+        currentFolder.value = rootTree.value;
       }
     } catch (err) {
       $q.notify({ type: 'negative', message: 'Impossible de charger les fichiers.' });
@@ -98,22 +87,13 @@ export const useFilesStore = defineStore('files', () => {
 
   function goToHome() {
     if (!rootTree.value) return;
-
-    if (isAdmin.value) {
       currentFolder.value = rootTree.value;
-    } else {
-      const myId = currentUser.value?.id;
-      const myFolder = rootTree.value.children.find(
-        (f) => f.type === 'folder' && f.name.toLowerCase().startsWith(`${myId}_`),
-      ) as FolderModel | undefined;
-
-      currentFolder.value = myFolder || rootTree.value;
-    }
   }
 
   // --- Upload ---
-  async function uploadFile(file: File, subPath: string): Promise<void> {
+  async function uploadFile(file: File): Promise<void> {
     if (!file) return;
+    if (!currentFolder.value || !currentUser.value) return;
 
     fileUploadProgress.value = {
       percent: 0,
@@ -128,11 +108,14 @@ export const useFilesStore = defineStore('files', () => {
 
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('sub_path', subPath);
 
+    if (currentFolder.value.id !== "root") {
+      formData.append('parent_id', currentFolder.value.id);
+    }
+    
     let lastLoaded = 0;
     let lastTime = Date.now();
-
+    
     try {
       const res = await fileService.uploadFile({
         data: formData,
@@ -192,20 +175,24 @@ export const useFilesStore = defineStore('files', () => {
   }
 
   // --- Créer un dossier ---
-  async function createFolder(name: string, subPath: string): Promise<void> {
-    try {
-      const res = await fileService.createDirectory(name, subPath);
-      if (res.isOk) {
-        await refreshCurrentFolder();
-        $q.notify({ type: 'positive', message: 'Dossier créé.' });
-      } else {
-        $q.notify({ type: 'negative', message: res.result || 'Échec de la création du dossier.' });
-      }
-    } catch (err) {
-      $q.notify({ type: 'negative', message: 'Erreur serveur.' });
-      throw err;
+async function createFolder(name: string): Promise<void> {
+  if (!currentFolder.value || !currentUser.value) return;
+
+  try {
+    const parentId = currentFolder.value.id === "root" ? null : currentFolder.value.id;
+    const userId = currentUser.value.id;
+    const res = await fileService.createDirectory(userId, name, parentId);
+    if (res.isOk) {
+      await refreshCurrentFolder();
+      $q.notify({ type: 'positive', message: 'Dossier créé.' });
+    } else {
+      $q.notify({ type: 'negative', message: res.result || 'Échec de la création du dossier.' });
     }
+  } catch (err) {
+    $q.notify({ type: 'negative', message: (err as Error).message || 'Erreur serveur.' });
+    throw err;
   }
+}
 
   // --- Renommer ---
   async function renameItem(id: string, newName: string): Promise<void> {

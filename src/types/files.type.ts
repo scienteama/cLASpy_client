@@ -23,6 +23,7 @@ export interface FileModel {
   saved_as?: string | null;
   created_at: string;
   modified_at: string;
+  user_id: number;
 }
 
 export interface FolderModel {
@@ -33,4 +34,5 @@ export interface FolderModel {
   created_at: string;
   modified_at: string;
   depth: number;
+  user_id: number;
 }

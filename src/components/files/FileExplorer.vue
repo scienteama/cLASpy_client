@@ -87,6 +87,12 @@
             </q-td>
           </template>
 
+          <template v-slot:body-cell-user_id="props">
+            <q-td :props="props">
+              <span>{{ props.row.user_id }}</span>
+            </q-td>
+          </template>
+
           <template v-slot:body-cell-actions="props">
             <q-td :props="props" class="text-right">
               <q-btn flat dense round icon="more_vert" size="sm">
@@ -196,6 +202,7 @@ const columns: QTableColumn[] = [
   { name: 'size', label: 'Taille', field: 'size_bytes', align: 'right', sortable: true },
   { name: 'modified_at', label: 'Modifié le', field: 'modified_at', align: 'left', sortable: true },
   { name: 'created_at', label: 'Créé le', field: 'created_at', align: 'left', sortable: true },
+  { name: 'user_id', label: 'Propriétaire', field: 'user_id', align: 'left', sortable: true },
   { name: 'actions', label: '', field: 'actions', align: 'right' }
 ]
 
@@ -299,33 +306,31 @@ function confirmRename() {
 
 
 function confirmFolderCreation() {
-  const dir = createFolderDialog.value.folderName
-  if (!dir || dir.trim() === '') {
+  const dir = createFolderDialog.value.folderName?.trim()
+  if (!dir) {
     createFolderDialog.value.show = false
     return
   }
-
-  const path = currentFolderPath.value
-  const message = `Voulez-vous créer ce dossier :<br><br><strong>${path === '/' ? `${path}${dir}` : `${path}/${dir}`}</strong> ?`
 
   $q.dialog({
     component: ConfirmDialog,
     componentProps: {
       title: 'Confirmation de création',
-      message
+      message: `Voulez-vous créer ce dossier :<br><br><strong>${dir}</strong> ?`
     },
     persistent: true
   }).onOk(() => {
-    createFolder(dir, path).catch((err: unknown) => {
+    createFolder(dir).catch((err: unknown) => {
       $q.notify({
         type: 'negative',
         message: err instanceof Error ? err.message : 'Erreur création dossier.'
       })
     })
-  }).onCancel(() => {
-  });
+  }).onCancel(() => {});
+
   createFolderDialog.value.show = false
 }
+
 
 function downloadItem(id: string) {
   console.log('Download item id:', id);
