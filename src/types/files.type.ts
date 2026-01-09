@@ -14,6 +14,11 @@ export interface UploadFileParams {
   onUploadProgress?: (event: AxiosProgressEvent) => void;
 }
 
+export interface DownloadFileResponse {
+  data: Blob;
+  headers: Record<string, string>;
+}
+
 export interface FileModel {
   id: string;
   name: string;

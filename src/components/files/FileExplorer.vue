@@ -98,7 +98,8 @@
 
           <template v-slot:body-cell-user_id="props">
             <q-td :props="props">
-              <span>{{ props.row.user_id }}</span>
+              <span v-if="props.row.user_id == currentUser?.id">Vous</span>
+              <span v-else>{{ props.row.user_id }}</span>
             </q-td>
           </template>
 
@@ -113,9 +114,16 @@
                     <q-item clickable @click="removeItem(props.row)">
                       <q-item-section>Supprimer</q-item-section>
                     </q-item>
-                    <q-item clickable @click="downloadItem(props.row.id)">
-                      <q-item-section>Télécharger</q-item-section>
-                    </q-item>
+                    <template v-if="props.row.type != 'folder'">
+                      <q-item clickable @click="downloadItem(props.row)">
+                        <q-item-section>Télécharger</q-item-section>
+                      </q-item>
+                    </template>
+                    <template v-else>
+                      <q-item disable>
+                        <q-item-section>Télécharger</q-item-section>
+                      </q-item>
+                    </template>
                   </q-list>
                 </q-menu>
               </q-btn>
@@ -173,16 +181,17 @@ import { useFilesStore } from 'src/stores/files-store';
 import InputFile from 'src/components/files/InputFile.vue';
 import { iconForFile, colorForFile, iconForFolder, formatFileSize, computeFolderSize, convertMimeType, splitFileName } from 'src/utils';
 import { useQuasar, type QTableColumn } from 'quasar';
-import type { FileModel, FolderModel } from 'src/types/files.type';
+import type { DownloadFileResponse, FileModel, FolderModel } from 'src/types/files.type';
 import ConfirmDialog from '../tools/ConfirmDialog.vue';
 import { useUserStore } from 'src/stores/users-store';
+import { fileService } from 'src/services/files.service';
 
 const filesStore = useFilesStore();
 const userStore = useUserStore();
 const $q = useQuasar();
 
 const { rows, loading, canGoBack, rootTree, currentFolder } = storeToRefs(filesStore);
-const { isAdmin } = storeToRefs(userStore);
+const { isAdmin, currentUser } = storeToRefs(userStore);
 const { reloadRoot, goBack, goToFolder, renameItem, deleteItem, goToHome, createFolder, refreshCurrentFolder } = filesStore;
 
 const pagination = ref({ rowsPerPage: 0 });
@@ -335,9 +344,41 @@ function confirmFolderCreation() {
   createFolderDialog.value.show = false;
 }
 
-function downloadItem(id: string) {
-  console.log('Download item id:', id);
-  alert('Not implemented yet!');
+async function downloadItem(item: { id: string; type: string }) {
+  let res: DownloadFileResponse | null = null;
+
+  try {
+    if (item.type === 'folder') {
+      //res = await fileService.downloadFolder(item.id);
+      alert('Téléchargement des dossiers non implémenté !');
+    } else {
+      res = await fileService.downloadFile(item.id);
+    }
+
+    if (!res?.data) {
+      console.error('Erreur lors du téléchargement');
+      return;
+    }
+
+    // Récupérer le nom de fichier depuis les headers
+    const contentDisposition = res.headers['content-disposition'] || '';
+    let filename = 'download';
+    const match = contentDisposition.match(/filename="?(.+?)"?$/);
+    if (match && match[1]) {
+      filename = match[1];
+    }
+
+    const url = window.URL.createObjectURL(res.data);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error('Erreur lors du téléchargement :', error);
+  }
 }
 
 function removeItem(item: { id: string; name: string; type: string }) {

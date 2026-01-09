@@ -1,3 +1,4 @@
+import type { AxiosResponse } from 'axios';
 import { api } from 'src/boot/axios';
 import type { WorkDone } from 'src/types/api.type';
 import type { FileModel, FolderModel, UploadFileParams } from 'src/types/files.type';
@@ -38,6 +39,19 @@ class FileService {
       new_name: newFilename,
     });
     return response.data;
+  }
+
+  async downloadFile(itemId: string): Promise<{ data: Blob; headers: Record<string, string> }> {
+    const response: AxiosResponse<Blob> = await api.get(`/files/download-file/${itemId}`, {
+      responseType: 'blob',
+    });
+
+    const headers: Record<string, string> = {};
+    Object.entries(response.headers).forEach(([key, value]) => {
+      if (typeof value === 'string') headers[key.toLowerCase()] = value;
+    });
+
+    return { data: response.data, headers };
   }
 }
 
