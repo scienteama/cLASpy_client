@@ -10,3 +10,17 @@ $positive: #21ba45;
 $negative: #c10015;
 $info: #31ccec;
 $warning: #f2c037;
+
+$h7: (
+  size: 1.125rem,
+  line-height: 1.75rem,
+  letter-spacing: 0.01em,
+  weight: 500,
+) !default;
+
+$h8: (
+  size: 1.0625rem,
+  line-height: 1.6rem,
+  letter-spacing: 0.01em,
+  weight: 400,
+) !default;

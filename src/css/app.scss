@@ -2,3 +2,17 @@
   background-color: $claspy-dark1;
   color: white;
 }
+
+.text-h7 {
+  font-size: map-get($h7, size);
+  line-height: map-get($h7, line-height);
+  letter-spacing: map-get($h7, letter-spacing);
+  font-weight: map-get($h7, weight);
+}
+
+.text-h8 {
+  font-size: map-get($h8, size);
+  line-height: map-get($h8, line-height);
+  letter-spacing: map-get($h8, letter-spacing);
+  font-weight: map-get($h8, weight);
+}

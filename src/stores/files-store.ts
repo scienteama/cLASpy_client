@@ -3,7 +3,7 @@ import { ref, computed } from 'vue';
 import { useQuasar } from 'quasar';
 import type { AxiosError, AxiosProgressEvent } from 'axios';
 import { fileService } from 'src/services/files.service';
-import type { FileUploadProgress, FolderModel } from 'src/types/files.type';
+import { isFolder, type FileUploadProgress, type FolderModel } from 'src/types/files.type';
 import { type ErrorResponse, isAxiosErrorResponse } from 'src/types/api.type';
 import { useUserStore } from './users-store';
 
@@ -15,6 +15,7 @@ export const useFilesStore = defineStore('files', () => {
   // --- État principal ---
   const rootTree = ref<FolderModel | null>(null);
   const currentFolder = ref<FolderModel | null>(null);
+  const currentFolderDisplayPath = ref<string[]>([]);
   const loading = ref(false);
 
   // --- État upload ---
@@ -64,6 +65,7 @@ export const useFilesStore = defineStore('files', () => {
       if (res.isOk) {
         rootTree.value = res.data;
         currentFolder.value = rootTree.value;
+        currentFolderDisplayPath.value = [rootTree.value.name || 'root'];
       }
     } catch (err) {
       $q.notify({ type: 'negative', message: 'Impossible de charger les fichiers.' });
@@ -73,9 +75,18 @@ export const useFilesStore = defineStore('files', () => {
     }
   }
 
+  function listDirectories(): FolderModel[] {
+    if (!currentFolder.value) return [];
+    return currentFolder.value.children.filter(isFolder).map((child) => ({
+      ...child,
+      children: [],
+    }));
+  }
+
   function goToFolder(folder: FolderModel) {
     if (folder && folder.type === 'folder') {
       currentFolder.value = folder;
+      currentFolderDisplayPath.value.push(folder.name || '');
     }
   }
 
@@ -83,17 +94,18 @@ export const useFilesStore = defineStore('files', () => {
     if (!rootTree.value || !currentFolder.value) return;
     const parent = findParent(rootTree.value, currentFolder.value.id);
     if (parent) currentFolder.value = parent;
+    currentFolderDisplayPath.value.pop();
   }
 
   function goToHome() {
     if (!rootTree.value) return;
     currentFolder.value = rootTree.value;
+    currentFolderDisplayPath.value = [rootTree.value.name || 'root'];
   }
 
   // --- Upload ---
   async function uploadFile(file: File): Promise<void> {
-    if (!file) return;
-    if (!currentFolder.value || !currentUser.value) return;
+    if (!file || !currentFolder.value || !currentUser.value) return;
 
     fileUploadProgress.value = {
       percent: 0,
@@ -177,8 +189,7 @@ export const useFilesStore = defineStore('files', () => {
 
     try {
       const parentId = currentFolder.value.id === 'root' ? null : currentFolder.value.id;
-      const userId = currentUser.value.id;
-      const res = await fileService.createDirectory(userId, name, parentId);
+      const res = await fileService.createDirectory(name, parentId);
       if (res.isOk) {
         await refreshCurrentFolder();
         $q.notify({ type: 'positive', message: 'Dossier créé.' });
@@ -237,6 +248,7 @@ export const useFilesStore = defineStore('files', () => {
   return {
     rootTree,
     currentFolder,
+    currentFolderDisplayPath,
     loading,
     rows,
     canGoBack,
@@ -251,5 +263,6 @@ export const useFilesStore = defineStore('files', () => {
     deleteItem,
     findFolderById,
     refreshCurrentFolder,
+    listDirectories,
   };
 });

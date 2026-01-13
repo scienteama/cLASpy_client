@@ -41,3 +41,11 @@ export interface FolderModel {
   depth: number;
   user_id: number;
 }
+
+export function isFolder(item: FolderModel | FileModel): item is FolderModel {
+  return item.type === 'folder';
+}
+
+export function isFile(item: FolderModel | FileModel): item is FileModel {
+  return item.type === 'file';
+}
