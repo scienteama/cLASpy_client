@@ -1,5 +1,5 @@
 <template>
-  <q-layout class="bg-grey-1" view="lHh lpR fFf">
+  <q-layout class="bg-grey-1" view="lHh lpR fFf" style="height: 100vh; overflow: hidden">
     <q-drawer show-if-above side="left" bordered class="column no-wrap">
       <!-- Header Left Drawer -->
       <div class="text-center text-h4 text-white q-pa-sm q-mx-xs q-mt-xs glossy bg-grey-7 inset-shadow-down" :style="{ minHeight: headerHeight }">
@@ -11,7 +11,7 @@
       <AnimatedBackground class="q-mt-xs q-mx-xs" :is-drawer="true" />
 
       <!-- Body Left Drawer -->
-      <div class="column justify-between fit">
+      <div class="column justify-between fit overflow-auto">
         <div class="q-mx-xs">
           <q-list>
             <template v-for="(menuItem, index) in topMenu" :key="'top-' + index">
@@ -176,8 +176,10 @@
       </q-toolbar>
     </q-header>
 
-    <q-page-container>
-      <router-view />
+    <q-page-container class="fit">
+      <q-scroll-area class="fit">
+        <router-view />
+      </q-scroll-area>
     </q-page-container>
   </q-layout>
 </template>
@@ -338,6 +340,16 @@ onMounted(() => {
 </script>
 
 <style scoped lang="scss">
+.q-layout {
+  overflow: hidden !important;
+  height: 100vh;
+}
+
+body,
+html {
+  overflow: hidden;
+  height: 100%;
+}
 .GL {
   &__select-GL__menu-link {
     .default-type {

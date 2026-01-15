@@ -12,9 +12,9 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue';
-import classPyIcon from '../../assets/pythie_alpha_hd_miroir.png';
+import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue';
 import Trianglify from 'trianglify';
+import classPyIcon from '../../assets/pythie_alpha_hd_miroir.png';
 
 const pal = {
   ocean: ['#03045e', '#023e8a', '#0077b6', '#0096c7', '#00b4d8', '#48cae4', '#90e0ef', '#ade8f4', '#caf0f8'],
@@ -42,9 +42,6 @@ const props = withDefaults(
   }
 );
 
-//const isDarkMode = false;
-//const currentPal = isDarkMode ? colorPal.dark : colorPal.light;
-
 interface Point {
   x: number;
   y: number;
@@ -54,27 +51,23 @@ interface Point {
 }
 
 const canvas = ref<HTMLCanvasElement | null>(null);
-let animationFrameId: number;
+let ctx: CanvasRenderingContext2D | null = null;
+let width = 0;
+let height = 0;
+let animationFrameId = 0;
+let resizeObserver: ResizeObserver | null = null;
 
-onMounted(() => {
-  const ctxCanvas = canvas.value!;
-  const ctx = ctxCanvas.getContext('2d')!;
-  let width = ctxCanvas.clientWidth;
-  let height = ctxCanvas.clientHeight;
-  ctxCanvas.width = width;
-  ctxCanvas.height = height;
+const points: Point[] = [];
 
-  //const numPoints = 35;
-  const points: Point[] = [];
+const randomDir = () => (Math.random() - 0.5) * 0.3;
 
-  // Random small direction changes for point movement
-  const randomDir = () => (Math.random() - 0.5) * 0.3;
+function initPoints() {
+  points.length = 0;
 
   for (let i = 0; i < props.numPoints; i++) {
-    points.push({ x: Math.random() * width, y: Math.random() * height, dx: randomDir(), dy: randomDir(), fixed: false });
+    points.push({ x: Math.random() * width, y: Math.random() * height, dx: randomDir(), dy: randomDir() });
   }
 
-  // Add fixed points at the corners and edges to stabilize the triangulation
   const margin = 50;
   points.push(
     { x: 0, y: 0, fixed: true },
@@ -86,90 +79,86 @@ onMounted(() => {
     { x: margin, y: height - margin, fixed: true },
     { x: width - margin, y: height - margin, fixed: true }
   );
+}
 
-  /**
-   * Redraws the animated background by:
-   * 1. Clearing the canvas.
-   * 2. Updating the positions of all non-fixed points, reflecting them off the canvas edges.
-   * 3. Generating a set of vertices from the current point positions.
-   * 4. Creating a triangulated pattern using the Trianglify library, with a specified color palette.
-   * 5. Drawing each triangle (polygon) from the triangulation:
-   *    - Fills each triangle with its assigned color.
-   *    - Strokes the triangle edges with a subtle outline.
-   * 6. Requests the next animation frame to continuously animate the background.
-   *
-   * This method is intended to be called recursively via requestAnimationFrame to produce a smooth, animated, triangulated background effect.
-   */
-  function draw() {
-    ctx.clearRect(0, 0, width, height);
-    points.forEach((p) => {
-      if (!p.fixed) {
-        p.x += p.dx!;
-        p.y += p.dy!;
-        if (p.x < 0) {
-          p.x = 0;
-          p.dx! *= -1;
-        }
-        if (p.x > width) {
-          p.x = width;
-          p.dx! *= -1;
-        }
-        if (p.y < 0) {
-          p.y = 0;
-          p.dy! *= -1;
-        }
-        if (p.y > height) {
-          p.y = height;
-          p.dy! *= -1;
-        }
-      }
-    });
+function draw() {
+  if (!ctx || width === 0 || height === 0) return;
 
-    const vertices = points.map((p) => [p.x, p.y] as [number, number]);
+  ctx.clearRect(0, 0, width, height);
 
-    const pattern = Trianglify({
-      width,
-      height,
-      points: vertices,
-      xColors: props.theme ? pal[props.theme] : pal.ocean,
-    });
+  points.forEach((p) => {
+    if (!p.fixed) {
+      p.x += p.dx!;
+      p.y += p.dy!;
 
-    pattern.polys.forEach((poly) => {
-      const vertices = poly.vertexIndices.map((idx) => pattern.points[idx]);
+      if (p.x < 0 || p.x > width) p.dx! *= -1;
+      if (p.y < 0 || p.y > height) p.dy! *= -1;
+    }
+  });
 
-      ctx.beginPath();
-      ctx.moveTo(vertices[0]![0], vertices[0]![1]);
-      ctx.lineTo(vertices[1]![0], vertices[1]![1]);
-      ctx.lineTo(vertices[2]![0], vertices[2]![1]);
-      ctx.closePath();
+  const vertices = points.map((p) => [p.x, p.y] as [number, number]);
 
-      ctx.fillStyle = poly.color.hex();
-      ctx.fill();
+  const pattern = Trianglify({
+    width,
+    height,
+    points: vertices,
+    xColors: pal[props.theme],
+  });
 
-      //ctx.strokeStyle = "#AAAAAA";
-      ctx.lineWidth = props.lineWidth;
-      ctx.stroke();
-    });
+  pattern.polys.forEach((poly) => {
+    const v = poly.vertexIndices.map((i) => pattern.points[i]);
 
-    animationFrameId = requestAnimationFrame(draw);
-  }
+    ctx!.beginPath();
+    ctx!.moveTo(v[0]![0], v[0]![1]);
+    ctx!.lineTo(v[1]![0], v[1]![1]);
+    ctx!.lineTo(v[2]![0], v[2]![1]);
+    ctx!.closePath();
+
+    ctx!.fillStyle = poly.color.hex();
+    ctx!.fill();
+    ctx!.lineWidth = props.lineWidth;
+    ctx!.stroke();
+  });
+
+  animationFrameId = requestAnimationFrame(draw);
+}
+
+function resize() {
+  const el = canvas.value;
+  if (!el) return;
+
+  const rect = el.getBoundingClientRect();
+  if (rect.width === 0 || rect.height === 0) return;
+
+  width = rect.width;
+  height = rect.height;
+
+  el.width = width;
+  el.height = height;
+
+  initPoints();
+}
+
+onMounted(async () => {
+  await nextTick();
+
+  if (!canvas.value) return;
+  ctx = canvas.value.getContext('2d');
+
+  resize();
+
+  resizeObserver = new ResizeObserver(() => resize());
+  resizeObserver.observe(canvas.value);
 
   draw();
+});
 
-  const resizeHandler = () => {
-    width = ctxCanvas.clientWidth;
-    height = ctxCanvas.clientHeight;
-    ctxCanvas.width = width;
-    ctxCanvas.height = height;
-  };
-  window.addEventListener('resize', resizeHandler);
-
-  onBeforeUnmount(() => {
-    cancelAnimationFrame(animationFrameId);
-    window.removeEventListener('resize', resizeHandler);
-  });
+onBeforeUnmount(() => {
+  cancelAnimationFrame(animationFrameId);
+  resizeObserver?.disconnect();
 });
 </script>
+
 <style scoped lang="scss">
 .canvas-container {
   position: relative;

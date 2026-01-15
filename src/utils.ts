@@ -1,5 +1,6 @@
 import type { FileModel, FolderModel } from './types/files.type';
 import type { User } from './types/users.type';
+import { camelCase, mapKeys } from 'lodash';
 
 export function iconForFile(mimetype: string) {
   if (!mimetype) return 'fa-regular fa-file';
@@ -185,3 +186,5 @@ export function printFolderTree(folder: FolderModel, depth = 0) {
 export function isFolder(item: FileModel | FolderModel): item is FolderModel {
   return item.type === 'folder';
 }
+
+export const transformToCamelCase = <T extends object>(obj: T): T => mapKeys(obj, (_, key) => camelCase(key)) as T;

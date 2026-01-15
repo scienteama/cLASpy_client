@@ -22,3 +22,17 @@ export function isAxiosErrorResponse(err: unknown): err is ErrorResponse {
   const maybe = err as Partial<ErrorResponse>;
   return maybe.isOk === false && typeof maybe.data === 'object';
 }
+
+export interface ApiSettings {
+  appName: string;
+  env: string;
+  port: number;
+  host: string;
+  allowedOrigins: string[];
+  accessTokenExpireMinutes: number;
+  tempDir: string;
+  uploadDir: string;
+  trashDir: string;
+  recoveryDir: string;
+  defaultOutputDir: string;
+}

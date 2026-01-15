@@ -7,8 +7,8 @@ import type { UploadFileParams } from 'src/types/files.type';
  */
 
 class TrainerService {
-  async loadPointCloudFile(params: UploadFileParams): Promise<WorkDone<string>> {
-    const response = await api.post<WorkDone<string>>('/claspy_ml/load-data', params.data, {
+  async loadPointCloudFile(params: UploadFileParams): Promise<WorkDone<Record<string, string>>> {
+    const response = await api.post<WorkDone<Record<string, string>>>('/claspy_ml/load-data', params.data, {
       onUploadProgress: params.onUploadProgress ?? (() => {}),
     });
     return response.data;

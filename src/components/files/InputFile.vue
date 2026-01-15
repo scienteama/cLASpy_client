@@ -2,7 +2,7 @@
   <div class="items-start q-gutter-y-md" style="width: auto; min-width: 70%">
     <q-file :model-value="file" @update:model-value="updateFile" label="Uploader un fichier" outlined :clearable="!fileUploadProgress.uploading">
       <template #before>
-        <q-icon name="attach_file" />
+        <q-icon name="fa-solid fa-paperclip" color="primary" />
       </template>
 
       <template #file="{ file }">
@@ -26,32 +26,36 @@
       </template>
 
       <template #after v-if="canUpload">
-        <q-btn v-if="!fileUploadProgress.uploading" color="primary" dense icon="cloud_upload" round @click="upload" :disable="!canUpload" />
-        <q-badge v-else color="accent" text-color="white" rounded size="md" :label="(fileUploadProgress.percent * 100).toFixed(0) + '%'" />
+        <div v-if="!pointCloudLoader">
+          <q-btn v-if="!fileUploadProgress.uploading" color="primary" dense icon="cloud_upload" round @click="upload" :disable="!canUpload" />
+          <q-badge v-else color="accent" text-color="white" rounded size="md" :label="(fileUploadProgress.percent * 100).toFixed(0) + '%'" />
+        </div>
       </template>
     </q-file>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onBeforeUnmount } from 'vue';
+import { ref, computed, onBeforeUnmount, watch } from 'vue';
 import { useFilesStore } from 'src/stores/files-store';
 import { storeToRefs } from 'pinia';
 import { trainerService } from 'src/services/training.service';
 import { useQuasar } from 'quasar';
 import type { AxiosError, AxiosProgressEvent } from 'axios';
 import { type ErrorResponse, isAxiosErrorResponse } from 'src/types/api.type';
+import { emitter } from 'src/event-bus';
 
 const $q = useQuasar();
 
 const props = defineProps({
   pointCloudLoader: { type: Boolean, default: false },
   keepOnServer: { type: Boolean, default: false },
-  folderId: { type: String, default: null }, // parent_id pour le backend FS
+  folderId: { type: String, default: null },
 });
 
 const emit = defineEmits<{
-  fileInfos: [value: string | null];
+  fileInfos: [value: Record<string, string>];
+  fileLoaded: [value: boolean];
 }>();
 
 const filesStore = useFilesStore();
@@ -66,6 +70,10 @@ function cancelFile() {
 }
 
 function updateFile(newFile: File | null) {
+  if (!newFile) {
+    file.value = null;
+    return;
+  }
   file.value = newFile;
 }
 
@@ -74,10 +82,8 @@ async function upload() {
 
   try {
     if (!props.pointCloudLoader) {
-      // Upload classique FS-like → filesStore.uploadFile gère parent_id
       await uploadFile(file.value);
     } else {
-      // Upload point cloud → spécifique
       await uploadPointCloudFile(file.value, props.keepOnServer, props.folderId);
     }
   } catch (err) {
@@ -148,8 +154,8 @@ async function uploadPointCloudFile(file: File, keepOnServer: boolean, folderId:
     if (res.isOk) {
       fileUploadProgress.value.percent = 1;
       fileUploadProgress.value.color = 'green-4';
-      $q.notify({ type: 'positive', message: res.result || 'Fichier uploadé avec succès.' });
-      emit('fileInfos', res.data || null);
+      $q.notify({ type: 'positive', message: res.data['details'] || 'Fichier uploadé avec succès.' });
+      emit('fileInfos', res.data);
     } else {
       throw new Error(res.result || 'Erreur upload.');
     }
@@ -171,6 +177,19 @@ async function uploadPointCloudFile(file: File, keepOnServer: boolean, folderId:
     throw err;
   }
 }
+
+emitter.on('finished', () => {
+  upload().catch((err) => {
+    console.error("Erreur lors de l'upload :", err);
+  });
+});
+
+watch(
+  () => file.value,
+  (newVal) => {
+    if (newVal) emitter.emit('data', { message: `Fichier chargé : ${newVal.name}`, timestamp: Date.now() });
+  }
+);
 
 onBeforeUnmount(cancelFile);
 </script>

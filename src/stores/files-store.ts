@@ -65,7 +65,7 @@ export const useFilesStore = defineStore('files', () => {
       if (res.isOk) {
         rootTree.value = res.data;
         currentFolder.value = rootTree.value;
-        currentFolderDisplayPath.value = [rootTree.value.name || 'root'];
+        currentFolderDisplayPath.value = [rootTree.value.name];
       }
     } catch (err) {
       $q.notify({ type: 'negative', message: 'Impossible de charger les fichiers.' });
@@ -100,7 +100,7 @@ export const useFilesStore = defineStore('files', () => {
   function goToHome() {
     if (!rootTree.value) return;
     currentFolder.value = rootTree.value;
-    currentFolderDisplayPath.value = [rootTree.value.name || 'root'];
+    currentFolderDisplayPath.value = [rootTree.value.name];
   }
 
   // --- Upload ---
