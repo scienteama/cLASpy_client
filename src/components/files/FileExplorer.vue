@@ -43,7 +43,9 @@
 
     <!-- Table de fichiers -->
     <q-card-section>
-      <q-table :rows="rows" :columns="columns" row-key="id" flat bordered :loading="loading" @row-dblclick="onRowDblClick" virtual-scroll v-model:pagination="pagination" :rows-per-page-options="[0]">
+      <q-table :rows="rows" :columns="columns" row-key="id" flat bordered :loading="loading" @row-dblclick="onRowDblClick" virtual-scroll v-model:pagination="pagination" :rows-per-page-options="[0]"
+               selection="single"
+               v-model:selected="selectedItems">
         <template v-slot:header-cell-actions>
           <q-th class="q-pa-none flex justify-end items-center">
             <q-btn color="secondary" icon="add" dense outline @click="startCreateDir()">
@@ -90,6 +92,12 @@
             <span v-if="props.row.user_id == currentUser?.id">Vous</span>
             <span v-else>{{ props.row.user_id }}</span>
           </q-td>
+        </template>
+
+        <template v-slot:header-cell-select="props">
+          <q-th auto-width>
+            <q-checkbox v-model="props.selected"/>
+          </q-th>
         </template>
 
         <template v-slot:body-cell-actions="props">
@@ -163,7 +171,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useFilesStore } from 'src/stores/files-store';
 import InputFile from 'src/components/files/InputFile.vue';
@@ -173,6 +181,7 @@ import type { FileModel, FolderModel } from 'src/types/files.type';
 import ConfirmDialog from '../tools/ConfirmDialog.vue';
 import { useUserStore } from 'src/stores/users-store';
 import { fileService } from 'src/services/files.service';
+import { emitter } from 'src/event-emitter';
 
 const filesStore = useFilesStore();
 const userStore = useUserStore();
@@ -183,6 +192,7 @@ defineProps({
   showTitle: { type: Boolean, default: true },
 });
 
+const selectedItems = ref<(FileModel | FolderModel)[]>([]);
 const { rows, loading, canGoBack, rootTree, currentFolder } = storeToRefs(filesStore);
 const { isAdmin, currentUser } = storeToRefs(userStore);
 const { reloadRoot, goBack, goToFolder, renameItem, deleteItem, goToHome, createFolder, refreshCurrentFolder } = filesStore;
@@ -328,6 +338,21 @@ function removeItem(item: { id: string; name: string; type: string }) {
     });
   });
 }
+
+watch(
+  () => selectedItems.value,
+  (newVal) => {
+    if (newVal.length == 1) {
+      const item = newVal[0];
+      if (item?.type == 'file') {
+        emitter.emit('existing-file-event', { file: item });
+      }
+    }
+    else {
+      emitter.emit('existing-file-event', { file: null });
+    }
+  }
+);
 
 onMounted(async () => {
   await reloadRoot();

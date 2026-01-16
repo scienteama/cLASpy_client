@@ -1,6 +1,7 @@
 <template>
   <div class="items-start q-gutter-y-md" style="width: auto; min-width: 70%">
-    <q-file :model-value="file" @update:model-value="updateFile" label="Uploader un fichier" outlined :clearable="!fileUploadProgress.uploading">
+    <q-file :model-value="file" @update:model-value="updateFile" :label="pointCloudLoader ? 'Uploader ou sélectionner un fichier' : 'Uploader un fichier'"
+            outlined :clearable="!fileUploadProgress.uploading">
       <template #before>
         <q-icon name="fa-solid fa-paperclip" color="primary" />
       </template>
@@ -43,7 +44,7 @@ import { trainerService } from 'src/services/training.service';
 import { useQuasar } from 'quasar';
 import type { AxiosError, AxiosProgressEvent } from 'axios';
 import { type ErrorResponse, isAxiosErrorResponse } from 'src/types/api.type';
-import { emitter } from 'src/event-bus';
+import { emitter } from 'src/event-emitter';
 
 const $q = useQuasar();
 
@@ -59,7 +60,7 @@ const emit = defineEmits<{
 }>();
 
 const filesStore = useFilesStore();
-const { uploadFile } = filesStore;
+const { uploadFile, refreshCurrentFolder } = filesStore;
 const { fileUploadProgress } = storeToRefs(filesStore);
 
 const file = ref<File | null>(null);
@@ -156,6 +157,7 @@ async function uploadPointCloudFile(file: File, keepOnServer: boolean, folderId:
       fileUploadProgress.value.color = 'green-4';
       $q.notify({ type: 'positive', message: res.data['details'] || 'Fichier uploadé avec succès.' });
       emit('fileInfos', res.data);
+      await refreshCurrentFolder();
     } else {
       throw new Error(res.result || 'Erreur upload.');
     }
@@ -187,7 +189,7 @@ emitter.on('finished', () => {
 watch(
   () => file.value,
   (newVal) => {
-    if (newVal) emitter.emit('data', { message: `Fichier chargé : ${newVal.name}`, timestamp: Date.now() });
+    emitter.emit('upload-file-event', { file: newVal });
   }
 );
 
