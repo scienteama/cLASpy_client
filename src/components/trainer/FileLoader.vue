@@ -6,8 +6,7 @@
         <div class="text-subtitle1 q-mb-sm col-2">Fichier d'entrée :</div>
         <div class="col">
           <template v-if="fileLoaded === null">
-            <InputFile class="col-12" :point-cloud-loader="true" :keep-on-server="keepOnServer" :folderId="folderId"
-              @file-infos="fileInfosEmitter" />
+            <InputFile class="col-12" :point-cloud-loader="true" :keep-on-server="keepOnServer" :folderId="folderId" @file-infos="fileInfosEmitter" />
           </template>
 
           <template v-if="fileLoaded">
@@ -44,11 +43,9 @@
         <div class="col">
           <div class="row items-center justify-start">
             <div class="col-auto">
-              <q-checkbox ref="keepOnServerRef" v-model="keepOnServer" class="q-ml-sm"
-                :disable="(!isNullOrEmpty(fileLoaded))" />
+              <q-checkbox ref="keepOnServerRef" v-model="keepOnServer" class="q-ml-sm" :disable="!isNullOrEmpty(fileLoaded)" />
             </div>
-            <div :class="!isNullOrEmpty(fileLoaded) ? 'text-strike' : '' + ' col-auto q-ml-sm q-mr-lg'">
-              Conserver le fichier d'entrée sur le serveur ?</div>
+            <div :class="!isNullOrEmpty(fileLoaded) ? 'text-strike' : '' + ' col-auto q-ml-sm q-mr-lg'">Conserver le fichier d'entrée sur le serveur ?</div>
             <div class="col-auto q-ml-lg">
               <q-banner v-if="!isNullOrEmpty(fileLoaded)" class="bg-yellow-3" dense rounded>
                 <template v-slot:avatar>
@@ -74,9 +71,7 @@
         <template v-slot:avatar>
           <q-icon name="info" size="sm" />
         </template>
-        Si l'option « Conserver le fichier » est décochée, celui-ci sera supprimé à la fin du traitement et un dossier
-        de
-        sortie sera créé par défaut dans
+        Si l'option « Conserver le fichier » est décochée, celui-ci sera supprimé à la fin du traitement et un dossier de sortie sera créé par défaut dans
         <span class="text-bold text-dark">"data/storage/outputs/"</span>.
       </q-banner>
     </q-card-section>
@@ -84,9 +79,7 @@
     <template v-if="fileInfos">
       <q-separator vertical />
       <q-card-section class="col-3">
-        <q-banner class="bg-blue-1 text-primary text-center" dense rounded>
-          Détails :
-        </q-banner>
+        <q-banner class="bg-blue-1 text-primary text-center" dense rounded> Détails : </q-banner>
         <q-card-section flat class="q-pa-md">
           <pre class="text-accent text-center">{{ fileInfos }}</pre>
         </q-card-section>
@@ -134,8 +127,8 @@ const folderPath = computed(() => {
 });
 
 emitter.on('existing-file-event', (payload) => {
-  fileLoaded.value = payload.file ? payload.file.name : null
-})
+  fileLoaded.value = payload.file ? payload.file.name : null;
+});
 
 const fileInfosEmitter = (msg: Record<string, string>) => {
   if (msg['claspy_msg']) {
@@ -149,16 +142,14 @@ const fileInfosEmitter = (msg: Record<string, string>) => {
 watch(
   () => fileLoaded.value,
   (newVal) => {
-     emit('fileLoaded', newVal)
+    emit('fileLoaded', newVal);
   }
 );
 
 onMounted(async () => {
-  await nextTick()
-  const el = keepOnServerRef.value?.$el as HTMLElement
-  el?.focus()
-  el?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-})
-
+  await nextTick();
+  const el = keepOnServerRef.value?.$el as HTMLElement;
+  el?.focus();
+  el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+});
 </script>
-

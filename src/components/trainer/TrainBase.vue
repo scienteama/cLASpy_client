@@ -9,8 +9,8 @@
         </q-stepper-navigation>
       </q-step>
 
-      <q-step :name="2" title="Sélection de l'algorithme" icon="fa-solid fa-gears" :done="step > 2">
-        Sélection de l'algorithme de machine learning.
+      <q-step :name="2" title="Paramètres" icon="fa-solid fa-gears" :done="step > 2">
+        <AlgoSelector />
         <q-stepper-navigation>
           <q-btn @click="step = 2" color="primary" label="Continue" />
           <q-btn flat @click="step = 1" color="primary" label="Back" class="q-ml-sm" />
@@ -23,7 +23,7 @@
 import { ref } from 'vue';
 import FileLoader from './FileLoader.vue';
 import { emitter } from 'src/event-emitter';
-
+import AlgoSelector from './AlgoSelector.vue';
 
 const step = ref(1);
 const canUpload = ref(false);

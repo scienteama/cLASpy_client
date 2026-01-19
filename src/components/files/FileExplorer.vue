@@ -43,9 +43,20 @@
 
     <!-- Table de fichiers -->
     <q-card-section>
-      <q-table :rows="rows" :columns="columns" row-key="id" flat bordered :loading="loading" @row-dblclick="onRowDblClick" virtual-scroll v-model:pagination="pagination" :rows-per-page-options="[0]"
-               selection="single"
-               v-model:selected="selectedItems">
+      <q-table
+        :rows="rows"
+        :columns="columns"
+        row-key="id"
+        flat
+        bordered
+        :loading="loading"
+        @row-dblclick="onRowDblClick"
+        virtual-scroll
+        v-model:pagination="pagination"
+        :rows-per-page-options="[0]"
+        selection="single"
+        v-model:selected="selectedItems"
+      >
         <template v-slot:header-cell-actions>
           <q-th class="q-pa-none flex justify-end items-center">
             <q-btn color="secondary" icon="add" dense outline @click="startCreateDir()">
@@ -96,7 +107,7 @@
 
         <template v-slot:header-cell-select="props">
           <q-th auto-width>
-            <q-checkbox v-model="props.selected"/>
+            <q-checkbox v-model="props.selected" />
           </q-th>
         </template>
 
@@ -347,8 +358,7 @@ watch(
       if (item?.type == 'file') {
         emitter.emit('existing-file-event', { file: item });
       }
-    }
-    else {
+    } else {
       emitter.emit('existing-file-event', { file: null });
     }
   }

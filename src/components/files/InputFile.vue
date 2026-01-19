@@ -1,7 +1,12 @@
 <template>
   <div class="items-start q-gutter-y-md" style="width: auto; min-width: 70%">
-    <q-file :model-value="file" @update:model-value="updateFile" :label="pointCloudLoader ? 'Uploader ou sélectionner un fichier' : 'Uploader un fichier'"
-            outlined :clearable="!fileUploadProgress.uploading">
+    <q-file
+      :model-value="file"
+      @update:model-value="updateFile"
+      :label="pointCloudLoader ? 'Uploader ou sélectionner un fichier' : 'Uploader un fichier'"
+      outlined
+      :clearable="!fileUploadProgress.uploading"
+    >
       <template #before>
         <q-icon name="fa-solid fa-paperclip" color="primary" />
       </template>
