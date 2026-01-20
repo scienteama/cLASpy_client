@@ -81,14 +81,31 @@
         </template>
       </div>
     </div>
+
+    <div>
+      <q-card flat>
+        <q-card-section>
+          <q-input v-model="numberOfSamples" type="number" label="Nombre d'échantillons" />
+        </q-card-section>
+      </q-card>
+    </div>
   </q-card>
 </template>
 
 <script setup lang="ts">
+import { storeToRefs } from 'pinia';
 import { type QTableColumn } from 'quasar';
 import { trainerService } from 'src/services/training.service';
+import { useTrainerStore } from 'src/stores/train-store';
 import type { SklearnAlgorithmName, SklearnAlgorithmParams } from 'src/types/sklearn/algorithms.types';
 import { computed, onMounted, ref } from 'vue';
+
+const trainerStore = useTrainerStore();
+const { pointCloudFile } = storeToRefs(trainerStore);
+
+// si > 1_000_000 => 1_000_000
+// sinon nb_points
+const numberOfSamples = ref((pointCloudFile.value?.pointsNumber ?? 0) / 1_000_000);
 
 const algorithms = ref<string[]>([]);
 const tableOpen = ref(true);

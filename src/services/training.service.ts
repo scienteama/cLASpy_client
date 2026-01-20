@@ -1,6 +1,6 @@
 import { api } from 'src/boot/axios';
 import type { WorkDone } from 'src/types/api.type';
-import type { UploadFileParams } from 'src/types/files.type';
+import type { PointCloudFile, UploadFileParams } from 'src/types/files.type';
 import type { SklearnAlgorithmName, SklearnAlgorithmParams } from 'src/types/sklearn/algorithms.types';
 
 /**
@@ -8,10 +8,15 @@ import type { SklearnAlgorithmName, SklearnAlgorithmParams } from 'src/types/skl
  */
 
 class TrainerService {
-  async loadPointCloudFile(params: UploadFileParams): Promise<WorkDone<Record<string, string>>> {
-    const response = await api.post<WorkDone<Record<string, string>>>('/claspy_ml/load-data', params.data, {
+  async loadPointCloudFile(params: UploadFileParams): Promise<WorkDone<PointCloudFile>> {
+    const response = await api.post<WorkDone<PointCloudFile>>('/claspy_ml/load-data', params.data, {
       onUploadProgress: params.onUploadProgress ?? (() => {}),
     });
+    return response.data;
+  }
+
+  async getPointCloudFileInfos(fileId: string): Promise<WorkDone<PointCloudFile>> {
+    const response = await api.get<WorkDone<PointCloudFile>>(`/claspy_ml/load-file/${fileId}`);
     return response.data;
   }
 

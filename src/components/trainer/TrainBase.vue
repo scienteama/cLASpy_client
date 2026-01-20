@@ -2,7 +2,7 @@
   <q-page class="q-pa-md column q-gutter-md bg-grey-3">
     <q-stepper v-model="step" vertical animated keep-alive>
       <q-step :name="1" title="Sélection du nuage de points :" icon="file" :done="step > 1">
-        <FileLoader key="file-loader" @file-loaded="fileLoaderEmitter" />
+        <FileLoader key="file-loader" />
         <q-stepper-navigation>
           <q-btn v-if="canUpload" color="primary" label="Upload" icon="cloud_upload" @click="sendUploadEvent()" />
           <q-btn v-if="canContinue" @click="step = 2" color="primary" label="Continue" />
@@ -20,27 +20,22 @@
   </q-page>
 </template>
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import FileLoader from './FileLoader.vue';
-import { emitter } from 'src/event-emitter';
 import AlgoSelector from './AlgoSelector.vue';
+import { useTrainerStore } from 'src/stores/train-store';
+import { storeToRefs } from 'pinia';
+
+const trainerStore = useTrainerStore();
+const { fileToUpload, existingFile, uploadedFileName } = storeToRefs(trainerStore);
 
 const step = ref(1);
-const canUpload = ref(false);
-const canContinue = ref(false);
 
-function sendUploadEvent() {
-  emitter.emit('finished', undefined);
+const canUpload = computed(() => (fileToUpload.value ? true : false));
+const fileIsLoaded = computed(() => (existingFile.value ? existingFile.value.name : uploadedFileName.value));
+const canContinue = computed(() => fileIsLoaded.value);
+
+async function sendUploadEvent() {
+  await trainerStore.uploadPointCloudFile();
 }
-
-const fileLoaderEmitter = (evt: string | null) => {
-  if (evt) {
-    canUpload.value = false;
-  }
-  canContinue.value = evt ? true : false;
-};
-
-emitter.on('upload-file-event', (payload) => {
-  canUpload.value = payload.file ? true : false;
-});
 </script>

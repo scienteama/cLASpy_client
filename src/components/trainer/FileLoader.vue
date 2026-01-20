@@ -5,8 +5,8 @@
       <div class="row items-center justify-start col-12 q-mb-md">
         <div class="text-subtitle1 q-mb-sm col-2">Fichier d'entrée :</div>
         <div class="col">
-          <template v-if="fileLoaded === null">
-            <InputFile class="col-12" :point-cloud-loader="true" :keep-on-server="keepOnServer" :folderId="folderId" @file-infos="fileInfosEmitter" />
+          <template v-if="fileLoaded == null">
+            <InputFile class="col-12" :is-train-mode="true" :folderId="folderId" />
           </template>
 
           <template v-if="fileLoaded">
@@ -76,75 +76,87 @@
       </q-banner>
     </q-card-section>
 
-    <template v-if="fileInfos">
+    <template v-if="pointCloudFile">
       <q-separator vertical />
       <q-card-section class="col-3">
-        <q-banner class="bg-blue-1 text-primary text-center" dense rounded> Détails : </q-banner>
+        <q-banner class="bg-blue-1 text-primary text-center" style="border: 1px solid rgba(0, 0, 0, 0.12)" dense rounded> Détails : </q-banner>
         <q-card-section flat class="q-pa-md">
-          <pre class="text-accent text-center">{{ fileInfos }}</pre>
+          <q-list bordered padding class="q-pa-md bg-blue-1 text-primary">
+            <q-item>
+              <q-item-section>Nom :</q-item-section>
+              <q-item-section class="text-accent text-bold" style="word-break: break-word"> {{ pointCloudFile.name }}</q-item-section>
+            </q-item>
+
+            <q-item>
+              <q-item-section>Type :</q-item-section>
+              <q-item-section class="text-accent text-bold">{{ pointCloudFile.type }}</q-item-section>
+            </q-item>
+
+            <q-item>
+              <q-item-section>Nombre de points :</q-item-section>
+              <q-item-section class="text-accent text-bold">{{ pointCloudFile.pointsNumber }}</q-item-section>
+            </q-item>
+
+            <q-item v-if="pointCloudFile.lasVersion">
+              <q-item-section>Version LAS :</q-item-section>
+              <q-item-section class="text-accent text-bold">{{ pointCloudFile.lasVersion }}</q-item-section>
+            </q-item>
+
+            <q-item v-if="pointCloudFile.lasPointFormat">
+              <q-item-section>LAS Point Format :</q-item-section>
+              <q-item-section class="text-accent text-bold">{{ pointCloudFile.lasPointFormat }}</q-item-section>
+            </q-item>
+
+            <q-item v-if="pointCloudFile.featuresList">
+              <q-item-section>Attributs :</q-item-section>
+              <q-item-section>
+                <span class="text-accent text-bold" style="cursor: pointer; color: #1976d2" @click="showFeaturesDialog = true">
+                  {{ pointCloudFile.featuresList.length }}
+                </span>
+              </q-item-section>
+            </q-item>
+          </q-list>
         </q-card-section>
       </q-card-section>
     </template>
   </q-card>
 
   <q-card v-if="showFileExplorer" flat bordered class="q-pa-md">
-    <FileExplorer :show-input="false" :show-title="false" />
+    <FileExplorer :show-input="false" :show-title="false" :train-mode="true" />
   </q-card>
+
+  <q-dialog v-model="showFeaturesDialog">
+    <FeaturesList v-if="pointCloudFile?.featuresList" :features="pointCloudFile?.featuresList" />
+  </q-dialog>
 </template>
 
 <script setup lang="ts">
 import InputFile from 'src/components/files/InputFile.vue';
 import FileExplorer from 'src/components/files/FileExplorer.vue';
-import { computed, nextTick, onMounted, ref, watch } from 'vue';
+import FeaturesList from './FeaturesList.vue';
+import { computed, nextTick, onMounted, ref } from 'vue';
 import { useFilesStore } from 'src/stores/files-store';
 import { storeToRefs } from 'pinia';
 import { useConfigStore } from 'src/stores/config-store';
-import { emitter } from 'src/event-emitter';
 import { isNullOrEmpty } from 'src/utils';
 import { QCheckbox } from 'quasar';
+import { useTrainerStore } from 'src/stores/train-store';
 
-const fileInfos = ref<string | null>(null);
-const fileLoaded = ref<string | null>(null);
-const keepOnServer = ref<boolean>(false);
-const keepOnServerRef = ref<QCheckbox | null>(null);
-const showFileExplorer = ref<boolean>(true);
+const trainerStore = useTrainerStore();
 const fileStore = useFilesStore();
 const configStore = useConfigStore();
-const { currentFolderDisplayPath, currentFolder } = storeToRefs(fileStore);
+const { pointCloudFile, existingFile, uploadedFileName, keepOnServer, folderId } = storeToRefs(trainerStore);
+const { currentFolderDisplayPath } = storeToRefs(fileStore);
 
-const emit = defineEmits<{
-  fileLoaded: [value: string | null];
-}>();
+const keepOnServerRef = ref<QCheckbox | null>(null);
+const showFileExplorer = ref<boolean>(true);
+const showFeaturesDialog = ref<boolean>(false);
 
+const fileLoaded = computed(() => (existingFile.value ? existingFile.value.name : uploadedFileName.value));
 const defaultOutput = computed(() => `${configStore.apiSettings?.defaultOutputDir}/yyymmdd_hhmmss`);
-
-const folderId = computed(() => {
-  return currentFolder.value?.id || 'root';
-});
-
 const folderPath = computed(() => {
   return currentFolderDisplayPath.value.join('/');
 });
-
-emitter.on('existing-file-event', (payload) => {
-  fileLoaded.value = payload.file ? payload.file.name : null;
-});
-
-const fileInfosEmitter = (msg: Record<string, string>) => {
-  if (msg['claspy_msg']) {
-    fileInfos.value = msg['claspy_msg'];
-  }
-  if (msg['path']) {
-    fileLoaded.value = msg['path'];
-  }
-};
-
-watch(
-  () => fileLoaded.value,
-  (newVal) => {
-    emit('fileLoaded', newVal);
-  }
-);
 
 onMounted(async () => {
   await nextTick();

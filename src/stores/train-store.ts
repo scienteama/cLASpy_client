@@ -1,0 +1,145 @@
+import type { AxiosError, AxiosProgressEvent } from 'axios';
+import { type ErrorResponse, isAxiosErrorResponse } from 'src/types/api.type';
+import type { FileModel, PointCloudFile } from 'src/types/files.type';
+import { defineStore, storeToRefs } from 'pinia';
+import { trainerService } from 'src/services/training.service';
+import { computed, ref, watch } from 'vue';
+import { useFilesStore } from './files-store';
+import { useQuasar } from 'quasar';
+
+export const useTrainerStore = defineStore('trainer', () => {
+  /* Stores */
+  const $q = useQuasar();
+  const filesStore = useFilesStore();
+  const { fileUploadProgress, currentFolder } = storeToRefs(filesStore);
+
+  /* State */
+  const pointCloudFile = ref<PointCloudFile>();
+  const fileToUpload = ref<File | null>(null);
+  const existingFile = ref<FileModel | null>(null);
+  const uploadedFileName = ref<string | null>(null);
+  const uploadIsDone = ref(false);
+  const keepOnServer = ref(false);
+
+  /* Computed */
+  const folderId = computed(() => currentFolder.value?.id ?? 'root');
+
+  /* Methods */
+  const loadPointCloudFileInfos = async (fileId: string) => {
+    const res = await trainerService.getPointCloudFileInfos(fileId);
+    if (res.isOk && res.data) {
+      console.log(res.data);
+      pointCloudFile.value = res.data;
+    }
+  };
+
+  const markUploadDone = () => {
+    uploadIsDone.value = true;
+  };
+
+  async function uploadPointCloudFile(): Promise<void> {
+    if (!fileToUpload.value) return;
+
+    fileUploadProgress.value = {
+      percent: 0,
+      color: 'green-2',
+      error: false,
+      icon: 'fa-regular fa-file',
+      uploading: true,
+      speed: 0,
+    };
+
+    const formData = new FormData();
+    formData.append('file', fileToUpload.value);
+    formData.append('keepOnServer', keepOnServer.value ? 'true' : 'false');
+    formData.append('folderId', folderId.value);
+
+    let lastLoaded = 0;
+    let lastTime = Date.now();
+
+    try {
+      const res = await trainerService.loadPointCloudFile({
+        data: formData,
+        onUploadProgress: (progressEvent?: AxiosProgressEvent) => {
+          if (progressEvent?.total && progressEvent.loaded) {
+            const now = Date.now();
+            const deltaTime = now - lastTime;
+            const deltaBytes = progressEvent.loaded - lastLoaded;
+
+            if (deltaTime > 0 && deltaBytes > 0) {
+              const bytesPerSecond = (deltaBytes / deltaTime) * 1000;
+              const megaPerSecond = bytesPerSecond / (1024 * 1024);
+              fileUploadProgress.value.speed = parseFloat(megaPerSecond.toFixed(2));
+            }
+
+            lastLoaded = progressEvent.loaded;
+            lastTime = now;
+
+            const percent = progressEvent.loaded / progressEvent.total;
+            fileUploadProgress.value.percent = percent;
+            fileUploadProgress.value.color = percent < 1 ? 'green-2' : 'green-4';
+          }
+        },
+      });
+
+      fileUploadProgress.value.uploading = false;
+      fileUploadProgress.value.speed = 0;
+
+      if (res.isOk) {
+        fileUploadProgress.value.percent = 1;
+        fileUploadProgress.value.color = 'green-4';
+        $q.notify({ type: 'positive', message: `Fichier ${res.data.name} uploadé avec succès.` });
+        pointCloudFile.value = res.data;
+        uploadedFileName.value = res.data.name;
+        markUploadDone();
+        await filesStore.refreshCurrentFolder();
+      } else {
+        throw new Error(res.result || 'Erreur upload.');
+      }
+    } catch (err) {
+      fileUploadProgress.value.error = true;
+      fileUploadProgress.value.color = 'red-4';
+      fileUploadProgress.value.uploading = false;
+      fileUploadProgress.value.speed = 0;
+
+      let msg = 'Erreur lors du téléversement';
+      if ((err as AxiosError)?.response?.data && isAxiosErrorResponse((err as AxiosError).response?.data)) {
+        const data = (err as AxiosError).response?.data as ErrorResponse;
+        msg = data.data?.detail || data.result || msg;
+      } else if (err instanceof Error) {
+        msg = err.message;
+      }
+
+      $q.notify({ type: 'negative', message: msg });
+      throw err;
+    }
+  }
+
+  /* Watchers */
+  watch(existingFile, async (newVal) => {
+    if (newVal?.id) {
+      await loadPointCloudFileInfos(newVal.id);
+    } else {
+      pointCloudFile.value = undefined;
+    }
+  });
+
+  watch(uploadIsDone, (done) => {
+    if (done) {
+      fileToUpload.value = null;
+      uploadIsDone.value = false;
+    }
+  });
+
+  return {
+    pointCloudFile,
+    fileToUpload,
+    existingFile,
+    uploadedFileName,
+    uploadIsDone,
+    keepOnServer,
+    folderId,
+    markUploadDone,
+    uploadPointCloudFile,
+  };
+});

@@ -49,3 +49,12 @@ export function isFolder(item: FolderModel | FileModel): item is FolderModel {
 export function isFile(item: FolderModel | FileModel): item is FileModel {
   return item.type === 'file';
 }
+
+export interface PointCloudFile {
+  name: string;
+  type: '.csv' | '.las';
+  pointsNumber: number;
+  lasVersion?: number;
+  lasPointFormat?: number;
+  featuresList?: string[];
+}

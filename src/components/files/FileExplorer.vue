@@ -192,20 +192,23 @@ import type { FileModel, FolderModel } from 'src/types/files.type';
 import ConfirmDialog from '../tools/ConfirmDialog.vue';
 import { useUserStore } from 'src/stores/users-store';
 import { fileService } from 'src/services/files.service';
-import { emitter } from 'src/event-emitter';
+import { useTrainerStore } from 'src/stores/train-store';
 
 const filesStore = useFilesStore();
 const userStore = useUserStore();
+const trainerStore = useTrainerStore();
 const $q = useQuasar();
 
-defineProps({
+const props = defineProps({
   showInput: { type: Boolean, default: true },
   showTitle: { type: Boolean, default: true },
+  trainMode: { type: Boolean, default: false },
 });
 
 const selectedItems = ref<(FileModel | FolderModel)[]>([]);
 const { rows, loading, canGoBack, rootTree, currentFolder } = storeToRefs(filesStore);
 const { isAdmin, currentUser } = storeToRefs(userStore);
+const { existingFile } = storeToRefs(trainerStore);
 const { reloadRoot, goBack, goToFolder, renameItem, deleteItem, goToHome, createFolder, refreshCurrentFolder } = filesStore;
 
 const pagination = ref({ rowsPerPage: 0 });
@@ -353,13 +356,15 @@ function removeItem(item: { id: string; name: string; type: string }) {
 watch(
   () => selectedItems.value,
   (newVal) => {
-    if (newVal.length == 1) {
-      const item = newVal[0];
-      if (item?.type == 'file') {
-        emitter.emit('existing-file-event', { file: item });
+    if (props.trainMode) {
+      if (newVal.length == 1) {
+        const item = newVal[0];
+        if (item?.type == 'file') {
+          existingFile.value = item;
+        }
+      } else {
+        existingFile.value = null;
       }
-    } else {
-      emitter.emit('existing-file-event', { file: null });
     }
   }
 );
