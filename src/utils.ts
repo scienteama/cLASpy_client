@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { h } from 'vue';
 import type { FileModel, FolderModel } from './types/files.type';
 import type { User } from './types/users.type';
 import { camelCase, mapKeys } from 'lodash';
@@ -5,11 +7,12 @@ import { camelCase, mapKeys } from 'lodash';
 export function iconForFile(mimetype: string) {
   if (!mimetype) return 'fa-regular fa-file';
 
+  // for .model => mdi-file-cog
   if (mimetype.startsWith('image/')) return 'fa-regular fa-file-image';
   if (mimetype.startsWith('video/')) return 'fa-regular fa-file-video';
   if (mimetype.startsWith('audio/')) return 'fa-regular fa-file-audio';
   if (mimetype === 'application/pdf') return 'fa-regular fa-file-pdf';
-  if (mimetype === 'application/las') return 'blur_on';
+  if (mimetype === 'application/las') return 'mdi-data-matrix';
   if (mimetype === 'application/msword' || mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') return 'fa-regular fa-file-word';
   if (mimetype === 'application/vnd.ms-excel' || mimetype === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') return 'fa-regular fa-file-excel';
   if (mimetype === 'application/vnd.ms-powerpoint' || mimetype === 'application/vnd.openxmlformats-officedocument.presentationml.presentation') return 'fa-regular fa-file-powerpoint';
@@ -30,7 +33,7 @@ export function colorForFile(mimetype: string) {
   if (mimetype.startsWith('video/')) return 'purple';
   if (mimetype.startsWith('audio/')) return 'orange';
   if (mimetype === 'application/pdf') return 'red';
-  if (mimetype === 'application/las') return 'amber';
+  if (mimetype === 'application/las') return 'orange';
   if (mimetype === 'application/msword' || mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') return 'blue-grey';
   if (mimetype === 'application/vnd.ms-excel' || mimetype === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') return 'green';
   if (mimetype === 'application/vnd.ms-powerpoint' || mimetype === 'application/vnd.openxmlformats-officedocument.presentationml.presentation') return 'deep-orange';
@@ -188,3 +191,134 @@ export function isFolder(item: FileModel | FolderModel): item is FolderModel {
 }
 
 export const transformToCamelCase = <T extends object>(obj: T): T => mapKeys(obj, (_, key) => camelCase(key)) as T;
+
+export function roundTo(value: number, decimals = 0): number {
+  const factor = 10 ** decimals;
+  return Math.round((value + Number.EPSILON) * factor) / factor;
+}
+
+export const scorerList = [
+  'accuracy',
+  'balanced_accuracy',
+  'top_k_accuracy',
+  'average_precision',
+  'neg_brier_score',
+  'f1_micro',
+  'f1_macro',
+  'f1_weighted',
+  'precision_micro',
+  'precision_macro',
+  'precision_weighted',
+  'recall_micro',
+  'recall_macro',
+  'recall_weighted',
+  'roc_auc',
+  'roc_auc_ovr',
+  'roc_auc_ovo',
+  'roc_ovr_weighted',
+  'roc_ovo_weighted',
+];
+
+export function newSeed() {
+  const highValue = Math.pow(2, 31) - 1; // 2147483647
+  const seed = Math.floor(Math.random() * highValue);
+  return seed;
+}
+
+export function parseTypeInfo(typeinfo: string, name: string) {
+  const info = typeinfo.toLowerCase();
+
+  return {
+    name: name,
+    isBool: info.includes('bool'),
+    isInt: info.includes('int'),
+    isFloat: info.includes('float'),
+    isNumeric: info.includes('int') || info.includes('float'),
+    isNonNegative: info.includes('non-negative'),
+    isArray: info.includes('array') || info.includes('list'),
+    allowsNone: info.includes('none'),
+    hasEnum: /\{.*\}/.test(info),
+    enumValues: extractEnumValues(typeinfo),
+  };
+}
+
+function extractEnumValues(typeinfo: string): string[] | null {
+  const match = typeinfo.match(/\{([^}]+)\}/);
+  if (!match) return null;
+
+  return match[1]!.split(',').map((v) => v.replace(/['"]/g, '').trim());
+}
+
+export function getInputProps(row: any, name: string) {
+  const props: Record<string, any> = {};
+  const t = parseTypeInfo(row.typeinfo, name);
+
+  /* =======================
+     QCheckbox
+  ======================= */
+  if (t.isBool) {
+    props.trueValue = true;
+    props.falseValue = false;
+    props.dense = true;
+    return props;
+  }
+
+  /* =======================
+     QSelect (enum)
+  ======================= */
+  if (t.hasEnum && t.enumValues?.length) {
+    props.options = [...t.enumValues];
+    props.useInput = true;
+    props.newValueMode = 'add';
+    props.emitValue = true;
+    props.mapOptions = false;
+    props.dense = true;
+    props.clearable = t.allowsNone;
+    props.hideDropdownIcon = false;
+    props.inputDebounce = 0;
+    props.borderless = true;
+
+    // Slot pour styliser la valeur sélectionnée
+    props.selectedItemSlot = (scope: any) => {
+      return h(
+        'span',
+        {
+          style: {
+            color: '#9c27b0',
+            fontWeight: 'bold',
+          },
+        },
+        scope.opt
+      );
+    };
+
+    return props;
+  }
+
+  /* =======================
+     QInput numérique
+  ======================= */
+  if (t.isNumeric) {
+    props.type = 'number';
+    props.step = t.isInt ? 1 : 'any';
+    if (t.isNonNegative) props.min = 0;
+  }
+
+  /* =======================
+     QInput array / autre
+  ======================= */
+  if (t.isArray) {
+    props.type = 'text';
+    props.placeholder = '[1, 2, 3]';
+  }
+
+  /* =======================
+     Commun
+  ======================= */
+  props.dense = true;
+  props.borderless = true;
+  props.clearable = t.allowsNone;
+  props.inputClass = 'text-bold text-accent';
+
+  return props;
+}

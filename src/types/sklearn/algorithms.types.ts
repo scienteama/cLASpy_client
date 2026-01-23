@@ -151,6 +151,36 @@ type VotingParams = {
   };
 };
 
+// ---------------- MLP ----------------
+type MLPParams = {
+  description: string;
+  parameters: {
+    activation: Parameter<'identity' | 'logistic' | 'tanh' | 'relu'>;
+    alpha: Parameter<number>;
+    batch_size: Parameter<number | 'auto'>;
+    beta_1: Parameter<number>;
+    beta_2: Parameter<number>;
+    early_stopping: Parameter<boolean>;
+    epsilon: Parameter<number>;
+    hidden_layer_sizes: Parameter<number[]>;
+    learning_rate: Parameter<'constant' | 'invscaling' | 'adaptive'>;
+    learning_rate_init: Parameter<number>;
+    max_fun: Parameter<number>;
+    max_iter: Parameter<number>;
+    momentum: Parameter<number>;
+    n_iter_no_change: Parameter<number>;
+    nesterovs_momentum: Parameter<boolean>;
+    power_t: Parameter<number>;
+    random_state: Parameter<number | null>;
+    shuffle: Parameter<boolean>;
+    solver: Parameter<'lbfgs' | 'sgd' | 'adam'>;
+    tol: Parameter<number>;
+    validation_fraction: Parameter<number>;
+    verbose: Parameter<boolean>;
+    warm_start: Parameter<boolean>;
+  };
+};
+
 // ---------------- Aliases Regressors ----------------
 type AdaBoostRegressorParams = AdaBoostParams;
 type GradientBoostingRegressorParams = GradientBoostingParams;
@@ -160,6 +190,7 @@ type ExtraTreesRegressorParams = ExtraTreesParams;
 type BaggingRegressorParams = BaggingParams;
 type VotingRegressorParams = VotingParams;
 type StackingRegressorParams = StackingParams;
+type MLPRegressorParams = MLPParams;
 
 // ---------------- SklearnAlgorithmParams ----------------
 export type SklearnAlgorithmParams = {
@@ -180,4 +211,6 @@ export type SklearnAlgorithmParams = {
   StackingRegressor: StackingRegressorParams;
   VotingClassifier: VotingParams;
   VotingRegressor: VotingRegressorParams;
+  MLPClassifier: MLPParams;
+  MLPRegressor: MLPRegressorParams;
 };
