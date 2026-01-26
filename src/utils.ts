@@ -3,6 +3,7 @@ import { h } from 'vue';
 import type { FileModel, FolderModel } from './types/files.type';
 import type { User } from './types/users.type';
 import { camelCase, mapKeys } from 'lodash';
+import { intRule, minRule, requiredRule } from './rules';
 
 export function iconForFile(mimetype: string) {
   if (!mimetype) return 'fa-regular fa-file';
@@ -225,9 +226,8 @@ export function newSeed() {
   return seed;
 }
 
-export function parseTypeInfo(typeinfo: string, name: string) {
+export function parseTypeInfo(typeinfo: string, defaultValue: string, name: string) {
   const info = typeinfo.toLowerCase();
-
   return {
     name: name,
     isBool: info.includes('bool'),
@@ -236,7 +236,7 @@ export function parseTypeInfo(typeinfo: string, name: string) {
     isNumeric: info.includes('int') || info.includes('float'),
     isNonNegative: info.includes('non-negative'),
     isArray: info.includes('array') || info.includes('list'),
-    allowsNone: info.includes('none'),
+    allowsNone: defaultValue === "None",
     hasEnum: /\{.*\}/.test(info),
     enumValues: extractEnumValues(typeinfo),
   };
@@ -251,7 +251,14 @@ function extractEnumValues(typeinfo: string): string[] | null {
 
 export function getInputProps(row: any, name: string) {
   const props: Record<string, any> = {};
-  const t = parseTypeInfo(row.typeinfo, name);
+  const t = parseTypeInfo(row.typeinfo, row.default, name);
+  props.hideBottomSpace = true;
+  props.noErrorIcon = true;
+  props.rules = [];
+
+  if (!t.allowsNone) {
+    props.rules.push(requiredRule(name, false));
+  }
 
   /* =======================
      QCheckbox
@@ -302,6 +309,16 @@ export function getInputProps(row: any, name: string) {
     props.type = 'number';
     props.step = t.isInt ? 1 : 'any';
     if (t.isNonNegative) props.min = 0;
+
+    if (t.isNonNegative) {
+      props.min = 0;
+      props.rules.push(minRule(0, false));
+    }
+
+    if (t.isInt) {
+      props.rules.push(intRule(false));
+    }
+
   }
 
   /* =======================
@@ -321,4 +338,8 @@ export function getInputProps(row: any, name: string) {
   props.inputClass = 'text-bold text-accent';
 
   return props;
+}
+
+export function isInvalid(row: any, rules: any[]) {
+  return rules.some(r => r(row.value) !== true)
 }

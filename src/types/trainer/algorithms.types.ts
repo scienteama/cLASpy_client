@@ -214,3 +214,15 @@ export type SklearnAlgorithmParams = {
   MLPClassifier: MLPParams;
   MLPRegressor: MLPRegressorParams;
 };
+
+export type AlgoParamValue =
+  | boolean
+  | number
+  | string
+  | Record<string, unknown>
+  | unknown[] 
+  | null;
+
+export interface AlgoParameters {
+  value: AlgoParamValue;
+}

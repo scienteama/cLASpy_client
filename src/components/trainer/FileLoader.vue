@@ -126,7 +126,7 @@
   </q-card>
 
   <q-dialog v-model="showFeaturesDialog">
-    <FeaturesList v-if="pointCloudFile?.featuresList" :features="pointCloudFile?.featuresList" />
+    <FeaturesList style="width: 95vh;" :item-clickable="false" @close="showFeaturesDialog = false"/>
   </q-dialog>
 </template>
 

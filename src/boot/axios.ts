@@ -17,8 +17,6 @@ export default defineBoot(({ app, router }) => {
     async (error: AxiosError) => {
       let msg = 'Une erreur est survenue.';
 
-      console.log(error.response);
-
       if (error.response?.data && isAxiosErrorResponse(error.response.data)) {
         const api_error = error.response.data;
         msg = api_error.data?.detail || api_error.result || msg;

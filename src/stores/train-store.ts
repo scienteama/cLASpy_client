@@ -28,7 +28,6 @@ export const useTrainerStore = defineStore('trainer', () => {
   const loadPointCloudFileInfos = async (fileId: string) => {
     const res = await trainerService.getPointCloudFileInfos(fileId);
     if (res.isOk && res.data) {
-      console.log(res.data);
       pointCloudFile.value = res.data;
     }
   };
@@ -36,6 +35,14 @@ export const useTrainerStore = defineStore('trainer', () => {
   const markUploadDone = () => {
     uploadIsDone.value = true;
   };
+
+  /**
+  * Si pointsNumber > 1_000_000 alors numberOfSamples = 1_000_000
+  * Sinon sinon numberOfSamples = pointsNumber
+  */
+  function getNumberOfSamples() {
+    return Math.min(pointCloudFile.value?.pointsNumber ?? 0, 1_000_000) / 1_000_000;
+  }
 
   async function uploadPointCloudFile(): Promise<void> {
     if (!fileToUpload.value) return;
@@ -141,5 +148,6 @@ export const useTrainerStore = defineStore('trainer', () => {
     folderId,
     markUploadDone,
     uploadPointCloudFile,
+    getNumberOfSamples
   };
 });

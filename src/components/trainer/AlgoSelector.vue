@@ -1,5 +1,6 @@
 <template>
   <q-card flat bordered class="q-pa-lg">
+    <q-form ref="formTrain" @submit.prevent.stop="submitTrain" @reset.prevent.stop="resetTrainForm">
     <div class="row items-start justify-between">
       <!-- Colonne de gauche -->
       <div class="col-6 scroll-no-bar" style="max-height: 80vh">
@@ -11,10 +12,16 @@
           color="secondary"
           label="Choix de l'algorithme"
           class="bg-teal-1 fixed-uniform-field"
+          hide-bottom-space
           @update:model-value="getAlgoParams()"
+          :rules="[val => !!val]"
         >
           <template #prepend>
             <q-icon name="fa-solid fa-gears" color="secondary" size="sm" />
+          </template>
+
+          <template v-slot:error>
+            Vous devez sélectionner un algorithme de ML
           </template>
         </q-select>
 
@@ -48,7 +55,9 @@
             </q-card-section>
             <q-card-section class="q-pa-none q-mb-md fit">
               <div class="row items-center justify-between">
-                <q-input v-model="trainingRatio" outlined dense type="number" hint="Ratio d'entraînement" min="0" style="width: 100%">
+                <q-input v-model="trainingRatio" outlined dense type="number" hint="Ratio d'entraînement"
+                    style="width: 100%"
+                    :rules="ratioRules">
                   <template v-slot:before>
                     <q-icon name="mdi-target-variant" color="primary" />
                   </template>
@@ -57,13 +66,17 @@
             </q-card-section>
             <q-card-section class="q-pa-none q-mb-md fit">
               <div class="row items-center justify-between">
-                <q-select v-model="scaler" :options="scalerOpts" outlined dense color="primary" hint="Scaler" style="width: 50%">
+                <q-select v-model="scaler" :options="scalerOpts" outlined dense color="primary" hint="Scaler"
+                  :rules="[val => !!val]"
+                  style="width: 50%">
                   <template v-slot:before>
                     <q-icon name="mdi-tune-vertical" color="primary" />
                   </template>
                   <q-tooltip>Définit la méthode de mise à l'échelle des données.</q-tooltip>
                 </q-select>
-                <q-select class="q-ml-md" v-model="scorer" :options="scorerOpt" outlined dense color="primary" hint="Scorer" style="width: 45%">
+                <q-select class="q-ml-md" v-model="scorer" :options="scorerList" outlined dense color="primary" hint="Scorer"
+                  :rules="[val => !!val]"
+                  style="width: 45%">
                   <template v-slot:before>
                     <q-icon name="mdi-tune-vertical" color="primary" />
                   </template>
@@ -98,7 +111,9 @@
                   <template v-slot:before>
                     <q-icon name="fa-solid fa-microchip" color="primary" />
                   </template>
-                  <q-tooltip>Définit le nombre de threads pour la validation croisée. Dans le cas de RandomForest, le nombre total de CPU utilisés = N_jobs CV x n_jobs.</q-tooltip>
+                  <q-tooltip>Définit le nombre de threads pour la validation croisée. Dans le cas de RandomForest, le nombre total de CPU utilisés = N_jobs CV x n_jobs.
+                    <br> -1 = Tous les threads disponibles.
+                  </q-tooltip>
                 </q-input>
               </div>
             </q-card-section>
@@ -122,9 +137,13 @@
               style="table-layout: fixed; width: 100%"
             >
               <template v-slot:body-cell-value="props">
-                <q-td style="border-bottom: 1px solid rgba(0, 0, 0, 0.12)">
+                <q-td style="border-bottom: 1px solid rgba(0, 0, 0, 0.12)"
+                :class="{ 'bg-red-2': isInvalid(props.row, getInputProps(props.row, props.row.name).rules) }">
                   <div style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%">
-                    <component :is="getInputType(props.row.typeinfo, props.row.name)" v-model="props.row.value" v-bind="getInputProps(props.row, props.row.name)" style="width: 100%">
+                    <component :is="getInputType(props.row.typeinfo,props.row.default, props.row.name)"
+                    v-model="props.row.value" 
+                    v-bind="getInputProps(props.row, props.row.name)"
+                    style="width: 100%;">
                       <!-- injection du slot select si présent -->
                       <template v-if="getInputProps(props.row, props.row.name).selectedItemSlot" v-slot:selected-item="scope">
                         <component :is="getInputProps(props.row, props.row.name).selectedItemSlot" v-bind="scope" />
@@ -161,8 +180,8 @@
           <q-expansion-item v-model="descriptionOpen" :label="(descriptionOpen ? 'Masquer' : 'Afficher') + ' la description'" switch-toggle-side dense class="q-mt-md fixed-uniform-field">
             <q-card-section class="scroll bg-teal-1" style="max-height: 380px">
               <pre class="text-body2">
-        {{ selectedAlgorithm.description }}
-      </pre
+                {{ selectedAlgorithm.description }}
+              </pre
               >
             </q-card-section>
           </q-expansion-item>
@@ -170,7 +189,13 @@
 
         <!-- État vide -->
         <template v-else>
-          <q-banner rounded class="bg-teal-1 fixed-uniform-field" inline-actions>
+          <q-banner v-if="showFeatures" rounded class="bg-teal-1 fixed-uniform-field" inline-actions>
+            <template v-slot:avatar>
+              <q-icon name="mdi-cube-unfolded" size="sm" color="secondary" />
+            </template>
+            <div class="text-bold q-mt-sm">Attributs sélectionnés : {{ selectedFeatures.length }}</div>
+          </q-banner>
+          <q-banner v-else rounded class="bg-teal-1 fixed-uniform-field" inline-actions>
             <template v-slot:avatar>
               <q-icon name="fa-solid fa-diagram-project" size="sm" color="secondary" />
             </template>
@@ -183,26 +208,52 @@
             </template>
           </q-banner>
         </template>
+
+        <q-expansion-item
+          v-model="showFeatures"
+          :label=getFeatsItemExpansionLabel()
+          switch-toggle-side
+          dense
+          class="q-mt-md fixed-uniform-field"
+        >
+          <q-card flat>
+            <FeaturesList style="width: auto;"
+                          :show-title="false"
+                          @select:features="featuresSelector"
+                          @close="showFeatures = false"/>
+          </q-card>
+          </q-expansion-item>
       </div>
     </div>
+    <div class="q-mt-md">
+      <q-btn label="Submit" type="submit" color="primary" />
+      <q-btn label="Reset" type="reset" color="negative" flat class="q-ml-sm" />
+      </div>
+    </q-form>
   </q-card>
 </template>
 
 <script setup lang="ts">
+import type { TrainParameters } from 'src/types/trainer/train.types';
+import type { AlgoParameters, AlgoParamValue, SklearnAlgorithmName, SklearnAlgorithmParams } from 'src/types/trainer/algorithms.types';
 import { storeToRefs } from 'pinia';
-import { QCheckbox, QInput, QSelect, type QTableColumn } from 'quasar';
-import { NumericInputRule } from 'src/rules';
+import { QCheckbox, type QForm, QInput, QSelect, type QTableColumn, QTooltip } from 'quasar';
+import { NumericInputRule, ratioRules } from 'src/rules';
 import { trainerService } from 'src/services/training.service';
 import { useTrainerStore } from 'src/stores/train-store';
-import type { SklearnAlgorithmName, SklearnAlgorithmParams } from 'src/types/sklearn/algorithms.types';
-import { getInputProps, newSeed, parseTypeInfo, scorerList } from 'src/utils';
+import { getInputProps, isInvalid, newSeed, parseTypeInfo, scorerList } from 'src/utils';
 import { computed, type ComputedRef, onMounted, ref, watch } from 'vue';
+import FeaturesList from './FeaturesList.vue';
+import { useNotifier } from 'src/composables/notifier';
 
+const $n = useNotifier();
 const trainerStore = useTrainerStore();
-const { pointCloudFile } = storeToRefs(trainerStore);
-const pointsNumber = computed(() => getNumberOfSamples());
+const { existingFile, folderId } = storeToRefs(trainerStore);
+
+const formTrain = ref<QForm | null>(null);
+const pointsNumber = computed(() => trainerStore.getNumberOfSamples());
 const numberOfSamples = ref(pointsNumber.value);
-const trainingRatio = ref((0.5).toFixed(2));
+const trainingRatio = ref(0.5);
 const pca = ref(0);
 const randomState = ref(0);
 const nJobsCv = ref(-1);
@@ -220,17 +271,19 @@ const _randomState: ComputedRef<number> = computed({
   },
 });
 
-const scaler = ref('');
 const scalerOpts = ['Standard', 'Robust', 'MinMax'];
-const scorer = ref('');
-const scorerOpt = scorerList;
+const scaler = ref(scalerOpts[0]);
+const scorer = ref(scorerList[0]);
+
 
 const algorithms = ref<string[]>([]);
 const showAlgoParams = ref(false);
 const showTrainParams = ref(false);
+const showFeatures = ref(false);
 const descriptionOpen = ref(true);
 const currentAlgoName = ref<string | null>(null);
 const selectedAlgorithm = ref<SklearnAlgorithmParams[SklearnAlgorithmName] | null>(null);
+const selectedFeatures = ref<string[]>([]);
 
 const columns: QTableColumn[] = [
   { name: 'name', label: 'Paramètres', field: 'name', align: 'left', sortable: true },
@@ -257,25 +310,49 @@ const paramRows = computed(() => {
 });
 
 // Payload
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const algoParamsPayload = computed(() => {
+const algoParams = computed(() => {
   if (!selectedAlgorithm.value) return {};
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const payload: Record<string, any> = {};
+  const payload: Record<string, AlgoParamValue> = {};
 
   Object.entries(selectedAlgorithm.value.parameters).forEach(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ([name, param]: [string, any]) => {
-      payload[name] = { value: param.value };
+    
+    ([name, param]: [string, AlgoParameters]) => {
+      payload[name] = param.value;
     }
   );
-
   return payload;
 });
 
-function getInputType(typeinfo: string, name: string) {
-  const t = parseTypeInfo(typeinfo, name);
+
+function buildTrainConfig(): TrainParameters | null {
+  const config: TrainParameters = {
+    fileId: existingFile.value!.id,
+    folderId: folderId.value,
+    samples: numberOfSamples.value,
+    trainingRatio: trainingRatio.value,
+    scaler: scaler.value!,
+    scorer: scorer.value!,
+    randomState: randomState.value,
+    fillnan: "median",
+    nJobsCv: nJobsCv.value,
+    pca: pca.value,
+    featureNames: selectedFeatures.value,
+    pngFeatures: false,
+    algorithm: currentAlgoName.value!,
+    parameters: algoParams.value
+  }
+
+  return config;
+}
+
+function isFormValid(): boolean {
+  return !!existingFile.value 
+  && !!currentAlgoName.value;
+}
+
+function getInputType(typeinfo: string, defaultValue: string, name: string) {
+  const t = parseTypeInfo(typeinfo, defaultValue, name);
 
   if (t.isBool) return QCheckbox;
   if (t.hasEnum) return QSelect;
@@ -299,20 +376,58 @@ async function getAlgoParams() {
   }
 }
 
-/**
- * Si pointsNumber > 1_000_000 alors numberOfSamples = 1_000_000
- * Sinon sinon numberOfSamples = pointsNumber
- */
-function getNumberOfSamples() {
-  return Math.min(pointCloudFile.value?.pointsNumber ?? 0, 1_000_000) / 1_000_000;
-}
-
 function resetNumberOfSamples() {
   numberOfSamples.value = pointsNumber.value;
 }
 
 function setRandomState() {
   randomState.value = newSeed();
+}
+
+function getFeatsItemExpansionLabel() {
+  let label = showFeatures.value ? 'Masquer' : 'Afficher' + ' la sélection des attributs';
+  if (selectedFeatures.value.length > 0) {
+    label =  `${selectedFeatures.value.length} attributs sont déjà sélectionnés`
+  }
+  return label;
+}
+
+function featuresSelector(feats: string[]) {
+  selectedFeatures.value = feats;
+}
+
+
+async function submitTrain() {
+
+  if (selectedFeatures.value.length === 0) {
+    $n.notifyError("Veuillez sélectionner un ou plusieurs attributs.")
+    return
+  }
+
+  if (!isFormValid()) {
+    $n.notifyError("Veuillez sélectionner un algorithme et/ou un fichier.")
+    return
+  }
+
+  if (formTrain.value) {
+    const valid = await formTrain.value.validate()
+
+    if (!valid) {
+      $n.notifyInfo("Paramètres invalides.")
+      return
+    }
+  }
+
+  const config = buildTrainConfig()
+  if (config) {
+    console.log("Configuration prête :", config)
+  } else {
+    $n.notifyError("Impossible de construire la configuration.")
+  }
+}
+
+function resetTrainForm() {
+
 }
 
 watch(pointsNumber, (newVal) => {
@@ -329,8 +444,17 @@ onMounted(async () => {
     algorithms.value = res.data;
   }
 });
+
 </script>
 <style lang="scss" scoped>
+
+.dynamic-input {
+  ::v-deep(.q-field--error),
+  ::v-deep(.q-field__bottom){
+     background-color: aqua;
+  }
+}
+
 .scroll-no-bar {
   overflow-y: scroll;
   -ms-overflow-style: none;
