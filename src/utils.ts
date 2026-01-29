@@ -236,7 +236,7 @@ export function parseTypeInfo(typeinfo: string, defaultValue: string, name: stri
     isNumeric: info.includes('int') || info.includes('float'),
     isNonNegative: info.includes('non-negative'),
     isArray: info.includes('array') || info.includes('list'),
-    allowsNone: defaultValue === "None",
+    allowsNone: defaultValue === 'None',
     hasEnum: /\{.*\}/.test(info),
     enumValues: extractEnumValues(typeinfo),
   };
@@ -318,7 +318,6 @@ export function getInputProps(row: any, name: string) {
     if (t.isInt) {
       props.rules.push(intRule(false));
     }
-
   }
 
   /* =======================
@@ -341,5 +340,20 @@ export function getInputProps(row: any, name: string) {
 }
 
 export function isInvalid(row: any, rules: any[]) {
-  return rules.some(r => r(row.value) !== true)
+  return rules.some((r) => r(row.value) !== true);
+}
+
+export function downloadFile(name: string, content: string) {
+  const blob = new Blob([content], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = name;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+export function downloadJSON(o: object, filename: string) {
+  const json = JSON.stringify(o, null, 2);
+  downloadFile(`${filename}.json`, json);
 }

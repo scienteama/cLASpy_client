@@ -6,6 +6,7 @@ import { trainerService } from 'src/services/training.service';
 import { computed, ref, watch } from 'vue';
 import { useFilesStore } from './files-store';
 import { useQuasar } from 'quasar';
+import type { TrainParameters } from 'src/types/trainer/train.types';
 
 export const useTrainerStore = defineStore('trainer', () => {
   /* Stores */
@@ -20,6 +21,8 @@ export const useTrainerStore = defineStore('trainer', () => {
   const uploadedFileName = ref<string | null>(null);
   const uploadIsDone = ref(false);
   const keepOnServer = ref(false);
+  const trainConfig = ref<TrainParameters>();
+  const selectedFeatures = ref<Set<string>>(new Set());
 
   /* Computed */
   const folderId = computed(() => currentFolder.value?.id ?? 'root');
@@ -37,9 +40,9 @@ export const useTrainerStore = defineStore('trainer', () => {
   };
 
   /**
-  * Si pointsNumber > 1_000_000 alors numberOfSamples = 1_000_000
-  * Sinon sinon numberOfSamples = pointsNumber
-  */
+   * Si pointsNumber > 1_000_000 alors numberOfSamples = 1_000_000
+   * Sinon sinon numberOfSamples = pointsNumber
+   */
   function getNumberOfSamples() {
     return Math.min(pointCloudFile.value?.pointsNumber ?? 0, 1_000_000) / 1_000_000;
   }
@@ -146,8 +149,10 @@ export const useTrainerStore = defineStore('trainer', () => {
     uploadIsDone,
     keepOnServer,
     folderId,
+    trainConfig,
+    selectedFeatures,
     markUploadDone,
     uploadPointCloudFile,
-    getNumberOfSamples
+    getNumberOfSamples,
   };
 });

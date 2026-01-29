@@ -72,7 +72,6 @@
                   <q-item-section>{{ menuItem.label }}</q-item-section>
                 </q-item>
               </template>
-
               <q-separator v-if="menuItem.separator" />
             </template>
           </q-list>
@@ -82,14 +81,25 @@
 
     <q-header elevated class="text-white glossy q-pa-sm q-mx-xs q-mt-xs bg-claspy-dark1">
       <q-toolbar>
-        <q-btn round dense flat :ripple="false" icon="menu" size="19px" color="white" class="q-mr-sm" no-caps />
+        <q-tabs v-if="availableML" v-model="tab" align="left" active-color="warning" inline-label indicator-color="transparent">
+          <!-- Dropdown Machine Learning -->
+          <q-btn-dropdown class="q-ml-md" icon="mdi-cog-outline" flat label="Machine Learning" size="md" :color="tab.startsWith('/ml') ? 'warning' : undefined">
+            <q-list>
+              <q-item clickable @click="go('/ml/train')">
+                <q-item-section>Entraînement</q-item-section>
+              </q-item>
+              <q-item clickable @click="go('/ml/predict')">
+                <q-item-section>Prédiction</q-item-section>
+              </q-item>
+              <q-item clickable @click="go('/ml/segment')">
+                <q-item-section>Segmentation</q-item-section>
+              </q-item>
+            </q-list>
+          </q-btn-dropdown>
 
-        <div v-if="$q.screen.gt.sm" class="GL__toolbar-link q-ml-xs q-gutter-md text-body2 text-weight-bold row items-center no-wrap">
-          <a href="javascript:void(0)" class="text-white"> Menu1 </a>
-          <a href="javascript:void(0)" class="text-white"> Menu2 </a>
-          <a href="javascript:void(0)" class="text-white"> Menu3 </a>
-          <router-link to="/users" class="text-white"> Utilisateurs </router-link>
-        </div>
+          <!-- Utilisateurs -->
+          <q-tab name="/users/list" label="Utilisateurs" icon="mdi-account-multiple-outline" @click="go('/users/list')" />
+        </q-tabs>
         <q-space />
 
         <div class="q-pl-sm q-gutter-sm row items-center no-wrap">
@@ -176,17 +186,17 @@
       </q-toolbar>
     </q-header>
 
-    <q-page-container class="fit">
-      <q-scroll-area class="fit">
+    <div class="fit overflow-auto" style="min-height: calc(100vh - headerHeight)">
+      <q-page-container>
         <router-view />
-      </q-scroll-area>
-    </q-page-container>
+      </q-page-container>
+    </div>
   </q-layout>
 </template>
 
 <script setup lang="ts">
 import type { Plugin } from 'src/types/plugins.types';
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import { dom, useQuasar } from 'quasar';
 import AnimatedBackground from 'src/components/animations/AnimatedBackground.vue';
 import FullScreenSpinner from 'src/components/tools/FullScreenSpinner.vue';
@@ -198,11 +208,13 @@ import { useUserStore } from 'src/stores/users-store';
 import { getUserInitials } from 'src/utils';
 import { useAuth } from 'src/stores/auth-store';
 import { useRouter } from 'vue-router';
+import { useNavigation } from 'src/composables/navigation';
 
 const { style } = dom;
 const headerHeight = ref('0px');
 
 const $q = useQuasar();
+const { go, currentPath } = useNavigation();
 const fileStore = useFilesStore();
 const pluginStore = usePluginStore();
 const { currentUser } = useUserStore();
@@ -210,12 +222,13 @@ const { userLogout } = useAuth();
 const router = useRouter();
 
 const fileUploadProgress = computed(() => fileStore.fileUploadProgress);
+const availableML = computed(() => plugins.value.some((p) => p.name === 'claspy_ml' && p.enable));
 
 const { plugins } = storeToRefs(pluginStore);
 const { addPlugin, removePlugin } = pluginStore;
 
 const topMenu = [
-  { icon: 'home', iconColor: undefined, label: 'Home', bgColor: null, separator: false, link: '/' },
+  { icon: 'home', iconColor: undefined, label: 'Tableau de bord', bgColor: null, separator: false, link: '/home' },
   { icon: 'terminal', iconColor: undefined, label: 'Console', bgColor: null, separator: false, link: '' },
   { icon: 'view_timeline', iconColor: undefined, label: 'Logs', bgColor: null, separator: true, link: '' },
 ];
@@ -331,6 +344,14 @@ function disconnect() {
   });
 }
 
+watch(currentPath, (newPath) => {
+  if (newPath) {
+    tab.value = newPath;
+  }
+});
+
+const tab = ref(currentPath.value);
+
 onMounted(() => {
   const toolbar = document.querySelector('.q-header');
   if (toolbar) {
@@ -338,106 +359,4 @@ onMounted(() => {
   }
 });
 </script>
-
-<style scoped lang="scss">
-.q-layout {
-  overflow: hidden !important;
-  height: 100vh;
-}
-
-body,
-html {
-  overflow: hidden;
-  height: 100%;
-}
-.GL {
-  &__select-GL__menu-link {
-    .default-type {
-      visibility: hidden;
-    }
-
-    &:hover {
-      background: #0366d6;
-      color: white;
-
-      .q-item__section--side {
-        color: white;
-      }
-
-      .default-type {
-        visibility: visible;
-      }
-    }
-  }
-
-  &__toolbar-link {
-    a {
-      color: white;
-      text-decoration: none;
-
-      &:hover {
-        opacity: 0.7;
-      }
-    }
-  }
-
-  &__menu-link:hover {
-    background: #0366d6;
-    color: white;
-  }
-
-  &__menu-link-signed-in,
-  &__menu-link-status {
-    &:hover {
-      & > div {
-        background: white !important;
-      }
-    }
-  }
-
-  &__menu-link-status {
-    color: $blue-grey-6;
-
-    &:hover {
-      color: $light-blue-9;
-    }
-  }
-
-  &__toolbar-select.q-field--focused {
-    width: 450px !important;
-
-    .q-field__append {
-      display: none;
-    }
-  }
-}
-
-@keyframes gradientShift {
-  0% {
-    background-position: 0% 50%;
-  }
-
-  50% {
-    background-position: 100% 50%;
-  }
-
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-.drawer-header {
-  position: relative;
-}
-
-.drawer-header:after {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -10px;
-  height: 10px;
-  box-shadow: 0 10px 10px -10px rgba(0, 0, 0, 0.3);
-  pointer-events: none;
-}
-</style>
+<style lang="scss"></style>

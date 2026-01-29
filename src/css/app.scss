@@ -16,3 +16,7 @@
   letter-spacing: map-get($h8, letter-spacing);
   font-weight: map-get($h8, weight);
 }
+
+.step-layout {
+  height: 100%;
+}

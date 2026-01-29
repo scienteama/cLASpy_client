@@ -1,7 +1,7 @@
 <template>
-  <q-card flat bordered>
+  <q-card class="q-pa-none" flat>
     <div v-if="showTitle">
-      <q-card-section class="text-h6">Explorateur de fichiers</q-card-section>
+      <q-card-section class="text-h6">{{ titleName }}</q-card-section>
       <q-separator />
     </div>
 
@@ -203,6 +203,7 @@ const props = defineProps({
   showInput: { type: Boolean, default: true },
   showTitle: { type: Boolean, default: true },
   trainMode: { type: Boolean, default: false },
+  titleName: { type: String, default: 'Explorateur de fichiers' },
 });
 
 const selectedItems = ref<(FileModel | FolderModel)[]>([]);
