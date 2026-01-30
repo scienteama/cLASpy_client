@@ -1,5 +1,5 @@
 <template>
-  <div style="min-height: 75vh">
+  <div style="height: 75vh">
     <q-card flat>
       <q-form ref="formTrain" @submit="submitTrain" @reset="resetTrainForm">
         <q-splitter v-model="splitterModel" vertical :limits="[30, 60]">
