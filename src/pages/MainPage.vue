@@ -14,7 +14,6 @@
     </q-card>
 
     <!-- Widgets -->
-
     <div class="row q-mb-md">
       <q-card flat bordered class="col bg-white">
         <q-card-section>

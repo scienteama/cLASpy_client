@@ -1,12 +1,15 @@
 import { defineStore } from 'pinia';
 import { configService } from 'src/services/conf.service';
 import type { ApiSettings } from 'src/types/api.type';
+import { defaultPals } from 'src/utils';
 import { ref } from 'vue';
 
 export const useConfigStore = defineStore('config', () => {
   const apiSettings = ref<ApiSettings | null>(null);
   const loaded = ref(false);
   const isLoading = ref(false);
+  const currentTheme = ref<string[]>([]);
+  const defaultThemes = ref(defaultPals);
 
   async function initStore() {
     await getApiConfig();
@@ -24,12 +27,11 @@ export const useConfigStore = defineStore('config', () => {
       isLoading.value = false;
     }
   }
-
-  // Charger automatiquement
-  void initStore();
-
   return {
     apiSettings,
+    currentTheme,
+    defaultThemes,
     getApiConfig,
+    initStore,
   };
 });

@@ -5,10 +5,12 @@ import type { LoginDto } from 'src/types/auth.type';
 import { useUserStore } from './users-store';
 import { ref } from 'vue';
 import type { User } from 'src/types/users.type';
+import { useConfigStore } from './config-store';
 
 export const useAuth = defineStore('auth', () => {
   const $q = useQuasar();
   const userStore = useUserStore();
+  const configStore = useConfigStore();
   const isAuthenticated = ref(false);
   const checked = ref(false);
 
@@ -33,6 +35,7 @@ export const useAuth = defineStore('auth', () => {
 
     if (res.isOk) {
       const me = await userStore.getMe();
+      await configStore.initStore();
       if (me != null) {
         isAuthenticated.value = true;
         return me;

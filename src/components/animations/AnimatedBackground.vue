@@ -4,51 +4,67 @@
       <canvas ref="canvas" class="background-canvas"></canvas>
       <q-img :src="classPyIcon" fit="contain" class="foreground-img filtered-img" />
       <q-img :src="classPyIcon" fit="contain" class="foreground-img base-img" />
+      <div class="choose-theme-btn">
+        <q-btn icon="mdi-palette-outline" dense outline color="claspy-dark1" class="bg-white" @click="chooseColor = true" />
+        <q-btn icon="mdi-palette-advanced" dense outline color="claspy-dark1" class="bg-white" @click="chooseTheme = true" />
+      </div>
     </div>
     <div v-else>
       <canvas ref="canvas" class="background-canvas"></canvas>
     </div>
+    <q-dialog v-model="chooseColor" class="choose-theme-dialog" backdrop-filter="blur(4px) saturate(150%)">
+      <q-card class="choose-theme-dialog-pos">
+        <q-card-section>
+          <q-color v-model="hexColor" no-header no-footer flat />
+        </q-card-section>
+        <q-card-actions align="right">
+          <q-btn flat label="Fermer" color="primary" v-close-popup />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <q-dialog v-model="chooseTheme" class="choose-theme-dialog" backdrop-filter="blur(4px) saturate(150%)">
+      <q-card class="choose-theme-dialog-pos">
+        <q-card-section>
+          <q-select outlined v-model="selectedTheme" label="Thème :" :options="themeList" dense>
+            <template v-slot:prepend>
+              <q-icon name="mdi-format-list-bulleted-square" color="primary" />
+            </template>
+          </q-select>
+        </q-card-section>
+        <q-card-actions align="right">
+          <q-btn flat label="Fermer" color="primary" v-close-popup />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue';
+import { ref, onMounted, onBeforeUnmount, nextTick, watch, computed } from 'vue';
 import Trianglify from 'trianglify';
 import classPyIcon from '../../assets/pythie_alpha_hd_miroir.png';
+import type { Point } from 'src/types/global.types';
 
-const pal = {
-  ocean: ['#03045e', '#023e8a', '#0077b6', '#0096c7', '#00b4d8', '#48cae4', '#90e0ef', '#ade8f4', '#caf0f8'],
-  sunset: ['#cc5803', '#e2711d', '#ff9505', '#ffb627', '#ffc971'],
-  earth: ['#582f0e', '#7f4f24', '#936639', '#a68a64', '#b6ad90', '#c2c5aa', '#a4ac86', '#656d4a', '#414833', '#333d29'],
-  forest: ['#797d62', '#9b9b7a', '#baa587', '#d9ae94', '#f1dca7', '#ffcb69', '#e8ac65', '#d08c60', '#b58463', '#997b66'],
-  fire: ['#7f0000', '#b30000', '#e60000', '#ff1a1a', '#ff4d4d', '#ff8080', '#ffb3b3', '#ffe6e6'],
-  grayscale: ['#000000', '#1a1a1a', '#333333', '#4d4d4d', '#666666', '#808080', '#999999', '#b3b3b3', '#cccccc', '#e6e6e6', '#ffffff'],
-};
+import { useConfigStore } from 'src/stores/config-store';
+import { storeToRefs } from 'pinia';
+import { generatePalette } from 'src/utils';
 
-type PaletteName = keyof typeof pal;
+const configStore = useConfigStore();
+const { defaultThemes, currentTheme } = storeToRefs(configStore);
 
-const props = withDefaults(
-  defineProps<{
-    isDrawer?: boolean;
-    numPoints?: number;
-    lineWidth?: number;
-    theme?: PaletteName;
-  }>(),
-  {
-    isDrawer: false,
-    numPoints: 35,
-    lineWidth: 0.1,
-    theme: 'forest',
-  }
-);
+const props = defineProps({
+  isDrawer: { type: Boolean, default: false },
+  numPoints: { type: Number, default: 35 },
+  lineWidth: { type: Number, default: 0.1 },
+});
 
-interface Point {
-  x: number;
-  y: number;
-  dx?: number;
-  dy?: number;
-  fixed?: boolean;
-}
+const hexColor = ref('');
+const selectedTheme = ref('');
+const themeList = Object.keys(defaultThemes.value);
+const themePal = computed(() => defaultThemes.value[selectedTheme.value]);
+const chooseColor = ref(false);
+const chooseTheme = ref(false);
 
 const canvas = ref<HTMLCanvasElement | null>(null);
 let ctx: CanvasRenderingContext2D | null = null;
@@ -97,12 +113,13 @@ function draw() {
   });
 
   const vertices = points.map((p) => [p.x, p.y] as [number, number]);
+  const xColors = currentTheme.value;
 
   const pattern = Trianglify({
     width,
     height,
     points: vertices,
-    xColors: pal[props.theme],
+    xColors,
   });
 
   pattern.polys.forEach((poly) => {
@@ -139,6 +156,24 @@ function resize() {
   initPoints();
 }
 
+watch(hexColor, async () => {
+  if (hexColor.value) {
+    currentTheme.value = generatePalette(hexColor.value, 8);
+    cancelAnimationFrame(animationFrameId);
+    await nextTick();
+    draw();
+  }
+});
+
+watch(themePal, async () => {
+  if (themePal.value) {
+    currentTheme.value = themePal.value;
+    cancelAnimationFrame(animationFrameId);
+    await nextTick();
+    draw();
+  }
+});
+
 onMounted(async () => {
   await nextTick();
 
@@ -160,6 +195,30 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped lang="scss">
+.choose-theme-btn {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.choose-theme-dialog {
+  .q-dialog__inner {
+    align-items: flex-start;
+    justify-content: flex-start;
+  }
+}
+
+.choose-theme-dialog-pos {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  min-width: 250px;
+}
+
 .canvas-container {
   position: relative;
   display: inline-block;
