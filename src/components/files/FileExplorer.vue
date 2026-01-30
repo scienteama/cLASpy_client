@@ -182,17 +182,17 @@
 </template>
 
 <script setup lang="ts">
+import type { FileModel, FolderModel } from 'src/types/files.type';
 import { ref, onMounted, computed, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useFilesStore } from 'src/stores/files-store';
-import InputFile from 'src/components/files/InputFile.vue';
-import { iconForFile, colorForFile, iconForFolder, formatFileSize, computeFolderSize, convertMimeType, splitFileName } from 'src/utils';
 import { useQuasar, type QTableColumn } from 'quasar';
-import type { FileModel, FolderModel } from 'src/types/files.type';
-import ConfirmDialog from '../tools/ConfirmDialog.vue';
 import { useUserStore } from 'src/stores/users-store';
 import { fileService } from 'src/services/files.service';
 import { useTrainerStore } from 'src/stores/train-store';
+import { colorForFile, computeFolderSize, convertMimeType, formatFileSize, iconForFile, iconForFolder, splitFileName } from 'src/helpers/files-utils';
+import ConfirmDialog from '../tools/ConfirmDialog.vue';
+import InputFile from 'src/components/files/InputFile.vue';
 
 const filesStore = useFilesStore();
 const userStore = useUserStore();

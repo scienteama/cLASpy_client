@@ -1,6 +1,6 @@
 import { api } from 'src/boot/axios';
 import type { ApiSettings, WorkDone } from 'src/types/api.type';
-import { transformToCamelCase } from 'src/utils';
+import { transformToCamelCase } from 'src/helpers/global-utils';
 
 /**
  * Centralise les appels API pour la gestion de la configuration

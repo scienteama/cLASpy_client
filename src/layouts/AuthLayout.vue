@@ -70,7 +70,7 @@ import pythie from 'src/assets/pythie_alpha_hd_miroir_resized.png';
 import { computed, onMounted, ref, watch } from 'vue';
 import { useConfigStore } from 'src/stores/config-store';
 import { storeToRefs } from 'pinia';
-import { generatePalette } from 'src/utils';
+import { generatePal } from 'src/helpers/color-utils';
 
 const configStore = useConfigStore();
 const { defaultThemes, currentTheme } = storeToRefs(configStore);
@@ -86,7 +86,7 @@ const themePal = computed(() => defaultThemes.value[selectedTheme.value]);
 
 watch(hex, (newVal) => {
   if (newVal) baseTheme.value = [];
-  currentTheme.value = generatePalette(newVal, 8);
+  currentTheme.value = generatePal(newVal, 8);
 });
 
 watch(themePal, () => {

@@ -57,12 +57,12 @@
   </div>
 </template>
 <script setup lang="ts">
+import type { LoginDto } from 'src/types/auth.type';
 import { useQuasar } from 'quasar';
 import imgLogin from 'src/assets/pythie_alpha_hd_miroir_resized.png';
 import ConfirmDialog from 'src/components/tools/ConfirmDialog.vue';
+import { formUserRules } from 'src/helpers/validation/rules';
 import { useAuth } from 'src/stores/auth-store';
-import type { LoginDto } from 'src/types/auth.type';
-import { formUserRules } from 'src/utils';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 

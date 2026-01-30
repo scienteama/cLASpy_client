@@ -1,11 +1,11 @@
 <template>
   <q-page class="q-pa-md column bg-grey-3">
     <!-- Titre -->
-    <q-card flat bordered class="q-mb-md bg-white">
+    <q-card flat class="q-mb-md" :style="cardStyle">
       <q-card-section class="row items-center justify-between">
         <div>
           <div class="text-h5 text-weight-bold">Tableau de bord</div>
-          <div class="text-subtitle2 text-grey-7 q-mt-xs">Bienvenue dans votre espace personnel, {{ currentUser?.firstname }}.</div>
+          <div class="text-subtitle2 q-mt-xs">Bienvenue dans votre espace personnel, {{ currentUser?.firstname }}.</div>
         </div>
         <q-avatar size="56px" color="primary" text-color="white">
           {{ currentUserInitials }}
@@ -137,11 +137,15 @@
 import { storeToRefs } from 'pinia';
 import FileExplorer from 'src/components/files/FileExplorer.vue';
 import HourDate from 'src/components/widgets/HourDate.vue';
+import { getTextColorForPalette, glossyStyle, sortPaletteByBrightness } from 'src/helpers/color-utils';
+import { useConfigStore } from 'src/stores/config-store';
 import { useUserStore } from 'src/stores/users-store';
 import { computed, ref } from 'vue';
 
 const userStore = useUserStore();
 const { currentUser } = storeToRefs(userStore);
+const configStore = useConfigStore();
+const { currentTheme } = storeToRefs(configStore);
 const showFileExplorer = ref(true);
 
 // Initiales pour avatar
@@ -151,6 +155,11 @@ const currentUserInitials = computed(() => {
   const ln = currentUser.value.lastname?.charAt(0) || '';
   return (fn + ln).toUpperCase();
 });
+
+const gradient = computed(() => `${glossyStyle}, linear-gradient(90deg, ${currentTheme.value.join(', ')})`);
+const sortedPal = computed(() => sortPaletteByBrightness(currentTheme.value));
+const textColor = computed(() => getTextColorForPalette(sortedPal.value));
+const cardStyle = computed(() => ({ background: gradient.value, color: textColor.value }));
 </script>
 
 <style scoped>

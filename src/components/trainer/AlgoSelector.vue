@@ -229,12 +229,13 @@ import type { TrainParameters } from 'src/types/trainer/train.types';
 import type { AlgoParameter, AlgoParameters, SklearnAlgorithmName, SklearnAlgorithmParams } from 'src/types/trainer/algorithms.types';
 import { storeToRefs } from 'pinia';
 import { QCard, QCheckbox, type QForm, QInput, QSelect, type QTableColumn, QTooltip, useQuasar } from 'quasar';
-import { NumericInputRule, ratioRules } from 'src/rules';
+import { isInvalid, NumericInputRule, ratioRules } from 'src/helpers/validation/rules';
 import { trainerService } from 'src/services/training.service';
 import { useTrainerStore } from 'src/stores/train-store';
-import { getInputProps, isInvalid, newSeed, parseTypeInfo, scorerList } from 'src/utils';
+import { newSeed } from 'src/helpers/global-utils';
 import { computed, type ComputedRef, onMounted, ref, watch } from 'vue';
 import { useNotifier } from 'src/composables/notifier';
+import { getInputProps, parseTypeInfo, scorerList } from 'src/helpers/components/trainer-utils';
 import FeaturesList from './FeaturesList.vue';
 import ConfirmDialog from '../tools/ConfirmDialog.vue';
 

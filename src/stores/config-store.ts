@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { configService } from 'src/services/conf.service';
 import type { ApiSettings } from 'src/types/api.type';
-import { defaultPals } from 'src/utils';
+import { defaultPals } from 'src/helpers/color-utils';
 import { ref } from 'vue';
 
 export const useConfigStore = defineStore('config', () => {

@@ -102,12 +102,12 @@
         </q-tabs>
         <q-space />
 
-        <div class="q-pl-sm q-gutter-sm row items-center no-wrap">
+        <div class="row items-center no-wrap">
           <q-badge v-if="fileUploadProgress.uploading" color="accent" text-color="white" rounded size="md" :label="(fileUploadProgress.percent * 100).toFixed(0) + '%'">
             <q-tooltip> Upload en cours : {{ fileUploadProgress.speed }} Mo/s </q-tooltip>
           </q-badge>
 
-          <q-btn v-if="$q.screen.gt.xs" dense flat round size="md" icon="notifications" />
+          <q-btn v-if="$q.screen.gt.xs" dense flat round size="md" icon="mdi-bell-outline" />
           <q-btn v-if="$q.screen.gt.xs" dense flat>
             <div class="row items-center no-wrap">
               <q-icon name="add" size="md" />
@@ -205,7 +205,7 @@ import { useFilesStore } from 'src/stores/files-store';
 import { usePluginStore } from 'src/stores/plugins-store';
 import { storeToRefs } from 'pinia';
 import { useUserStore } from 'src/stores/users-store';
-import { getUserInitials } from 'src/utils';
+import { getUserInitials } from 'src/helpers/global-utils';
 import { useAuth } from 'src/stores/auth-store';
 import { useRouter } from 'vue-router';
 import { useNavigation } from 'src/composables/navigation';

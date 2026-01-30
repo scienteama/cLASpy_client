@@ -140,7 +140,7 @@ import { computed, nextTick, onMounted, ref } from 'vue';
 import { useFilesStore } from 'src/stores/files-store';
 import { storeToRefs } from 'pinia';
 import { useConfigStore } from 'src/stores/config-store';
-import { isNullOrEmpty } from 'src/utils';
+import { isNullOrEmpty } from 'src/helpers/global-utils';
 import { QCheckbox } from 'quasar';
 import { useTrainerStore } from 'src/stores/train-store';
 

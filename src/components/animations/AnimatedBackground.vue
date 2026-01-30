@@ -48,7 +48,7 @@ import type { Point } from 'src/types/global.types';
 
 import { useConfigStore } from 'src/stores/config-store';
 import { storeToRefs } from 'pinia';
-import { generatePalette } from 'src/utils';
+import { generatePal } from 'src/helpers/color-utils';
 
 const configStore = useConfigStore();
 const { defaultThemes, currentTheme } = storeToRefs(configStore);
@@ -65,6 +65,7 @@ const themeList = Object.keys(defaultThemes.value);
 const themePal = computed(() => defaultThemes.value[selectedTheme.value]);
 const chooseColor = ref(false);
 const chooseTheme = ref(false);
+const baseTheme = ref(defaultThemes.value.forest);
 
 const canvas = ref<HTMLCanvasElement | null>(null);
 let ctx: CanvasRenderingContext2D | null = null;
@@ -158,7 +159,8 @@ function resize() {
 
 watch(hexColor, async () => {
   if (hexColor.value) {
-    currentTheme.value = generatePalette(hexColor.value, 8);
+    baseTheme.value = [];
+    currentTheme.value = generatePal(hexColor.value, 8);
     cancelAnimationFrame(animationFrameId);
     await nextTick();
     draw();
@@ -175,6 +177,10 @@ watch(themePal, async () => {
 });
 
 onMounted(async () => {
+  if (baseTheme.value && currentTheme.value.length == 0) {
+    currentTheme.value = baseTheme.value;
+  }
+
   await nextTick();
 
   if (!canvas.value) return;

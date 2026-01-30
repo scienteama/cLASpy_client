@@ -101,14 +101,14 @@
 </template>
 
 <script setup lang="ts">
-import ConfirmDialog from 'src/components/tools/ConfirmDialog.vue';
-import { storeToRefs } from 'pinia';
 import type { QTableColumn } from 'quasar';
+import type { User, UserIn } from 'src/types/users.type';
+import { storeToRefs } from 'pinia';
 import { useQuasar } from 'quasar';
 import { computed, onMounted, ref } from 'vue';
-import { formUserRules } from 'src/utils';
-import type { User, UserIn } from 'src/types/users.type';
 import { useUserStore } from 'src/stores/users-store';
+import { formUserRules } from 'src/helpers/validation/rules';
+import ConfirmDialog from 'src/components/tools/ConfirmDialog.vue';
 
 const $q = useQuasar();
 const userStore = useUserStore();
