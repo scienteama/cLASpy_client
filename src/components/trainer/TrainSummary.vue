@@ -74,7 +74,7 @@
 
             <div class="col text-bold text-center">Configuration JSON</div>
 
-            <q-btn flat dense>
+            <q-btn flat dense @click="downloadJSON((trainConfig as object), 'config')">
               <q-icon name="mdi-file-download-outline" size="md" color="secondary" />
               <q-tooltip>Télécharger le fichier</q-tooltip>
             </q-btn>
@@ -94,6 +94,7 @@
 import { storeToRefs } from 'pinia';
 import { useTrainerStore } from 'src/stores/train-store';
 import HighLight from '../tools/HighLight.vue';
+import { downloadJSON } from 'src/helpers/files-utils';
 
 const trainerStore = useTrainerStore();
 const { trainConfig } = storeToRefs(trainerStore);

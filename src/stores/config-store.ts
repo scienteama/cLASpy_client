@@ -34,4 +34,9 @@ export const useConfigStore = defineStore('config', () => {
     getApiConfig,
     initStore,
   };
+},
+{
+  persist: {
+    pick: ['apiSettings'],
+  },
 });

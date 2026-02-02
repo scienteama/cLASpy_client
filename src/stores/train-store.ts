@@ -7,10 +7,13 @@ import { computed, ref, watch } from 'vue';
 import { useFilesStore } from './files-store';
 import { useQuasar } from 'quasar';
 import type { TrainParameters } from 'src/types/trainer/train.types';
+import { useNotifier } from 'src/composables/notifier';
+import FullScreenSpinner from 'src/components/tools/FullScreenSpinner.vue';
 
 export const useTrainerStore = defineStore('trainer', () => {
   /* Stores */
   const $q = useQuasar();
+  const $n = useNotifier();
   const filesStore = useFilesStore();
   const { fileUploadProgress, currentFolder } = storeToRefs(filesStore);
 
@@ -45,6 +48,26 @@ export const useTrainerStore = defineStore('trainer', () => {
    */
   function getNumberOfSamples() {
     return Math.min(pointCloudFile.value?.pointsNumber ?? 0, 1_000_000) / 1_000_000;
+  }
+
+  async function runTrainAsync(){
+    if (trainConfig.value){
+
+      const loading = $q.dialog({
+      component: FullScreenSpinner,
+      componentProps: {
+        message: 'Entraînement en cours...',
+        color: 'cyan',
+        size: '60px'
+      }
+    })
+      const res = await trainerService.runTrainWithConfig(trainConfig.value)
+      loading.hide();
+      if (res.isOk) {
+        $n.notifySuccess(res.result);
+        
+      }
+    }
   }
 
   async function uploadPointCloudFile(): Promise<void> {
@@ -151,6 +174,7 @@ export const useTrainerStore = defineStore('trainer', () => {
     folderId,
     trainConfig,
     selectedFeatures,
+    runTrainAsync,
     markUploadDone,
     uploadPointCloudFile,
     getNumberOfSamples,

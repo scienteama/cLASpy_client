@@ -31,13 +31,15 @@
 </template>
 <script setup lang="ts">
 import { type ComponentPublicInstance, computed, nextTick, ref } from 'vue';
-import FileLoader from './FileLoader.vue';
 import { useTrainerStore } from 'src/stores/train-store';
 import { storeToRefs } from 'pinia';
-import { QBtn } from 'quasar';
+import { QBtn, useQuasar } from 'quasar';
+import FileLoader from './FileLoader.vue';
 import AlgoSelector from './AlgoSelector.vue';
 import TrainSummary from './TrainSummary.vue';
+import ConfirmDialog from '../tools/ConfirmDialog.vue';
 
+const $q = useQuasar();
 const trainerStore = useTrainerStore();
 const { fileToUpload, existingFile, uploadedFileName, trainConfig } = storeToRefs(trainerStore);
 
@@ -73,7 +75,17 @@ function resetConfig() {
 }
 
 function runTrain() {
-  alert("Lancement de l'entrainement du modèle.");
+  $q.dialog({
+    component: ConfirmDialog,
+    componentProps: {
+      title: "Confirmer l'action",
+      message: "Êtes-vous sûr de vouloir lancer un entraînement avec ces paramètres ?",
+      confirmLabel: 'Confirmer',
+      cancelLabel: 'Annuler',
+    },
+  }).onOk(() => {
+    void trainerStore.runTrainAsync();
+  })
 }
 
 async function focusToContinue() {
