@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { api } from 'src/boot/axios';
 import type { WorkDone } from 'src/types/api.type';
 import type { Plugin } from 'src/types/plugins.types';
@@ -19,6 +20,11 @@ class PluginService {
 
   async uninstallPlugin(pluginName: string): Promise<WorkDone<string>> {
     const res = await api.delete<WorkDone<string>>(`/modules/unload/${pluginName}`);
+    return res.data;
+  }
+
+  async listWorkers(): Promise<WorkDone<any>> {
+    const res = await api.get<WorkDone<any>>('modules/workers');
     return res.data;
   }
 }
