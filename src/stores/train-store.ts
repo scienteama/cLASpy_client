@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { AxiosError, AxiosProgressEvent } from 'axios';
 import { type ErrorResponse, isAxiosErrorResponse } from 'src/types/api.type';
 import type { FileModel, PointCloudFile } from 'src/types/files.type';
@@ -9,6 +10,7 @@ import { useQuasar } from 'quasar';
 import type { TrainParameters } from 'src/types/trainer/train.types';
 import { useNotifier } from 'src/composables/notifier';
 import FullScreenSpinner from 'src/components/tools/FullScreenSpinner.vue';
+import ConfirmDialog from 'src/components/tools/ConfirmDialog.vue';
 
 export const useTrainerStore = defineStore('trainer', () => {
   /* Stores */
@@ -23,7 +25,6 @@ export const useTrainerStore = defineStore('trainer', () => {
   const existingFile = ref<FileModel | null>(null);
   const uploadedFileName = ref<string | null>(null);
   const uploadIsDone = ref(false);
-  const keepOnServer = ref(false);
   const trainConfig = ref<TrainParameters>();
   const selectedFeatures = ref<Set<string>>(new Set());
 
@@ -50,22 +51,59 @@ export const useTrainerStore = defineStore('trainer', () => {
     return Math.min(pointCloudFile.value?.pointsNumber ?? 0, 1_000_000) / 1_000_000;
   }
 
-  async function runTrainAsync(){
-    if (trainConfig.value){
+  async function runTrainAsync() {
+    const config = trainConfig.value;
+    if (!config) return;
 
-      const loading = $q.dialog({
+    const loading = $q.dialog({
       component: FullScreenSpinner,
       componentProps: {
         message: 'Entraînement en cours...',
         color: 'cyan',
-        size: '60px'
-      }
-    })
-      const res = await trainerService.runTrainWithConfig(trainConfig.value)
+        size: '60px',
+      },
+    });
+
+    try {
+      const res = await trainerService.runTrainWithConfig(config);
       loading.hide();
       if (res.isOk) {
         $n.notifySuccess(res.result);
-        
+      }
+    } catch (err: any) {
+      loading.hide();
+
+      if (err.status === 503) {
+        $q.dialog({
+          component: ConfirmDialog,
+          componentProps: {
+            title: 'Une erreur est survenue :',
+            message: `Il semblerait que le plugin Taskrunner ait rencontré une erreur. 
+                  Pour lancer l'entraînement sans le plugin, cliquez sur Continuer.`,
+            confirmLabel: 'Continuer',
+          },
+          persistent: true,
+        }).onOk(() => {
+          void (async () => {
+            config.disableTaskRunner = true;
+
+            const newSpinner = $q.dialog({
+              component: FullScreenSpinner,
+              componentProps: { message: 'Entraînement en cours...', color: 'cyan', size: '60px' },
+            });
+
+            try {
+              const trainRes = await trainerService.runTrainWithConfig(config);
+              if (trainRes.isOk) $n.notifySuccess(trainRes.result);
+            } catch (err: any) {
+              $n.notifyError(err?.message);
+            } finally {
+              newSpinner.hide();
+            }
+          })();
+        });
+      } else {
+        $n.notifyError(err?.message);
       }
     }
   }
@@ -84,7 +122,6 @@ export const useTrainerStore = defineStore('trainer', () => {
 
     const formData = new FormData();
     formData.append('file', fileToUpload.value);
-    formData.append('keepOnServer', keepOnServer.value ? 'true' : 'false');
     formData.append('folderId', folderId.value);
 
     let lastLoaded = 0;
@@ -170,7 +207,6 @@ export const useTrainerStore = defineStore('trainer', () => {
     existingFile,
     uploadedFileName,
     uploadIsDone,
-    keepOnServer,
     folderId,
     trainConfig,
     selectedFeatures,

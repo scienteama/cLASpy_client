@@ -44,6 +44,7 @@
     <!-- Table de fichiers -->
     <q-card-section>
       <q-table
+        class="file-explorer-table"
         :rows="rows"
         :columns="columns"
         row-key="id"
@@ -54,15 +55,21 @@
         virtual-scroll
         v-model:pagination="pagination"
         :rows-per-page-options="[0]"
-        selection="single"
+        :selection="fileToUpload ? 'none' : 'single'"
         v-model:selected="selectedItems"
       >
         <template v-slot:header-cell-actions>
-          <q-th class="q-pa-none flex justify-end items-center">
+          <q-th class="q-pa-none justify-end items-center">
             <q-btn color="secondary" icon="add" dense outline @click="startCreateDir()">
               <q-tooltip>Créer un dossier</q-tooltip>
             </q-btn>
           </q-th>
+        </template>
+
+        <template v-slot:body-selection="scope">
+          <div v-if="trainMode && scope.row.type === 'file' && ['application/las', 'text/csv'].includes(scope.row.mimeType)">
+            <q-checkbox v-if="scope.row.type === 'file'" v-model="scope.selected" />
+          </div>
         </template>
 
         <template v-slot:body-cell-name="props">
@@ -209,7 +216,7 @@ const props = defineProps({
 const selectedItems = ref<(FileModel | FolderModel)[]>([]);
 const { rows, loading, canGoBack, rootTree, currentFolder } = storeToRefs(filesStore);
 const { isAdmin, currentUser } = storeToRefs(userStore);
-const { existingFile } = storeToRefs(trainerStore);
+const { existingFile, fileToUpload } = storeToRefs(trainerStore);
 const { reloadRoot, goBack, goToFolder, renameItem, deleteItem, goToHome, createFolder, refreshCurrentFolder } = filesStore;
 
 const pagination = ref({ rowsPerPage: 0 });
@@ -233,7 +240,7 @@ const columns: QTableColumn[] = [
   { name: 'modified_at', label: 'Modifié le', field: 'modified_at', align: 'left', sortable: true },
   { name: 'created_at', label: 'Créé le', field: 'created_at', align: 'left', sortable: true },
   { name: 'user_id', label: 'Propriétaire', field: 'user_id', align: 'left', sortable: true },
-  { name: 'actions', label: '', field: 'actions', align: 'right' },
+  { name: 'actions', label: '', field: 'actions', align: 'right', sortable: false },
 ];
 
 // --- Breadcrumb dynamique ---
@@ -252,14 +259,17 @@ const breadcrumbPath = computed(() => {
   if (rootTree.value && currentFolder.value) findPath(rootTree.value, currentFolder.value.id);
   return path.slice(1);
 });
+
 const currentFolderPath = computed(() => breadcrumbPath.value.map((p) => p.name).join('/') || '/');
 
 function iconForItem(item: { type: string; mimeType?: string }) {
   return item.type === 'folder' ? iconForFolder(true) : iconForFile(item.mimeType || '');
 }
+
 function colorForItem(item: { type: string; mimeType?: string }) {
   return item.type === 'folder' ? 'primary' : colorForFile(item.mimeType || '');
 }
+
 function onRowDblClick(evt: Event, row: FileModel | FolderModel) {
   if (row.type === 'folder') goToFolder(row);
 }
@@ -272,9 +282,11 @@ function startRename(item: { id: string; name: string; type: string }) {
     renameDialog.value = { show: true, item, baseName: base, extension: ext };
   }
 }
+
 function startCreateDir() {
   createFolderDialog.value = { show: true, folderName: '' };
 }
+
 function confirmRename() {
   const it = renameDialog.value.item;
   if (!it) return (renameDialog.value.show = false);
@@ -293,6 +305,7 @@ function confirmRename() {
   });
   renameDialog.value.show = false;
 }
+
 function confirmFolderCreation() {
   const dir = createFolderDialog.value.folderName?.trim();
   if (!dir) return (createFolderDialog.value.show = false);
@@ -376,8 +389,35 @@ onMounted(async () => {
 });
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .nav-path:hover {
   color: $accent;
+}
+
+.file-explorer-table {
+  max-height: 500px;
+
+  .q-table__top,
+  .q-table__bottom,
+  thead tr:first-child th {
+    background-color: $blue-1;
+  }
+
+  thead tr th {
+    position: sticky;
+    z-index: 1;
+  }
+
+  thead tr:first-child th {
+    top: 0;
+  }
+
+  &.q-table--loading thead tr:last-child th {
+    top: 48px;
+  }
+
+  tbody {
+    scroll-margin-top: 48px;
+  }
 }
 </style>

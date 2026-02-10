@@ -36,7 +36,7 @@ class TrainerService {
     return response.data;
   }
 
-  async runTrainWithConfig(params : TrainParameters): Promise<WorkDone<string>> {
+  async runTrainWithConfig(params: TrainParameters): Promise<WorkDone<string>> {
     const response = await api.post<WorkDone<string>>('/claspy_ml/run-train', params);
     return response.data;
   }

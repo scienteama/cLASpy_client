@@ -7,13 +7,12 @@ import type { FileModel, FolderModel } from 'src/types/files.type';
  */
 export function iconForFile(mimetype: string) {
   if (!mimetype) return 'fa-regular fa-file';
-
-  // for .model => mdi-file-cog
   if (mimetype.startsWith('image/')) return 'fa-regular fa-file-image';
   if (mimetype.startsWith('video/')) return 'fa-regular fa-file-video';
   if (mimetype.startsWith('audio/')) return 'fa-regular fa-file-audio';
   if (mimetype === 'application/pdf') return 'fa-regular fa-file-pdf';
   if (mimetype === 'application/las') return 'mdi-data-matrix';
+  if (mimetype === 'application/model') return 'mdi-file-cog';
   if (mimetype === 'application/msword' || mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') return 'fa-regular fa-file-word';
   if (mimetype === 'application/vnd.ms-excel' || mimetype === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') return 'fa-regular fa-file-excel';
   if (mimetype === 'application/vnd.ms-powerpoint' || mimetype === 'application/vnd.openxmlformats-officedocument.presentationml.presentation') return 'fa-regular fa-file-powerpoint';
@@ -45,6 +44,7 @@ export function colorForFile(mimetype: string) {
   if (mimetype.startsWith('audio/')) return 'orange';
   if (mimetype === 'application/pdf') return 'red';
   if (mimetype === 'application/las') return 'orange';
+  if (mimetype === 'application/model') return 'black';
   if (mimetype === 'application/msword' || mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') return 'blue-grey';
   if (mimetype === 'application/vnd.ms-excel' || mimetype === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') return 'green';
   if (mimetype === 'application/vnd.ms-powerpoint' || mimetype === 'application/vnd.openxmlformats-officedocument.presentationml.presentation') return 'deep-orange';
@@ -143,6 +143,7 @@ const MIME_TYPE_MAP: Record<string, string> = {
 
   // Autres
   'application/las': 'Fichier LAS',
+  'application/model': 'Modèle',
 };
 
 /**

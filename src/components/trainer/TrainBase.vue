@@ -41,7 +41,7 @@ import ConfirmDialog from '../tools/ConfirmDialog.vue';
 
 const $q = useQuasar();
 const trainerStore = useTrainerStore();
-const { fileToUpload, existingFile, uploadedFileName, trainConfig } = storeToRefs(trainerStore);
+const { fileToUpload, existingFile, uploadedFileName, trainConfig, pointCloudFile } = storeToRefs(trainerStore);
 
 const step = ref(1);
 const continueBtn = ref<QBtn | null>(null);
@@ -52,7 +52,7 @@ const fileIsLoaded = computed(() => (existingFile.value ? existingFile.value.nam
 const canContinue = computed(() => {
   switch (step.value) {
     case 1:
-      return !!fileIsLoaded.value;
+      return !!fileIsLoaded.value && !!pointCloudFile.value;
     case 2:
       return !!trainConfig.value;
     case 3:
@@ -79,13 +79,13 @@ function runTrain() {
     component: ConfirmDialog,
     componentProps: {
       title: "Confirmer l'action",
-      message: "Êtes-vous sûr de vouloir lancer un entraînement avec ces paramètres ?",
+      message: 'Êtes-vous sûr de vouloir lancer un entraînement avec ces paramètres ?',
       confirmLabel: 'Confirmer',
       cancelLabel: 'Annuler',
     },
   }).onOk(() => {
     void trainerStore.runTrainAsync();
-  })
+  });
 }
 
 async function focusToContinue() {

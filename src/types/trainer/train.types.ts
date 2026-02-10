@@ -16,4 +16,5 @@ export interface TrainParameters {
   parameters: AlgoParameters | null;
   featureNames: string[];
   fillnan: string;
+  disableTaskRunner?: boolean;
 }

@@ -21,43 +21,19 @@
         </div>
         <div class="row items-center justify-start col-12">
           <div class="text-subtitle1 q-mb-sm col-2">Dossier de sortie :</div>
-
           <div class="col">
-            <template v-if="keepOnServer">
-              <q-input class="col-12" outlined label="Sélectionner un dossier dans l'explorateur" v-model="folderPath">
-                <template #before>
-                  <q-icon name="fa-regular fa-folder-open" color="secondary" />
-                </template>
-              </q-input>
-            </template>
-            <template v-else>
-              <q-input class="col-12" outlined readonly :label="defaultOutput" label-color="accent" :model-value="''">
-                <template #before>
-                  <q-icon name="fa-regular fa-folder-open" color="secondary" />
-                </template>
-              </q-input>
-            </template>
+            <q-input class="col-12" outlined label="Sélectionner un dossier dans l'explorateur" v-model="folderPath" input-class="text-bold">
+              <template v-if="folderPath" v-slot:append>
+                <q-icon name="cancel" @click.stop.prevent="fileStore.goToHome" class="cursor-pointer" />
+              </template>
+              <template #before>
+                <q-icon name="fa-regular fa-folder-open" color="secondary" />
+              </template>
+            </q-input>
           </div>
         </div>
 
         <q-card-section class="column items-stretch justify-center">
-          <div class="col">
-            <div class="row items-center justify-start">
-              <div class="col-auto">
-                <q-checkbox ref="keepOnServerRef" v-model="keepOnServer" class="q-ml-sm" :disable="!isNullOrEmpty(fileLoaded)" />
-              </div>
-              <div :class="!isNullOrEmpty(fileLoaded) ? 'text-strike' : '' + ' col-auto q-ml-sm q-mr-lg'">Conserver le fichier d'entrée sur le serveur ?</div>
-              <div class="col-auto q-ml-lg">
-                <q-banner v-if="!isNullOrEmpty(fileLoaded)" class="bg-yellow-3" dense rounded>
-                  <template v-slot:avatar>
-                    <q-icon name="warning" color="orange" size="sm" />
-                  </template>
-                  Impossible de décocher cette option car un fichier est déjà chargé.
-                </q-banner>
-              </div>
-            </div>
-          </div>
-
           <div class="col">
             <div class="row items-center justify-start">
               <div class="col-auto">
@@ -67,14 +43,6 @@
             </div>
           </div>
         </q-card-section>
-
-        <q-banner v-if="!keepOnServer" class="bg-blue-1 text-primary">
-          <template v-slot:avatar>
-            <q-icon name="info" size="sm" />
-          </template>
-          Si l'option « Conserver le fichier » est décochée, celui-ci sera supprimé à la fin du traitement et un dossier de sortie sera créé par défaut dans
-          <span class="text-bold text-dark">"data/storage/outputs/"</span>.
-        </q-banner>
       </q-card-section>
 
       <template v-if="pointCloudFile">
@@ -136,34 +104,22 @@
 import InputFile from 'src/components/files/InputFile.vue';
 import FileExplorer from 'src/components/files/FileExplorer.vue';
 import FeaturesList from './FeaturesList.vue';
-import { computed, nextTick, onMounted, ref } from 'vue';
+import { computed, ref } from 'vue';
 import { useFilesStore } from 'src/stores/files-store';
 import { storeToRefs } from 'pinia';
-import { useConfigStore } from 'src/stores/config-store';
-import { isNullOrEmpty } from 'src/helpers/global-utils';
-import { QCheckbox } from 'quasar';
 import { useTrainerStore } from 'src/stores/train-store';
 
 const trainerStore = useTrainerStore();
 const fileStore = useFilesStore();
-const configStore = useConfigStore();
-const { pointCloudFile, existingFile, uploadedFileName, keepOnServer, folderId } = storeToRefs(trainerStore);
+const { pointCloudFile, existingFile, uploadedFileName, folderId } = storeToRefs(trainerStore);
 const { currentFolderDisplayPath } = storeToRefs(fileStore);
 
-const keepOnServerRef = ref<QCheckbox | null>(null);
 const showFileExplorer = ref<boolean>(true);
 const showFeaturesDialog = ref<boolean>(false);
 
 const fileLoaded = computed(() => (existingFile.value ? existingFile.value.name : uploadedFileName.value));
-const defaultOutput = computed(() => `${configStore.apiSettings?.defaultOutputDir}/yyymmdd_hhmmss`);
+
 const folderPath = computed(() => {
   return currentFolderDisplayPath.value.join('/');
-});
-
-onMounted(async () => {
-  await nextTick();
-  const el = keepOnServerRef.value?.$el as HTMLElement;
-  el?.focus();
-  el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
 });
 </script>
