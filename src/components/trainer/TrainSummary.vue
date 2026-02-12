@@ -1,7 +1,7 @@
 <template>
-  <div class="q-ma-md" style="height: 72vh">
-    <div class="row full-height justify-between">
-      <q-card flat bordered class="col-9 bg-white full-height column">
+  <div style="height: 72vh">
+    <div class="row full-height justify-between q-pa-md">
+      <q-card flat bordered class="col bg-white full-height column">
         <q-card-section v-if="trainConfig" class="bg-teal-1">
           <div class="text-h6">Paramètres d'entraînement</div>
           <div class="text-caption text-grey">Créé le {{ new Date(trainConfig.createdAt).toLocaleString() }}</div>
@@ -9,7 +9,7 @@
 
         <q-separator />
 
-        <q-list v-if="trainConfig" dense>
+        <q-list v-if="trainConfig">
           <q-item>
             <q-item-section>
               <q-item-label caption>Fichier</q-item-label>
@@ -67,8 +67,8 @@
         </q-list>
       </q-card>
 
-      <q-card flat bordered class="col-auto bg-grey-1 column full-height">
-        <q-banner rounded class="bg-teal-1 q-pa-sm">
+      <q-card flat bordered class="col-auto bg-grey-1 column full-height q-ml-md">
+        <q-banner rounded class="bg-teal-1">
           <div class="row items-center no-wrap full-width">
             <q-icon name="mdi-code-json" size="md" color="warning" class="q-mr-sm" />
 

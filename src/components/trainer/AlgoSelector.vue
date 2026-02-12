@@ -123,6 +123,10 @@
             </div>
           </template>
 
+          <template v-slot:separator>
+            <q-icon color="black" size="md" name="mdi-arrow-split-vertical" />
+          </template>
+
           <!-- Colonne de droite -->
           <template v-slot:after>
             <div class="q-pa-md">

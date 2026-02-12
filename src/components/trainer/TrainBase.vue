@@ -41,9 +41,8 @@ import ConfirmDialog from '../tools/ConfirmDialog.vue';
 
 const $q = useQuasar();
 const trainerStore = useTrainerStore();
-const { fileToUpload, existingFile, uploadedFileName, trainConfig, pointCloudFile } = storeToRefs(trainerStore);
+const { fileToUpload, existingFile, uploadedFileName, trainConfig, pointCloudFile, step } = storeToRefs(trainerStore);
 
-const step = ref(1);
 const continueBtn = ref<QBtn | null>(null);
 const algoSelect = ref<ComponentPublicInstance<{ submitTrain: () => void; resetTrainForm: () => void }> | null>(null);
 

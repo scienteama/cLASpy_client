@@ -1,12 +1,13 @@
 <template>
-  <q-card class="q-pa-none" flat>
+  <q-card class="column fit" flat>
     <div v-if="showTitle">
       <q-card-section class="text-h6">{{ titleName }}</q-card-section>
       <q-separator />
     </div>
 
     <!-- Barre de navigation -->
-    <q-card-section :class="'row items-center' + (showInput ? ' justify-between' : ' justify-start')">
+    <q-card-section :class="'row items-center' + (showInput ? ' justify-between' : ' justify-start bg-grey-3 glossy text-white')"
+    style="position:sticky; top:0; z-index: 2;">
       <q-btn flat dense icon="home" color="primary" @click="goToHome">
         <q-tooltip>Accueil</q-tooltip>
       </q-btn>
@@ -44,7 +45,7 @@
     <!-- Table de fichiers -->
     <q-card-section>
       <q-table
-        class="file-explorer-table"
+        class="file-explorer-table q-mx-md"
         :rows="rows"
         :columns="columns"
         row-key="id"
@@ -395,8 +396,7 @@ onMounted(async () => {
 }
 
 .file-explorer-table {
-  max-height: 500px;
-
+  max-height: 60vh;
   .q-table__top,
   .q-table__bottom,
   thead tr:first-child th {

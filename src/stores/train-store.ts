@@ -27,6 +27,7 @@ export const useTrainerStore = defineStore('trainer', () => {
   const uploadIsDone = ref(false);
   const trainConfig = ref<TrainParameters>();
   const selectedFeatures = ref<Set<string>>(new Set());
+  const step = ref(1);
 
   /* Computed */
   const folderId = computed(() => currentFolder.value?.id ?? 'root');
@@ -69,6 +70,8 @@ export const useTrainerStore = defineStore('trainer', () => {
       loading.hide();
       if (res.isOk) {
         $n.notifySuccess(res.result);
+        step.value = 1;
+        await filesStore.reloadRoot()
       }
     } catch (err: any) {
       loading.hide();
@@ -94,7 +97,11 @@ export const useTrainerStore = defineStore('trainer', () => {
 
             try {
               const trainRes = await trainerService.runTrainWithConfig(config);
-              if (trainRes.isOk) $n.notifySuccess(trainRes.result);
+              if (trainRes.isOk) {
+                $n.notifySuccess(trainRes.result);
+                step.value = 1;
+                await filesStore.reloadRoot()
+              }
             } catch (err: any) {
               $n.notifyError(err?.message);
             } finally {
@@ -210,6 +217,7 @@ export const useTrainerStore = defineStore('trainer', () => {
     folderId,
     trainConfig,
     selectedFeatures,
+    step,
     runTrainAsync,
     markUploadDone,
     uploadPointCloudFile,
