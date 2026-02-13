@@ -53,10 +53,18 @@ export default defineConfig(() => {
     },
 
     devServer: {
-      https: true,
-      port: 8081,
-      open: true,
-    },
+    https: true,
+    port: 8081,
+    open: true,
+    proxy: {
+      '/api': {
+        target: 'https://localhost:5000',
+        ws: true,
+        changeOrigin: true,
+        secure: false
+      }
+    }
+  },
 
     framework: {
       config: {},

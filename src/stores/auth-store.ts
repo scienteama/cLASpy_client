@@ -6,6 +6,8 @@ import { useUserStore } from './users-store';
 import { ref } from 'vue';
 import type { User } from 'src/types/users.type';
 import { useConfigStore } from './config-store';
+import { createWebsocket, registerWSHandler } from 'src/services/websocket.service';
+import { useFilesStore } from './files-store';
 
 export const useAuth = defineStore('auth', () => {
   const $q = useQuasar();
@@ -19,6 +21,13 @@ export const useAuth = defineStore('auth', () => {
     try {
       const session = await authService.checkSession();
       isAuthenticated.value = session.data['isAuthenticated']!;
+      if (isAuthenticated.value) {
+        createWebsocket();
+        registerWSHandler('ml_task_done', async () => {
+          await useFilesStore().reloadRoot();
+        });
+      }
+
     } catch {
       isAuthenticated.value = false;
     } finally {
@@ -38,6 +47,14 @@ export const useAuth = defineStore('auth', () => {
       await configStore.initStore();
       if (me != null) {
         isAuthenticated.value = true;
+
+        // Connexion WebSocket
+        createWebsocket();
+        // Enregistrement handler ML task
+        registerWSHandler('ml_task_done', async () => {
+          await useFilesStore().reloadRoot();
+        });
+
         return me;
       } else {
         $q.notify({ type: 'negative', message: 'Erreur lors du chargement du profil.' });

@@ -107,6 +107,7 @@
             <q-tooltip> Upload en cours : {{ fileUploadProgress.speed }} Mo/s </q-tooltip>
           </q-badge>
 
+          <q-badge :color="wsState ? 'positive' : 'negative'" rounded size="md" />
           <q-btn v-if="$q.screen.gt.xs" dense flat round size="md" icon="mdi-bell-outline" />
           <q-btn v-if="$q.screen.gt.xs" dense flat>
             <div class="row items-center no-wrap">
@@ -209,6 +210,7 @@ import { getUserInitials } from 'src/helpers/global-utils';
 import { useAuth } from 'src/stores/auth-store';
 import { useRouter } from 'vue-router';
 import { useNavigation } from 'src/composables/navigation';
+import { websocketService } from 'src/services/websocket.service';
 
 const { style } = dom;
 const headerHeight = ref('0px');
@@ -220,6 +222,8 @@ const pluginStore = usePluginStore();
 const { currentUser } = useUserStore();
 const { userLogout } = useAuth();
 const router = useRouter();
+
+const wsState = computed(() => websocketService?.getState().isConnected);
 
 const fileUploadProgress = computed(() => fileStore.fileUploadProgress);
 const availableML = computed(() => plugins.value.some((p) => p.name === 'claspy_ml' && p.enable));
