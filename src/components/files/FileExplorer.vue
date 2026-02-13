@@ -6,8 +6,7 @@
     </div>
 
     <!-- Barre de navigation -->
-    <q-card-section :class="'row items-center' + (showInput ? ' justify-between' : ' justify-start bg-grey-3 glossy text-white')"
-    style="position:sticky; top:0; z-index: 2;">
+    <q-card-section :class="'row items-center' + (showInput ? ' justify-between' : ' justify-start bg-grey-3 glossy text-white')" style="position: sticky; top: 0; z-index: 2">
       <q-btn flat dense icon="home" color="primary" @click="goToHome">
         <q-tooltip>Accueil</q-tooltip>
       </q-btn>
@@ -47,7 +46,7 @@
       <q-table
         class="file-explorer-table q-mx-md"
         :rows="rows"
-        :columns="columns"
+        :columns="computedColumns"
         row-key="id"
         flat
         bordered
@@ -56,21 +55,43 @@
         virtual-scroll
         v-model:pagination="pagination"
         :rows-per-page-options="[0]"
-        :selection="fileToUpload ? 'none' : 'single'"
-        v-model:selected="selectedItems"
       >
         <template v-slot:header-cell-actions>
-          <q-th class="q-pa-none justify-end items-center">
+          <q-th class="q-pa-none justify-center items-center">
             <q-btn color="secondary" icon="add" dense outline @click="startCreateDir()">
               <q-tooltip>Créer un dossier</q-tooltip>
             </q-btn>
           </q-th>
         </template>
 
-        <template v-slot:body-selection="scope">
-          <div v-if="trainMode && scope.row.type === 'file' && ['application/las', 'text/csv'].includes(scope.row.mimeType)">
-            <q-checkbox v-if="scope.row.type === 'file'" v-model="scope.selected" />
-          </div>
+        <template v-slot:header-cell-delete>
+          <q-th class="q-pa-none justify-center items-center">
+            <q-btn color="negative" icon="mdi-trash-can-outline" dense outline @click="removeItems()">
+              <q-tooltip>Supprimer les éléments sélectionnés</q-tooltip>
+            </q-btn>
+          </q-th>
+        </template>
+
+        <template v-slot:body-cell-delete="scope">
+          <q-td align="center" auto-width>
+            <q-checkbox :model-value="itemIsSelected(scope.row)" @update:model-value="toggleItemSelection(scope.row)" />
+          </q-td>
+        </template>
+
+        <template v-if="trainMode && !fileToUpload" v-slot:header-cell-select>
+          <q-th class="q-pa-none justify-center items-center">
+            <q-btn color="primary" icon="mdi-format-list-checks" dense outline>
+              <q-tooltip>Sélectionner un fichier</q-tooltip>
+            </q-btn>
+          </q-th>
+        </template>
+
+        <template v-if="trainMode && !fileToUpload" v-slot:body-cell-select="scope">
+          <q-td align="center" auto-width>
+            <div v-if="trainMode && scope.row.type === 'file' && ['application/las', 'text/csv'].includes(scope.row.mimeType)">
+              <q-toggle :model-value="isSelected(scope.row)" @update:model-value="toggleSelection(scope.row)" />
+            </div>
+          </q-td>
         </template>
 
         <template v-slot:body-cell-name="props">
@@ -113,14 +134,8 @@
           </q-td>
         </template>
 
-        <template v-slot:header-cell-select="props">
-          <q-th auto-width>
-            <q-checkbox v-model="props.selected" />
-          </q-th>
-        </template>
-
         <template v-slot:body-cell-actions="props">
-          <q-td :props="props" class="text-right">
+          <q-td :props="props" align="center" auto-width class="text-center">
             <q-btn flat dense round icon="more_vert" size="sm">
               <q-menu>
                 <q-list style="min-width: 150px">
@@ -138,6 +153,11 @@
                   <template v-else>
                     <q-item disable>
                       <q-item-section>Télécharger</q-item-section>
+                    </q-item>
+                  </template>
+                  <template v-if="props.row.type == 'file' && AllowedTypesForViewing.includes(props.row.mimeType)">
+                    <q-item clickable @click="downloadItem(props.row, true)">
+                      <q-item-section>Voir</q-item-section>
                     </q-item>
                   </template>
                 </q-list>
@@ -187,6 +207,10 @@
       </q-card-actions>
     </q-card>
   </q-dialog>
+
+  <q-dialog v-model="viewFileDialog">
+    <FileViewer :file="fileViewer" :file-content="fileViewerContent" />
+  </q-dialog>
 </template>
 
 <script setup lang="ts">
@@ -198,9 +222,10 @@ import { useQuasar, type QTableColumn } from 'quasar';
 import { useUserStore } from 'src/stores/users-store';
 import { fileService } from 'src/services/files.service';
 import { useTrainerStore } from 'src/stores/train-store';
-import { colorForFile, computeFolderSize, convertMimeType, formatFileSize, iconForFile, iconForFolder, splitFileName } from 'src/helpers/files-utils';
+import { AllowedTypesForViewing, colorForFile, computeFolderSize, convertMimeType, formatFileSize, iconForFile, iconForFolder, splitFileName } from 'src/helpers/files-utils';
 import ConfirmDialog from '../tools/ConfirmDialog.vue';
 import InputFile from 'src/components/files/InputFile.vue';
+import FileViewer from 'src/components/files/FileViewer.vue';
 
 const filesStore = useFilesStore();
 const userStore = useUserStore();
@@ -215,6 +240,7 @@ const props = defineProps({
 });
 
 const selectedItems = ref<(FileModel | FolderModel)[]>([]);
+const selectedFile = ref<FileModel | null>(null);
 const { rows, loading, canGoBack, rootTree, currentFolder } = storeToRefs(filesStore);
 const { isAdmin, currentUser } = storeToRefs(userStore);
 const { existingFile, fileToUpload } = storeToRefs(trainerStore);
@@ -222,6 +248,11 @@ const { reloadRoot, goBack, goToFolder, renameItem, deleteItem, goToHome, create
 
 const pagination = ref({ rowsPerPage: 0 });
 const createFolderDialog = ref<{ show: boolean; folderName: string }>({ show: false, folderName: '' });
+
+const viewFileDialog = ref(false);
+const fileViewerContent = ref<Blob | null>(null);
+const fileViewer = ref<FileModel | null>(null);
+
 const renameDialog = ref<{
   show: boolean;
   item: { id: string; name: string; type: string } | null;
@@ -234,15 +265,25 @@ const renameDialog = ref<{
   extension: '',
 });
 
-const columns: QTableColumn[] = [
-  { name: 'name', label: 'Nom', field: 'name', align: 'left', sortable: true },
-  { name: 'type', label: 'Type', field: 'mimeType', align: 'left', sortable: true },
-  { name: 'size', label: 'Taille', field: 'size_bytes', align: 'right', sortable: true },
-  { name: 'modified_at', label: 'Modifié le', field: 'modified_at', align: 'left', sortable: true },
-  { name: 'created_at', label: 'Créé le', field: 'created_at', align: 'left', sortable: true },
-  { name: 'user_id', label: 'Propriétaire', field: 'user_id', align: 'left', sortable: true },
-  { name: 'actions', label: '', field: 'actions', align: 'right', sortable: false },
-];
+const computedColumns = computed(() => {
+  const columns: QTableColumn[] = [
+    { name: 'select', label: '', field: 'select', align: 'center', sortable: false },
+    { name: 'name', label: 'Nom', field: 'name', align: 'left', sortable: true },
+    { name: 'type', label: 'Type', field: 'mimeType', align: 'left', sortable: true },
+    { name: 'size', label: 'Taille', field: 'size_bytes', align: 'right', sortable: true },
+    { name: 'modified_at', label: 'Modifié le', field: 'modified_at', align: 'left', sortable: true },
+    { name: 'created_at', label: 'Créé le', field: 'created_at', align: 'left', sortable: true },
+    { name: 'user_id', label: 'Propriétaire', field: 'user_id', align: 'left', sortable: true },
+    { name: 'actions', label: '', field: 'actions', align: 'center', sortable: false },
+    { name: 'delete', label: '', field: 'delete', align: 'right', sortable: false },
+  ];
+
+  if (props.trainMode && fileToUpload.value) {
+    columns.splice(0, 1);
+  }
+
+  return columns;
+});
 
 // --- Breadcrumb dynamique ---
 const breadcrumbPath = computed(() => {
@@ -325,7 +366,27 @@ function confirmFolderCreation() {
   createFolderDialog.value.show = false;
 }
 
-async function downloadItem(item: { id: string; type: string }) {
+const itemIsSelected = (item: FileModel | FolderModel) => {
+  return selectedItems.value.some((selected) => selected.id === item.id);
+};
+
+const toggleItemSelection = (item: FileModel | FolderModel) => {
+  if (itemIsSelected(item)) {
+    selectedItems.value = selectedItems.value.filter((selected) => selected.id !== item.id);
+  } else {
+    selectedItems.value.push(item);
+  }
+};
+
+const isSelected = (row: FileModel) => {
+  return selectedFile.value?.id === row.id;
+};
+
+const toggleSelection = (row: FileModel) => {
+  selectedFile.value = isSelected(row) ? null : row;
+};
+
+async function downloadItem(item: FileModel | FolderModel, isView = false) {
   try {
     if (item.type === 'folder') {
       alert('Téléchargement des dossiers non implémenté !');
@@ -338,6 +399,12 @@ async function downloadItem(item: { id: string; type: string }) {
     const match = contentDisposition.match(/filename\*=(?:UTF-8'')?(.+?)(?:;|$)|filename="?(.+?)"?$/);
     if (match && (match[1] || match[2])) {
       filename = decodeURIComponent(match[1] || match[2] || '');
+    }
+    if (isView) {
+      viewFileDialog.value = true;
+      fileViewerContent.value = res.data;
+      fileViewer.value = item as FileModel;
+      return;
     }
     const url = window.URL.createObjectURL(res.data);
     const link = document.createElement('a');
@@ -368,15 +435,26 @@ function removeItem(item: { id: string; name: string; type: string }) {
   });
 }
 
+function removeItems() {
+  const message = `Etes-vous sûr de vouloir supprimer tous ces éléments ?`;
+  $q.dialog({
+    component: ConfirmDialog,
+    componentProps: { title: 'Confirmation de suppression', message },
+    persistent: true,
+  }).onOk(() => {
+    filesStore.deleteItems(selectedItems.value.map((item) => item.id)).catch((err) => {
+      $q.notify({ type: 'negative', message: err instanceof Error ? err.message : 'Erreur lors de la suppression.' });
+    });
+  });
+}
+
 watch(
-  () => selectedItems.value,
+  () => selectedFile.value,
   (newVal) => {
     if (props.trainMode) {
-      if (newVal.length == 1) {
-        const item = newVal[0];
-        if (item?.type == 'file') {
-          existingFile.value = item;
-        }
+      console.log('Selected file:', newVal);
+      if (newVal && newVal.type == 'file') {
+        existingFile.value = newVal;
       } else {
         existingFile.value = null;
       }
@@ -401,6 +479,8 @@ onMounted(async () => {
   .q-table__bottom,
   thead tr:first-child th {
     background-color: $blue-1;
+    font-weight: bold;
+    font-size: 14px;
   }
 
   thead tr th {

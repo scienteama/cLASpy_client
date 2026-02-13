@@ -71,7 +71,7 @@ export const useTrainerStore = defineStore('trainer', () => {
       if (res.isOk) {
         $n.notifySuccess(res.result);
         step.value = 1;
-        await filesStore.reloadRoot()
+        await filesStore.reloadRoot();
       }
     } catch (err: any) {
       loading.hide();
@@ -100,7 +100,7 @@ export const useTrainerStore = defineStore('trainer', () => {
               if (trainRes.isOk) {
                 $n.notifySuccess(trainRes.result);
                 step.value = 1;
-                await filesStore.reloadRoot()
+                await filesStore.reloadRoot();
               }
             } catch (err: any) {
               $n.notifyError(err?.message);

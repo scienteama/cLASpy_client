@@ -86,7 +86,7 @@ export class WebSocketClient {
         // Message texte simple
         await this.handleMessage({ type: 'text', message: msgStr });
       }
-    })().catch(err => {
+    })().catch((err) => {
       console.error('Erreur traitement message WS:', err);
     });
   }
@@ -96,7 +96,7 @@ export class WebSocketClient {
     if (this.socket && this.state.isConnected) {
       this.socket.send(JSON.stringify(message));
     } else {
-      console.warn('WebSocket non connecté, impossible d\'envoyer le message');
+      console.warn("WebSocket non connecté, impossible d'envoyer le message");
     }
   }
 
@@ -123,6 +123,3 @@ export function registerWSHandler(type: string, handler: WSHandler) {
   }
   websocketService.on(type, handler);
 }
-
-
-

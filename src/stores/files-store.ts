@@ -231,6 +231,20 @@ export const useFilesStore = defineStore('files', () => {
     }
   }
 
+  async function deleteItems(ids: string[]): Promise<void> {
+    try {
+      const res = await fileService.deleteItems(ids);
+      if (res.isOk) {
+        await refreshCurrentFolder();
+        $q.notify({ type: 'positive', message: 'Éléments supprimés.' });
+      } else {
+        $q.notify({ type: 'negative', message: 'Échec de la suppression.' });
+      }
+    } catch (err) {
+      $q.notify({ type: 'negative', message: (err as Error).message || 'Erreur serveur.' });
+    }
+  }
+
   async function refreshCurrentFolder(): Promise<void> {
     const oldId = currentFolder.value?.id;
 
@@ -260,6 +274,7 @@ export const useFilesStore = defineStore('files', () => {
     createFolder,
     renameItem,
     deleteItem,
+    deleteItems,
     findFolderById,
     refreshCurrentFolder,
     listDirectories,

@@ -146,6 +146,8 @@ const MIME_TYPE_MAP: Record<string, string> = {
   'application/model': 'Modèle',
 };
 
+export const AllowedTypesForViewing = ['application/json', 'text/plain', 'text/html', 'application/pdf', 'text/csv', 'image/jpeg', 'image/png', 'image/gif'];
+
 /**
  * Convertit un type MIME en libellé lisible.
  * @param mimeType Type MIME

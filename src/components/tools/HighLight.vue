@@ -48,3 +48,8 @@ export default defineComponent({
   },
 });
 </script>
+<style scoped lang="scss">
+::v-deep(.hljs) {
+  background-color: #fff0;
+}
+</style>

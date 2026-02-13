@@ -24,8 +24,7 @@
             <div class="row items-center justify-start col-12">
               <div class="text-subtitle1 q-mb-sm col-2">Dossier de sortie :</div>
               <div class="col">
-                <q-input class="col-12" outlined label="Sélectionner un dossier dans l'explorateur" v-model="folderPath"
-                  input-class="text-bold">
+                <q-input class="col-12" outlined label="Sélectionner un dossier dans l'explorateur" v-model="folderPath" input-class="text-bold">
                   <template v-if="folderPath" v-slot:append>
                     <q-icon name="cancel" @click.stop.prevent="fileStore.goToHome" class="cursor-pointer" />
                   </template>
@@ -51,14 +50,12 @@
           <template v-if="pointCloudFile">
             <q-separator vertical />
             <q-card-section class="col-3" style="max-height: 30vh; overflow-y: scroll">
-              <q-banner class="bg-blue-1 text-primary text-center" style="border: 1px solid rgba(0, 0, 0, 0.12)" dense
-                rounded> Détails : </q-banner>
+              <q-banner class="bg-blue-1 text-primary text-center" style="border: 1px solid rgba(0, 0, 0, 0.12)" dense rounded> Détails : </q-banner>
               <q-card-section flat>
                 <q-list dense bordered class="bg-blue-1 text-primary">
                   <q-item>
                     <q-item-section>Nom :</q-item-section>
-                    <q-item-section class="text-accent text-bold" style="word-break: break-word"> {{ pointCloudFile.name
-                      }}</q-item-section>
+                    <q-item-section class="text-accent text-bold" style="word-break: break-word"> {{ pointCloudFile.name }}</q-item-section>
                   </q-item>
 
                   <q-item>
@@ -84,8 +81,7 @@
                   <q-item v-if="pointCloudFile.featuresList">
                     <q-item-section>Attributs :</q-item-section>
                     <q-item-section>
-                      <span class="text-accent text-bold" style="cursor: pointer; color: #1976d2"
-                        @click="showFeaturesDialog = true">
+                      <span class="text-accent text-bold" style="cursor: pointer; color: #1976d2" @click="showFeaturesDialog = true">
                         {{ pointCloudFile.featuresList.length }}
                       </span>
                     </q-item-section>
@@ -96,13 +92,13 @@
           </template>
         </q-card>
       </template>
-       <template v-slot:separator>
+      <template v-slot:separator>
         <q-icon color="black" size="md" name="mdi-arrow-split-horizontal" />
       </template>
       <template v-slot:after>
-        <div style="height: 100%;">
+        <div style="height: 100%">
           <q-card v-if="showFileExplorer" flat class="column">
-            <FileExplorer :show-input="false" :show-title="false" :train-mode="true"/>
+            <FileExplorer :show-input="false" :show-title="false" :train-mode="true" />
           </q-card>
         </div>
       </template>

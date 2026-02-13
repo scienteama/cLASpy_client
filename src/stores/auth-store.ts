@@ -27,7 +27,6 @@ export const useAuth = defineStore('auth', () => {
           await useFilesStore().reloadRoot();
         });
       }
-
     } catch {
       isAuthenticated.value = false;
     } finally {

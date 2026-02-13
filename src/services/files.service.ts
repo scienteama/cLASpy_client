@@ -38,6 +38,11 @@ class FileService {
     return response.data;
   }
 
+  async deleteItems(itemIds: string[]): Promise<WorkDone<string>> {
+    const response = await api.post<WorkDone<string>>(`/files/remove-multiple`, itemIds);
+    return response.data;
+  }
+
   async renameFileOrDir(itemId: string, newFilename: string): Promise<WorkDone<string>> {
     const response = await api.put<WorkDone<string>>(`/files/rename/${itemId}`, {
       new_name: newFilename,
