@@ -48,3 +48,7 @@ export function newSeed(): number {
   const seed = Math.floor(Math.random() * highValue);
   return seed;
 }
+
+export const xor = (a: boolean, b: boolean) => {
+  return a !== b;
+}

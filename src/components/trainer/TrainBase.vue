@@ -15,7 +15,7 @@
       <q-stepper-navigation class="q-pa-md bg-blue-1 row justify-end">
         <q-btn @click="step = 1" color="secondary" label="Retour" outline />
         <q-btn color="negative" outline @click="resetConfig()" label="Annuler" class="q-ml-sm" />
-        <q-btn v-if="!trainConfig" @click="validateConfig()" color="primary" label="Valider" class="q-ml-sm" />
+        <q-btn v-if="!formValid" @click="validateForm()" color="primary" label="Valider" class="q-ml-sm"/>
         <q-btn ref="continueBtn" v-if="canContinue" @click="step = 3" color="primary" label="Continuer" class="q-ml-sm" />
       </q-stepper-navigation>
     </q-step>
@@ -30,7 +30,7 @@
   </q-stepper>
 </template>
 <script setup lang="ts">
-import { type ComponentPublicInstance, computed, nextTick, ref } from 'vue';
+import { type ComponentPublicInstance, computed, nextTick, ref, watch } from 'vue';
 import { useTrainerStore } from 'src/stores/train-store';
 import { storeToRefs } from 'pinia';
 import { QBtn, useQuasar } from 'quasar';
@@ -41,10 +41,11 @@ import ConfirmDialog from '../tools/ConfirmDialog.vue';
 
 const $q = useQuasar();
 const trainerStore = useTrainerStore();
-const { fileToUpload, existingFile, uploadedFileName, trainConfig, pointCloudFile, step } = storeToRefs(trainerStore);
+const { fileToUpload, existingFile, uploadedFileName, pointCloudFile, step } = storeToRefs(trainerStore);
 
 const continueBtn = ref<QBtn | null>(null);
-const algoSelect = ref<ComponentPublicInstance<{ submitTrain: () => void; resetTrainForm: () => void }> | null>(null);
+const algoSelect = ref<ComponentPublicInstance<{ validateForm: () => Promise<boolean>; submitTrain: () => boolean; resetTrainForm: () => void }> | null>(null);
+const formValid = ref(false);
 
 const canUpload = computed(() => (fileToUpload.value ? true : false));
 const fileIsLoaded = computed(() => (existingFile.value ? existingFile.value.name : uploadedFileName.value));
@@ -53,7 +54,7 @@ const canContinue = computed(() => {
     case 1:
       return !!fileIsLoaded.value && !!pointCloudFile.value;
     case 2:
-      return !!trainConfig.value;
+      return formValid.value;
     case 3:
       return true;
     default:
@@ -61,7 +62,15 @@ const canContinue = computed(() => {
   }
 });
 
-function validateConfig() {
+async function validateForm() {
+  if (!algoSelect.value) return;
+  formValid.value = await algoSelect.value.validateForm();
+  if (formValid.value) {
+    submitConfig();
+  }
+}
+
+function submitConfig() {
   if (algoSelect.value) {
     algoSelect.value.submitTrain();
   }
@@ -86,6 +95,12 @@ function runTrain() {
     void trainerStore.runTrainAsync();
   });
 }
+
+watch(step, (newStep) => {
+  if (newStep === 2) {
+    formValid.value = false;
+  }
+});
 
 async function focusToContinue() {
   await nextTick(() => {

@@ -408,33 +408,38 @@ function getFeatsItemExpansionLabel() {
   return label;
 }
 
-async function submitTrain() {
-  if (features.value.length === 0) {
+
+async function validateForm(): Promise<boolean> {
+  if (!features.value.length) {
     $n.notifyError('Veuillez sélectionner un ou plusieurs attributs.');
-    return;
+    return false;
   }
 
   if (!isFormValid()) {
     $n.notifyError('Veuillez sélectionner un algorithme et/ou un fichier.');
-    return;
+    return false;
   }
 
-  if (formTrain.value) {
-    const valid = await formTrain.value.validate();
+  if (!formTrain.value) return false;
 
-    if (!valid) {
-      $n.notifyInfo('Paramètres invalides.');
-      return;
-    }
+  const isValid = await formTrain.value.validate();
+
+  if (!isValid) {
+    $n.notifyInfo('Paramètres invalides.');
   }
 
+  return isValid;
+}
+
+function submitTrain() {
   trainConfig.value = buildTrainConfig();
   if (trainConfig.value) {
     $n.notifyInfo('Configuration chargée, cliquez sur continuer.');
     emit('go-to-continue');
-    //downloadJSON(trainConfig.value, 'train_config');
+    return true;
   } else {
     $n.notifyError('Impossible de construire la configuration.');
+    return false;
   }
 }
 
@@ -479,7 +484,7 @@ onMounted(async () => {
   }
 });
 
-defineExpose({ submitTrain, resetTrainForm });
+defineExpose({ validateForm, submitTrain, resetTrainForm });
 </script>
 <style lang="scss" scoped>
 .dynamic-input {

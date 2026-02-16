@@ -1,6 +1,6 @@
 <template>
   <q-card flat bordered style="min-width: 300px !important; max-width: 90vw; max-height: 80vh; overflow: auto">
-    <q-bar>
+    <q-bar style="position:sticky; top:0; z-index: 1;" class="bg-grey-4">
       <q-icon name="mdi-text-box-outline"></q-icon>
 
       <div>{{ props.file?.name }}</div>
