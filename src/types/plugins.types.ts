@@ -8,10 +8,10 @@ export interface Plugin {
 
 export interface TaskRunner {
   enabled: boolean;
-  workers: WorkerState[]
+  workers: WorkerState[];
 }
 
 export interface WorkerState {
-  name: string
-  pid: number
+  name: string;
+  pid: number;
 }

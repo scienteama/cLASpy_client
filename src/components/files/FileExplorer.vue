@@ -43,19 +43,7 @@
 
     <!-- Table de fichiers -->
     <q-card-section>
-      <q-table
-        class="file-explorer-table q-mx-md"
-        :rows="rows"
-        :columns="computedColumns"
-        row-key="id"
-        flat
-        bordered
-        :loading="loading"
-        @row-dblclick="onRowDblClick"
-        virtual-scroll
-        v-model:pagination="pagination"
-        :rows-per-page-options="[0]"
-      >
+      <q-table class="file-explorer-table q-mx-md" :rows="rows" :columns="computedColumns" row-key="id" flat bordered :loading="loading" @row-dblclick="onRowDblClick" virtual-scroll>
         <template v-slot:header-cell-actions>
           <q-th class="q-pa-none justify-center items-center">
             <q-btn color="secondary" :icon="matAdd" dense outline @click="startCreateDir()">
@@ -196,7 +184,7 @@
         <div class="text-h6 q-my-md q-mx-lg text-center">Créer un nouveau dossier :</div>
         <q-input v-model="createFolderDialog.folderName" dense autofocus class="q-mt-sm" filled width="auto">
           <template v-slot:before>
-            <q-icon :name=matChevronRight color="primary" />
+            <q-icon :name="matChevronRight" color="primary" />
           </template>
         </q-input>
       </q-card-section>
@@ -248,7 +236,6 @@ const { isAdmin, currentUser } = storeToRefs(userStore);
 const { existingFile, fileToUpload } = storeToRefs(trainerStore);
 const { reloadRoot, goBack, goToFolder, renameItem, deleteItem, goToHome, createFolder, refreshCurrentFolder } = filesStore;
 
-const pagination = ref({ rowsPerPage: 0 });
 const createFolderDialog = ref<{ show: boolean; folderName: string }>({ show: false, folderName: '' });
 
 const viewFileDialog = ref(false);

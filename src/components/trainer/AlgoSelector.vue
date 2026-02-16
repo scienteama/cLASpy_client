@@ -133,7 +133,7 @@
               <template v-if="currentAlgoName && selectedAlgorithm">
                 <q-banner rounded class="bg-teal-1 fixed-uniform-field" inline-actions>
                   <template v-slot:avatar>
-                    <q-icon :name=fasBrain color="secondary" size="sm" />
+                    <q-icon :name="fasBrain" color="secondary" size="sm" />
                   </template>
 
                   <div class="text-h6 q-ml-md text-secondary">
@@ -141,7 +141,7 @@
                   </div>
 
                   <template v-slot:action>
-                    <q-icon :name=fasUpRightFromSquare class="q-ml-auto cursor-pointer" size="sm" color="secondary" tag="a" :href="algoDocUrl" target="_blank" rel="noopener">
+                    <q-icon :name="fasUpRightFromSquare" class="q-ml-auto cursor-pointer" size="sm" color="secondary" tag="a" :href="algoDocUrl" target="_blank" rel="noopener">
                       <q-tooltip>Ouvrir la documentation</q-tooltip>
                     </q-icon>
                   </template>
@@ -411,7 +411,6 @@ function getFeatsItemExpansionLabel() {
   }
   return label;
 }
-
 
 async function validateForm(): Promise<boolean> {
   if (!features.value.length) {

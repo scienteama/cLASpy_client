@@ -51,4 +51,4 @@ export function newSeed(): number {
 
 export const xor = (a: boolean, b: boolean) => {
   return a !== b;
-}
+};

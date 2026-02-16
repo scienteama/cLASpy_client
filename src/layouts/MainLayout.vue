@@ -36,7 +36,7 @@
                 <q-expansion-item expand-separator :header-class="['q-mb-xs text-h6', menuItem.bgColor ? `bg-${menuItem.bgColor} glossy text-white` : '']" dense expand-icon-class="text-white text-h4">
                   <template v-slot:header>
                     <q-item-section avatar>
-                      <q-icon :color="menuItem.iconColor" :name=matExtension />
+                      <q-icon :color="menuItem.iconColor" :name="matExtension" />
                     </q-item-section>
                     <q-item-section> Plugins </q-item-section>
                   </template>
@@ -111,7 +111,7 @@
           <q-btn v-if="$q.screen.gt.xs" dense flat round size="md" :icon="mdiBellOutline" />
           <q-btn v-if="$q.screen.gt.xs" dense flat>
             <div class="row items-center no-wrap">
-              <q-icon :name=matAdd size="md" />
+              <q-icon :name="matAdd" size="md" />
               <q-icon :name="matArrowDropDown" size="sm" style="margin-left: -2px" />
             </div>
             <q-menu auto-close>

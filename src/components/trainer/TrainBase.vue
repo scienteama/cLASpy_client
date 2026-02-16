@@ -1,10 +1,10 @@
 <template>
   <q-stepper v-model="step" horizontal animated keep-alive done-color="positive" active-color="accent" inactive-color="primary" header-class="stepper-header" class="column">
-    <q-step :name="1" title="Sélection du nuage de points" :icon=mdiFileOutline :done="step > 1" class="column full-height">
+    <q-step :name="1" title="Sélection du nuage de points" :icon="mdiFileOutline" :done="step > 1" class="column full-height">
       <FileLoader key="file-loader" />
       <q-stepper-navigation v-if="canUpload || canContinue" class="q-pa-md bg-blue-1">
         <div class="row justify-end">
-          <q-btn v-if="canUpload" color="secondary" label="Upload" :icon=matCloudUpload @click="sendUploadEvent()" />
+          <q-btn v-if="canUpload" color="secondary" label="Upload" :icon="matCloudUpload" @click="sendUploadEvent()" />
           <q-btn v-if="canContinue" @click="step = 2" color="primary" label="Continuer" />
         </div>
       </q-stepper-navigation>
@@ -15,7 +15,7 @@
       <q-stepper-navigation class="q-pa-md bg-blue-1 row justify-end">
         <q-btn @click="step = 1" color="secondary" label="Retour" outline />
         <q-btn color="negative" outline @click="resetConfig()" label="Annuler" class="q-ml-sm" />
-        <q-btn v-if="!formValid" @click="validateForm()" color="primary" label="Valider" class="q-ml-sm"/>
+        <q-btn v-if="!formValid" @click="validateForm()" color="primary" label="Valider" class="q-ml-sm" />
         <q-btn ref="continueBtn" v-if="canContinue" @click="step = 3" color="primary" label="Continuer" class="q-ml-sm" />
       </q-stepper-navigation>
     </q-step>

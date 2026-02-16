@@ -26,7 +26,7 @@
               <div class="col">
                 <q-input class="col-12" outlined label="Sélectionner un dossier dans l'explorateur" v-model="folderPath" input-class="text-bold">
                   <template v-if="folderPath" v-slot:append>
-                    <q-icon :name=matCancel @click.stop.prevent="fileStore.goToHome" class="cursor-pointer" />
+                    <q-icon :name="matCancel" @click.stop.prevent="fileStore.goToHome" class="cursor-pointer" />
                   </template>
                   <template #before>
                     <q-icon :name="farFolderOpen" color="secondary" />

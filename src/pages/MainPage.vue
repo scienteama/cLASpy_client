@@ -23,8 +23,7 @@
     </div>
 
     <div class="row q-gutter-md q-mb-md">
-
-      <TaskRunner v-if="isAdmin && taskrunner?.enable" class="col-md-5 bg-white"/>
+      <TaskRunner v-if="isAdmin && taskrunner?.enable" class="col-md-5 bg-white" />
 
       <q-card flat bordered class="col-md-5 bg-white">
         <q-card-section>
