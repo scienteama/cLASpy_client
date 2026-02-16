@@ -3,7 +3,7 @@
     <div class="text-subtitle1 text-weight-medium q-mb-sm">Date & heure</div>
 
     <div class="row items-center no-wrap">
-      <q-icon name="mdi-clock-outline" size="42px" color="primary" class="q-mr-md" />
+      <q-icon :name="mdiClockOutline" size="42px" color="primary" class="q-mr-md" />
 
       <div>
         <div class="text-h5 text-weight-bold">
@@ -17,6 +17,7 @@
   </q-card-section>
 </template>
 <script setup lang="ts">
+import { mdiClockOutline } from '@quasar/extras/mdi-v7';
 import { ref, onMounted, onBeforeUnmount } from 'vue';
 
 const time = ref('');

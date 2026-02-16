@@ -8,10 +8,10 @@
           </q-avatar>
           cLASpy_Client
         </q-toolbar-title>
-        <q-btn dense flat round icon="mdi-palette-outline" size="md" @click="chooseColor = true" />
-        <q-btn dense flat round icon="mdi-palette-advanced" outline size="md" class="q-ml-sm" @click="chooseTheme = true" />
-        <q-btn dense flat round icon="fa-brands fa-github" class="q-ml-sm" size="md" />
-        <q-btn dense flat round icon="menu" class="q-ml-sm" size="md" />
+        <q-btn dense flat round :icon="mdiPaletteOutline" size="md" @click="chooseColor = true" />
+        <q-btn dense flat round :icon="mdiPaletteAdvanced" outline size="md" class="q-ml-sm" @click="chooseTheme = true" />
+        <q-btn dense flat round :icon="fabGithub" class="q-ml-sm" size="md" />
+        <q-btn dense flat round :icon="matMenu" class="q-ml-sm" size="md" />
       </q-toolbar>
     </q-header>
 
@@ -26,7 +26,7 @@
       <q-toolbar class="glossy bg-claspy-dark1">
         <q-toolbar-title class="q-pa-md">
           <div class="row items-center">
-            <q-btn flat label="À propos" icon="info" class="text-white" to="/about" />
+            <q-btn flat label="À propos" :icon="matInfo" class="text-white" to="/about" />
           </div>
         </q-toolbar-title>
 
@@ -53,7 +53,7 @@
       <q-card-section>
         <q-select outlined v-model="selectedTheme" label="Thème :" :options="themeList" dense>
           <template v-slot:prepend>
-            <q-icon name="mdi-format-list-bulleted-square" color="primary" />
+            <q-icon :name="mdiFormatListBulletedSquare" color="primary" />
           </template>
         </q-select>
       </q-card-section>
@@ -71,6 +71,9 @@ import { computed, onMounted, ref, watch } from 'vue';
 import { useConfigStore } from 'src/stores/config-store';
 import { storeToRefs } from 'pinia';
 import { generatePal } from 'src/helpers/color-utils';
+import { mdiFormatListBulletedSquare, mdiPaletteAdvanced, mdiPaletteOutline } from '@quasar/extras/mdi-v7';
+import { matInfo, matMenu } from '@quasar/extras/material-icons';
+import { fabGithub } from '@quasar/extras/fontawesome-v6';
 
 const configStore = useConfigStore();
 const { defaultThemes, currentTheme } = storeToRefs(configStore);

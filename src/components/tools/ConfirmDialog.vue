@@ -19,6 +19,7 @@
 </template>
 
 <script setup lang="ts">
+import { matWarning } from '@quasar/extras/material-icons';
 import { useDialogPluginComponent } from 'quasar';
 
 defineProps({
@@ -26,7 +27,7 @@ defineProps({
   message: { type: String, default: 'Êtes-vous sûr ?' },
   confirmLabel: { type: String, default: 'Confirmer' },
   cancelLabel: { type: String, default: 'Annuler' },
-  icon: { type: String, default: 'warning' },
+  icon: { type: String, default: matWarning },
   iconColor: { type: String, default: 'warning' },
 });
 

@@ -1,16 +1,16 @@
 <template>
   <q-stepper v-model="step" horizontal animated keep-alive done-color="positive" active-color="accent" inactive-color="primary" header-class="stepper-header" class="column">
-    <q-step :name="1" title="Sélection du nuage de points" icon="file" :done="step > 1" class="column full-height">
+    <q-step :name="1" title="Sélection du nuage de points" :icon=mdiFileOutline :done="step > 1" class="column full-height">
       <FileLoader key="file-loader" />
       <q-stepper-navigation v-if="canUpload || canContinue" class="q-pa-md bg-blue-1">
         <div class="row justify-end">
-          <q-btn v-if="canUpload" color="secondary" label="Upload" icon="cloud_upload" @click="sendUploadEvent()" />
+          <q-btn v-if="canUpload" color="secondary" label="Upload" :icon=matCloudUpload @click="sendUploadEvent()" />
           <q-btn v-if="canContinue" @click="step = 2" color="primary" label="Continuer" />
         </div>
       </q-stepper-navigation>
     </q-step>
 
-    <q-step :name="2" title="Sélection des paramètres d'entraînement" icon="fa-solid fa-gears" :done="step > 2" class="column full-height">
+    <q-step :name="2" title="Sélection des paramètres d'entraînement" :icon="fasGears" :done="step > 2" class="column full-height">
       <AlgoSelector ref="algoSelect" @go-to-continue="focusToContinue" />
       <q-stepper-navigation class="q-pa-md bg-blue-1 row justify-end">
         <q-btn @click="step = 1" color="secondary" label="Retour" outline />
@@ -20,7 +20,7 @@
       </q-stepper-navigation>
     </q-step>
 
-    <q-step :name="3" title="Récapitulatifs" icon="fa-solid fa-list" :done="step > 3" class="column full-height">
+    <q-step :name="3" title="Récapitulatifs" :icon="fasList" :done="step > 3" class="column full-height">
       <TrainSummary />
       <q-stepper-navigation class="q-pa-md bg-blue-1 row justify-end">
         <q-btn @click="step = 2" color="secondary" label="Retour" outline />
@@ -38,6 +38,9 @@ import FileLoader from './FileLoader.vue';
 import AlgoSelector from './AlgoSelector.vue';
 import TrainSummary from './TrainSummary.vue';
 import ConfirmDialog from '../tools/ConfirmDialog.vue';
+import { matCloudUpload } from '@quasar/extras/material-icons';
+import { mdiFileOutline } from '@quasar/extras/mdi-v7';
+import { fasGears, fasList } from '@quasar/extras/fontawesome-v6';
 
 const $q = useQuasar();
 const trainerStore = useTrainerStore();

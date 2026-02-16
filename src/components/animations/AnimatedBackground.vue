@@ -5,8 +5,8 @@
       <q-img :src="classPyIcon" fit="contain" class="foreground-img filtered-img" />
       <q-img :src="classPyIcon" fit="contain" class="foreground-img base-img" />
       <div class="choose-theme-btn">
-        <q-btn icon="mdi-palette-outline" dense outline color="claspy-dark1" class="bg-white" @click="chooseColor = true" />
-        <q-btn icon="mdi-palette-advanced" dense outline color="claspy-dark1" class="bg-white" @click="chooseTheme = true" />
+        <q-btn :icon="mdiPaletteOutline" dense outline color="claspy-dark1" class="bg-white" @click="chooseColor = true" />
+        <q-btn :icon="mdiPaletteAdvanced" dense outline color="claspy-dark1" class="bg-white" @click="chooseTheme = true" />
       </div>
     </div>
     <div v-else>
@@ -28,7 +28,7 @@
         <q-card-section>
           <q-select outlined v-model="selectedTheme" label="Thème :" :options="themeList" dense>
             <template v-slot:prepend>
-              <q-icon name="mdi-format-list-bulleted-square" color="primary" />
+              <q-icon :name="mdiFormatListBulletedSquare" color="primary" />
             </template>
           </q-select>
         </q-card-section>
@@ -49,6 +49,7 @@ import type { Point } from 'src/types/global.types';
 import { useConfigStore } from 'src/stores/config-store';
 import { storeToRefs } from 'pinia';
 import { generatePal } from 'src/helpers/color-utils';
+import { mdiFormatListBulletedSquare, mdiPaletteAdvanced, mdiPaletteOutline } from '@quasar/extras/mdi-v7';
 
 const configStore = useConfigStore();
 const { defaultThemes, currentTheme } = storeToRefs(configStore);

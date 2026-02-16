@@ -8,7 +8,7 @@
       :clearable="!fileUploadProgress.uploading"
     >
       <template #before>
-        <q-icon name="fa-solid fa-paperclip" color="primary" />
+        <q-icon :name="fasPaperclip" color="primary" />
       </template>
 
       <template #file="{ file }">
@@ -33,7 +33,7 @@
 
       <template #after v-if="canUpload">
         <div v-if="!isTrainMode">
-          <q-btn v-if="!fileUploadProgress.uploading" color="primary" dense icon="cloud_upload" round @click="upload" :disable="!canUpload" />
+          <q-btn v-if="!fileUploadProgress.uploading" color="primary" dense :icon="matCloudUpload" round @click="upload" :disable="!canUpload" />
           <q-badge v-else color="accent" text-color="white" rounded size="md" :label="(fileUploadProgress.percent * 100).toFixed(0) + '%'" />
         </div>
       </template>
@@ -46,6 +46,8 @@ import { ref, computed, onBeforeUnmount, watch } from 'vue';
 import { useFilesStore } from 'src/stores/files-store';
 import { storeToRefs } from 'pinia';
 import { useTrainerStore } from 'src/stores/train-store';
+import { matCloudUpload } from '@quasar/extras/material-icons';
+import { farFile, fasPaperclip } from '@quasar/extras/fontawesome-v6';
 
 const props = defineProps({
   isTrainMode: { type: Boolean, default: false },
@@ -86,7 +88,7 @@ async function upload() {
       percent: 0,
       color: 'green-2',
       error: false,
-      icon: 'fa-regular fa-file',
+      icon: farFile,
       uploading: false,
       speed: 0,
     };

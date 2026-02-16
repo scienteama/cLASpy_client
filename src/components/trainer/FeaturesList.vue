@@ -16,7 +16,7 @@
           @mouseenter="onMouseMove(feat)"
         >
           <q-item-section avatar>
-            <q-icon color="accent" name="mdi-cube-outline" size="sm" />
+            <q-icon color="accent" :name="mdiCubeOutline" size="sm" />
           </q-item-section>
           <q-item-section>{{ feat.toUpperCase() }}</q-item-section>
         </q-item>
@@ -29,6 +29,7 @@
   </div>
 </template>
 <script setup lang="ts">
+import { mdiCubeOutline } from '@quasar/extras/mdi-v7';
 import { storeToRefs } from 'pinia';
 import { useTrainerStore } from 'src/stores/train-store';
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';

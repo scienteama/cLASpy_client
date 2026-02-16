@@ -1,3 +1,5 @@
+import { farFile, farFileAudio, farFileExcel, farFileImage, farFileLines, farFilePdf, farFilePowerpoint, farFileVideo, farFileWord, farFolder, farFolderOpen } from '@quasar/extras/fontawesome-v6';
+import { mdiDataMatrix, mdiFileCog } from '@quasar/extras/mdi-v7';
 import type { FileModel, FolderModel } from 'src/types/files.type';
 
 /**
@@ -6,20 +8,20 @@ import type { FileModel, FolderModel } from 'src/types/files.type';
  * @returns Classe d’icône (FontAwesome / MDI)
  */
 export function iconForFile(mimetype: string) {
-  if (!mimetype) return 'fa-regular fa-file';
-  if (mimetype.startsWith('image/')) return 'fa-regular fa-file-image';
-  if (mimetype.startsWith('video/')) return 'fa-regular fa-file-video';
-  if (mimetype.startsWith('audio/')) return 'fa-regular fa-file-audio';
-  if (mimetype === 'application/pdf') return 'fa-regular fa-file-pdf';
-  if (mimetype === 'application/las') return 'mdi-data-matrix';
-  if (mimetype === 'application/model') return 'mdi-file-cog';
-  if (mimetype === 'application/msword' || mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') return 'fa-regular fa-file-word';
-  if (mimetype === 'application/vnd.ms-excel' || mimetype === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') return 'fa-regular fa-file-excel';
-  if (mimetype === 'application/vnd.ms-powerpoint' || mimetype === 'application/vnd.openxmlformats-officedocument.presentationml.presentation') return 'fa-regular fa-file-powerpoint';
-  if (mimetype.startsWith('text/')) return 'fa-regular fa-file-lines';
+  if (!mimetype) return farFile;
+  if (mimetype.startsWith('image/')) return farFileImage;
+  if (mimetype.startsWith('video/')) return farFileVideo;
+  if (mimetype.startsWith('audio/')) return farFileAudio;
+  if (mimetype === 'application/pdf') return farFilePdf;
+  if (mimetype === 'application/las') return mdiDataMatrix;
+  if (mimetype === 'application/model') return mdiFileCog;
+  if (mimetype === 'application/msword' || mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') return farFileWord;
+  if (mimetype === 'application/vnd.ms-excel' || mimetype === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') return farFileExcel;
+  if (mimetype === 'application/vnd.ms-powerpoint' || mimetype === 'application/vnd.openxmlformats-officedocument.presentationml.presentation') return farFilePowerpoint;
+  if (mimetype.startsWith('text/')) return farFileLines;
 
   // Icône par défaut
-  return 'fa-regular fa-file';
+  return farFile;
 }
 
 /**
@@ -28,7 +30,7 @@ export function iconForFile(mimetype: string) {
  * @returns Classe d’icône
  */
 export function iconForFolder(isOpen: boolean) {
-  return isOpen ? 'fa-regular fa-folder-open' : 'fa-regular fa-folder';
+  return isOpen ? farFolderOpen : farFolder;
 }
 
 /**

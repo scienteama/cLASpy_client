@@ -5,3 +5,13 @@ export interface Plugin {
   description: string;
   tooltip: string;
 }
+
+export interface TaskRunner {
+  enabled: boolean;
+  workers: WorkerState[]
+}
+
+export interface WorkerState {
+  name: string
+  pid: number
+}

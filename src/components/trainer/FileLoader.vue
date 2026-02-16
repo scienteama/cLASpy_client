@@ -15,7 +15,7 @@
                 <template v-if="fileLoaded">
                   <q-input class="col-12" outlined readonly :label="fileLoaded" label-color="accent" :model-value="''">
                     <template #before>
-                      <q-icon name="fa-regular fa-file" color="primary" />
+                      <q-icon :name="farFile" color="primary" />
                     </template>
                   </q-input>
                 </template>
@@ -26,10 +26,10 @@
               <div class="col">
                 <q-input class="col-12" outlined label="Sélectionner un dossier dans l'explorateur" v-model="folderPath" input-class="text-bold">
                   <template v-if="folderPath" v-slot:append>
-                    <q-icon name="cancel" @click.stop.prevent="fileStore.goToHome" class="cursor-pointer" />
+                    <q-icon :name=matCancel @click.stop.prevent="fileStore.goToHome" class="cursor-pointer" />
                   </template>
                   <template #before>
-                    <q-icon name="fa-regular fa-folder-open" color="secondary" />
+                    <q-icon :name="farFolderOpen" color="secondary" />
                   </template>
                 </q-input>
               </div>
@@ -93,7 +93,7 @@
         </q-card>
       </template>
       <template v-slot:separator>
-        <q-icon color="black" size="md" name="mdi-arrow-split-horizontal" />
+        <q-icon color="black" size="md" :name="mdiArrowSplitHorizontal" />
       </template>
       <template v-slot:after>
         <div style="height: 100%">
@@ -117,6 +117,9 @@ import { computed, ref } from 'vue';
 import { useFilesStore } from 'src/stores/files-store';
 import { storeToRefs } from 'pinia';
 import { useTrainerStore } from 'src/stores/train-store';
+import { mdiArrowSplitHorizontal } from '@quasar/extras/mdi-v7';
+import { matCancel } from '@quasar/extras/material-icons';
+import { farFile, farFolderOpen } from '@quasar/extras/fontawesome-v6';
 
 const trainerStore = useTrainerStore();
 const fileStore = useFilesStore();

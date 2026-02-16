@@ -1,7 +1,6 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { api } from 'src/boot/axios';
 import type { WorkDone } from 'src/types/api.type';
-import type { Plugin } from 'src/types/plugins.types';
+import type { Plugin, TaskRunner } from 'src/types/plugins.types';
 
 /**
  * Gestion des plugins additionnels
@@ -23,8 +22,8 @@ class PluginService {
     return res.data;
   }
 
-  async listWorkers(): Promise<WorkDone<any>> {
-    const res = await api.get<WorkDone<any>>('modules/workers');
+  async listWorkers(): Promise<WorkDone<TaskRunner>> {
+    const res = await api.get<WorkDone<TaskRunner>>('modules/workers');
     return res.data;
   }
 }

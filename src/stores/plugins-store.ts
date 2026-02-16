@@ -21,6 +21,10 @@ export const usePluginStore = defineStore('plugins', () => {
     }
   }
 
+  function getByName(pluginName: string){
+    return plugins.value.find(p => p.name == pluginName.toLowerCase());
+  }
+
   async function addPlugin(pluginName: string) {
     const res = await pluginService.installPlugin(pluginName);
     if (res.isOk) await getPluginsList(true);
@@ -40,5 +44,6 @@ export const usePluginStore = defineStore('plugins', () => {
     getPluginsList,
     addPlugin,
     removePlugin,
+    getByName
   };
 });

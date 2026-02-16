@@ -6,6 +6,8 @@ import { fileService } from 'src/services/files.service';
 import { isFolder, type FileUploadProgress, type FolderModel } from 'src/types/files.type';
 import { type ErrorResponse, isAxiosErrorResponse } from 'src/types/api.type';
 import { useUserStore } from './users-store';
+import { farFile } from '@quasar/extras/fontawesome-v6';
+import { matInsertDriveFile } from '@quasar/extras/material-icons';
 
 export const useFilesStore = defineStore('files', () => {
   const $q = useQuasar();
@@ -23,7 +25,7 @@ export const useFilesStore = defineStore('files', () => {
     percent: 0,
     color: 'green-2',
     error: false,
-    icon: 'insert_drive_file',
+    icon: matInsertDriveFile,
     uploading: false,
     speed: 0,
   });
@@ -110,7 +112,7 @@ export const useFilesStore = defineStore('files', () => {
       percent: 0,
       color: 'green-2',
       error: false,
-      icon: 'fa-regular fa-file',
+      icon: farFile,
       uploading: true,
       speed: 0,
     };

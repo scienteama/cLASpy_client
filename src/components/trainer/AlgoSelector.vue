@@ -19,7 +19,7 @@
                 :rules="[(val) => !!val]"
               >
                 <template #prepend>
-                  <q-icon name="fa-solid fa-gears" color="secondary" size="sm" />
+                  <q-icon :name="fasGears" color="secondary" size="sm" />
                 </template>
 
                 <template v-slot:error> Vous devez sélectionner un algorithme de ML </template>
@@ -48,7 +48,7 @@
                         :rules="[(val) => NumericInputRule(val, false, false, 6)]"
                       >
                         <template v-slot:before>
-                          <q-icon name="mdi-plus-minus-variant" color="primary" />
+                          <q-icon :name="mdiPlusMinusVariant" color="primary" />
                         </template>
                       </q-input>
                     </div>
@@ -57,7 +57,7 @@
                     <div class="row items-center justify-between">
                       <q-input v-model="trainingRatio" outlined dense type="number" hint="Ratio d'entraînement" style="width: 100%" :rules="ratioRules">
                         <template v-slot:before>
-                          <q-icon name="mdi-target-variant" color="primary" />
+                          <q-icon :name="mdiTargetVariant" color="primary" />
                         </template>
                       </q-input>
                     </div>
@@ -66,13 +66,13 @@
                     <div class="row items-center justify-between">
                       <q-select v-model="scaler" :options="scalerOpts" outlined dense color="primary" hint="Scaler" :rules="[(val) => !!val]" style="width: 50%">
                         <template v-slot:before>
-                          <q-icon name="mdi-tune-vertical" color="primary" />
+                          <q-icon :name="mdiTuneVertical" color="primary" />
                         </template>
                         <q-tooltip>Définit la méthode de mise à l'échelle des données.</q-tooltip>
                       </q-select>
                       <q-select class="q-ml-md" v-model="scorer" :options="scorerList" outlined dense color="primary" hint="Scorer" :rules="[(val) => !!val]" style="width: 45%">
                         <template v-slot:before>
-                          <q-icon name="mdi-tune-vertical" color="primary" />
+                          <q-icon :name="mdiTuneVertical" color="primary" />
                         </template>
                         <q-tooltip>Définit le score pour la validation croisée (voir la documentation de scikit-learn).</q-tooltip>
                       </q-select>
@@ -82,7 +82,7 @@
                     <div class="row items-center justify-between">
                       <q-input v-model="pca" outlined dense type="number" hint="ACP" min="0" style="width: 100%">
                         <template v-slot:before>
-                          <q-icon name="mdi-wrench-cog-outline" color="primary" />
+                          <q-icon :name="mdiWrenchCogOutline" color="primary" />
                         </template>
                         <q-tooltip>Définit l'analyse en composantes principales (ACP) et le nombre de composantes principales.</q-tooltip>
                       </q-input>
@@ -92,18 +92,18 @@
                     <div class="row items-center justify-between">
                       <q-input v-model="_randomState" outlined dense type="number" hint="État aléatoire" min="0" style="width: 80%" clearable>
                         <template v-slot:before>
-                          <q-icon name="mdi-dice-multiple-outline" color="primary" />
+                          <q-icon :name="mdiDiceMultipleOutline" color="primary" />
                         </template>
                         <q-tooltip>Génération aléatoire utilisée pour séparer les données en ensembles d'entraînement et de test lors de la validation croisée.</q-tooltip>
                       </q-input>
-                      <q-btn class="q-ml-md self-start" outline color="primary" icon="add" @click="setRandomState()" style="width: 10%"> </q-btn>
+                      <q-btn class="q-ml-md self-start" outline color="primary" :icon="matAdd" @click="setRandomState()" style="width: 10%"> </q-btn>
                     </div>
                   </q-card-section>
                   <q-card-section class="q-pa-none q-mb-md fit">
                     <div class="row items-center justify-between">
                       <q-input v-model="nJobsCv" outlined dense type="number" hint="N_Jobs CV" min="-1" style="width: 100%">
                         <template v-slot:before>
-                          <q-icon name="fa-solid fa-microchip" color="primary" />
+                          <q-icon :name="fasMicrochip" color="primary" />
                         </template>
                         <q-tooltip
                           >Définit le nombre de threads pour la validation croisée. Dans le cas de RandomForest, le nombre total de CPU utilisés = N_jobs CV x n_jobs. <br />
@@ -124,7 +124,7 @@
           </template>
 
           <template v-slot:separator>
-            <q-icon color="black" size="md" name="mdi-arrow-split-vertical" />
+            <q-icon color="black" size="md" :name="mdiArrowSplitVertical" />
           </template>
 
           <!-- Colonne de droite -->
@@ -133,7 +133,7 @@
               <template v-if="currentAlgoName && selectedAlgorithm">
                 <q-banner rounded class="bg-teal-1 fixed-uniform-field" inline-actions>
                   <template v-slot:avatar>
-                    <q-icon name="fa-solid fa-brain" color="secondary" size="sm" />
+                    <q-icon :name=fasBrain color="secondary" size="sm" />
                   </template>
 
                   <div class="text-h6 q-ml-md text-secondary">
@@ -141,7 +141,7 @@
                   </div>
 
                   <template v-slot:action>
-                    <q-icon name="fa-solid fa-up-right-from-square" class="q-ml-auto cursor-pointer" size="sm" color="secondary" tag="a" :href="algoDocUrl" target="_blank" rel="noopener">
+                    <q-icon :name=fasUpRightFromSquare class="q-ml-auto cursor-pointer" size="sm" color="secondary" tag="a" :href="algoDocUrl" target="_blank" rel="noopener">
                       <q-tooltip>Ouvrir la documentation</q-tooltip>
                     </q-icon>
                   </template>
@@ -152,12 +152,12 @@
               <template v-else>
                 <q-banner rounded class="bg-teal-1 fixed-uniform-field" inline-actions>
                   <template v-slot:avatar>
-                    <q-icon name="fa-solid fa-diagram-project" size="sm" color="secondary" />
+                    <q-icon :name="fasProjectDiagram" size="sm" color="secondary" />
                   </template>
                   <div class="text-bold">Algorithmes de Machine Learning</div>
                   <div>Les algorithmes disponibles ici proviennent de la librairie <a href="https://scikit-learn.org" target="_blank" rel="noopener" class="text-primary"> Scikit-Learn </a>.</div>
                   <template v-slot:action>
-                    <q-btn flat color="secondary" icon="fa-solid fa-up-right-from-square" href="https://scikit-learn.org/stable/api/sklearn.ensemble.html" target="_blank" size="md">
+                    <q-btn flat color="secondary" :icon="fasUpRightFromSquare" href="https://scikit-learn.org/stable/api/sklearn.ensemble.html" target="_blank" size="md">
                       <q-tooltip>Ouvrir la documentation</q-tooltip>
                     </q-btn>
                   </template>
@@ -242,6 +242,10 @@ import { useNotifier } from 'src/composables/notifier';
 import { getInputProps, parseTypeInfo, scorerList } from 'src/helpers/components/trainer-utils';
 import FeaturesList from './FeaturesList.vue';
 import ConfirmDialog from '../tools/ConfirmDialog.vue';
+import { mdiArrowSplitVertical, mdiDiceMultipleOutline, mdiPlusMinusVariant, mdiTargetVariant, mdiTuneVertical, mdiWrenchCogOutline } from '@quasar/extras/mdi-v7';
+import { matAdd } from '@quasar/extras/material-icons';
+import { fasBrain, fasGears, fasMicrochip, fasUpRightFromSquare } from '@quasar/extras/fontawesome-v6';
+import { fasProjectDiagram } from '@quasar/extras/fontawesome-v5';
 
 const splitterModel = ref(50);
 

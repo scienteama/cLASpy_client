@@ -36,14 +36,14 @@
                 <q-expansion-item expand-separator :header-class="['q-mb-xs text-h6', menuItem.bgColor ? `bg-${menuItem.bgColor} glossy text-white` : '']" dense expand-icon-class="text-white text-h4">
                   <template v-slot:header>
                     <q-item-section avatar>
-                      <q-icon :color="menuItem.iconColor" name="extension" />
+                      <q-icon :color="menuItem.iconColor" :name=matExtension />
                     </q-item-section>
                     <q-item-section> Plugins </q-item-section>
                   </template>
                   <q-list dense class="bg-grey-4">
                     <q-item v-for="plugin in plugins" :key="plugin.name" clickable v-ripple>
                       <q-item-section avatar>
-                        <q-icon :name="plugin.enable ? 'check_box' : 'disabled_by_default'" :color="plugin.enable ? 'positive' : 'negative'" />
+                        <q-icon :name="plugin.enable ? matCheckBox : matDisabledByDefault" :color="plugin.enable ? 'positive' : 'negative'" />
                       </q-item-section>
 
                       <q-chip class="glossy bg-orange-3 inset-shadow-down" square style="width: 70%">
@@ -83,7 +83,7 @@
       <q-toolbar>
         <q-tabs v-if="availableML" v-model="tab" align="left" active-color="warning" inline-label indicator-color="transparent">
           <!-- Dropdown Machine Learning -->
-          <q-btn-dropdown class="q-ml-md" icon="mdi-cog-outline" flat label="Machine Learning" size="md" :color="tab.startsWith('/ml') ? 'warning' : undefined">
+          <q-btn-dropdown class="q-ml-md" :icon="mdiCogOutline" flat label="Machine Learning" size="md" :color="tab.startsWith('/ml') ? 'warning' : undefined">
             <q-list>
               <q-item clickable @click="go('/ml/train')">
                 <q-item-section>Entraînement</q-item-section>
@@ -98,7 +98,7 @@
           </q-btn-dropdown>
 
           <!-- Utilisateurs -->
-          <q-tab name="/users/list" label="Utilisateurs" icon="mdi-account-multiple-outline" @click="go('/users/list')" />
+          <q-tab name="/users/list" label="Utilisateurs" :icon="mdiAccountMultipleOutline" @click="go('/users/list')" />
         </q-tabs>
         <q-space />
 
@@ -108,11 +108,11 @@
           </q-badge>
 
           <q-badge :color="wsState ? 'positive' : 'negative'" rounded size="md" />
-          <q-btn v-if="$q.screen.gt.xs" dense flat round size="md" icon="mdi-bell-outline" />
+          <q-btn v-if="$q.screen.gt.xs" dense flat round size="md" :icon="mdiBellOutline" />
           <q-btn v-if="$q.screen.gt.xs" dense flat>
             <div class="row items-center no-wrap">
-              <q-icon name="add" size="md" />
-              <q-icon name="arrow_drop_down" size="sm" style="margin-left: -2px" />
+              <q-icon :name=matAdd size="md" />
+              <q-icon :name="matArrowDropDown" size="sm" style="margin-left: -2px" />
             </div>
             <q-menu auto-close>
               <q-list dense style="min-width: 100px">
@@ -141,7 +141,7 @@
             <q-avatar v-if="currentUser" color="grey" rounded size="md" text-color="white">
               {{ getUserInitials(currentUser) }}
             </q-avatar>
-            <q-icon name="arrow_drop_down" size="sm" />
+            <q-icon :name="matArrowDropDown" size="sm" />
 
             <q-menu auto-close>
               <q-list dense>
@@ -211,6 +211,8 @@ import { useAuth } from 'src/stores/auth-store';
 import { useRouter } from 'vue-router';
 import { useNavigation } from 'src/composables/navigation';
 import { websocketService } from 'src/services/websocket.service';
+import { mdiAccountMultipleOutline, mdiBellOutline, mdiCogOutline } from '@quasar/extras/mdi-v7';
+import { matAdd, matArrowDropDown, matCheckBox, matDisabledByDefault, matExtension, matHelp, matHome, matSettings, matTerminal, matViewTimeline } from '@quasar/extras/material-icons';
 
 const { style } = dom;
 const headerHeight = ref('0px');
@@ -232,15 +234,15 @@ const { plugins } = storeToRefs(pluginStore);
 const { addPlugin, removePlugin } = pluginStore;
 
 const topMenu = [
-  { icon: 'home', iconColor: undefined, label: 'Tableau de bord', bgColor: null, separator: false, link: '/home' },
-  { icon: 'terminal', iconColor: undefined, label: 'Console', bgColor: null, separator: false, link: '' },
-  { icon: 'view_timeline', iconColor: undefined, label: 'Logs', bgColor: null, separator: true, link: '' },
+  { icon: matHome, iconColor: undefined, label: 'Tableau de bord', bgColor: null, separator: false, link: '/home' },
+  { icon: matTerminal, iconColor: undefined, label: 'Console', bgColor: null, separator: false, link: '' },
+  { icon: matViewTimeline, iconColor: undefined, label: 'Logs', bgColor: null, separator: true, link: '' },
 ];
 
 const bottomMenu = [
-  { icon: 'extension', iconColor: 'green-4', label: 'Plugins', bgColor: 'grey-7', separator: false },
-  { icon: 'settings', iconColor: 'amber', label: 'Settings', bgColor: null, separator: true },
-  { icon: 'help', iconColor: 'primary', label: 'Help', bgColor: null, separator: false },
+  { icon: matExtension, iconColor: 'green-4', label: 'Plugins', bgColor: 'grey-7', separator: false },
+  { icon: matSettings, iconColor: 'amber', label: 'Settings', bgColor: null, separator: true },
+  { icon: matHelp, iconColor: 'primary', label: 'Help', bgColor: null, separator: false },
 ];
 
 function installPlugin(p: Plugin) {

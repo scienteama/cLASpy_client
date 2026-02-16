@@ -1,13 +1,13 @@
 <template>
   <q-card flat bordered style="min-width: 300px !important; max-width: 90vw; max-height: 80vh; overflow: auto">
     <q-bar style="position:sticky; top:0; z-index: 1;" class="bg-grey-4">
-      <q-icon name="mdi-text-box-outline"></q-icon>
+      <q-icon :name="mdiTextBoxCheckOutline"></q-icon>
 
       <div>{{ props.file?.name }}</div>
 
       <q-space></q-space>
 
-      <q-btn dense flat icon="close" v-close-popup>
+      <q-btn dense flat :icon="matClose" v-close-popup>
         <q-tooltip>Fermer</q-tooltip>
       </q-btn>
     </q-bar>
@@ -37,6 +37,8 @@
 import { ref, watch, onUnmounted, onMounted } from 'vue';
 import HighLight from 'src/components/tools/HighLight.vue';
 import type { FileModel } from 'src/types/files.type';
+import { mdiTextBoxCheckOutline } from '@quasar/extras/mdi-v7';
+import { matClose } from '@quasar/extras/material-icons';
 
 const props = defineProps<{
   file: FileModel | null;

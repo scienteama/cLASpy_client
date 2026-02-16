@@ -19,7 +19,7 @@
                   <div class="col">
                     <q-input rounded bg-color="white" outlined v-model="loginForm.email" type="email" name="email" label="Email" label-color="black" dense>
                       <template v-slot:prepend>
-                        <q-icon name="mail" color="black" />
+                        <q-icon :name="matMail" color="black" />
                       </template>
                     </q-input>
                   </div>
@@ -30,10 +30,10 @@
                   <div class="col">
                     <q-input rounded bg-color="white" outlined v-model="loginForm.password" :type="isPwd ? 'password' : 'text'" label-color="black" label="Mot de passe" dense>
                       <template v-slot:prepend>
-                        <q-icon name="lock" color="black" />
+                        <q-icon :name="matLock" color="black" />
                       </template>
                       <template v-slot:append>
-                        <q-icon :name="isPwd ? 'visibility_off' : 'visibility'" class="cursor-pointer" color="black" @click="isPwd = !isPwd" />
+                        <q-icon :name="isPwd ? matVisibilityOff : matVisibility" class="cursor-pointer" color="black" @click="isPwd = !isPwd" />
                       </template>
                     </q-input>
                   </div>
@@ -46,7 +46,7 @@
 
               <q-card-section>
                 <div class="text-center">
-                  <q-chip clickable class="glossy" color="claspy-dark1" text-color="white" icon="lock_reset" @click="onReset()"> Mot de passe oublié ? </q-chip>
+                  <q-chip clickable class="glossy" color="claspy-dark1" text-color="white" :icon="matLockReset" @click="onReset()"> Mot de passe oublié ? </q-chip>
                 </div>
               </q-card-section>
             </q-form>
@@ -65,6 +65,7 @@ import { formUserRules } from 'src/helpers/validation/rules';
 import { useAuth } from 'src/stores/auth-store';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { matLock, matLockReset, matMail, matVisibility, matVisibilityOff } from '@quasar/extras/material-icons';
 
 const loginForm = ref<LoginDto>({ email: '', password: '' });
 const isPwd = ref(true);

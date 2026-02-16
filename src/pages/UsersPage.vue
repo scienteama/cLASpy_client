@@ -6,7 +6,7 @@
         <q-badge rounded color="red" align="middle" :label="numberOfUsers" />
       </q-toolbar-title>
 
-      <q-btn label="Ajouter" color="claspy-dark1" icon="add" @click="openCreateDialog" class="q-ma-sm" />
+      <q-btn label="Ajouter" color="claspy-dark1" :icon="matAdd" @click="openCreateDialog" class="q-ma-sm" />
     </q-toolbar>
 
     <div class="q-pa-sm">
@@ -22,8 +22,8 @@
             <q-td v-for="col in props.cols" :key="col.name" :props="props" class="q-px-sm">
               <template v-if="col.name === 'actions'">
                 <div class="row no-wrap items-center q-gutter-sm">
-                  <q-btn v-if="userStore.isPrivileged" flat icon="edit" color="primary" @click="openEditDialog(props.row)" dense size="sm" />
-                  <q-btn v-if="userStore.isAdmin" flat icon="delete" color="negative" @click="confirmDelete(props.row)" :disabled="props.row.id === userStore.currentUser?.id" dense size="sm">
+                  <q-btn v-if="userStore.isPrivileged" flat :icon="matEdit" color="primary" @click="openEditDialog(props.row)" dense size="sm" />
+                  <q-btn v-if="userStore.isAdmin" flat :icon="matDelete" color="negative" @click="confirmDelete(props.row)" :disabled="props.row.id === userStore.currentUser?.id" dense size="sm">
                     <q-tooltip v-if="props.row.id === userStore.currentUser?.id" transition-show="flip-right" transition-hide="flip-left"> Action indisponible </q-tooltip>
                   </q-btn>
                 </div>
@@ -71,7 +71,7 @@
                 :rules="getPasswordRules()"
               >
                 <template v-slot:append>
-                  <q-icon :name="isPwd ? 'visibility_off' : 'visibility'" class="cursor-pointer" @click="isPwd = !isPwd" />
+                  <q-icon :name="isPwd ? matVisibilityOff : matVisibility" class="cursor-pointer" @click="isPwd = !isPwd" />
                 </template>
               </q-input>
 
@@ -109,6 +109,7 @@ import { computed, onMounted, ref } from 'vue';
 import { useUserStore } from 'src/stores/users-store';
 import { formUserRules } from 'src/helpers/validation/rules';
 import ConfirmDialog from 'src/components/tools/ConfirmDialog.vue';
+import { matAdd, matDelete, matEdit, matVisibility, matVisibilityOff } from '@quasar/extras/material-icons';
 
 const $q = useQuasar();
 const userStore = useUserStore();

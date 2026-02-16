@@ -11,6 +11,7 @@ import type { TrainParameters } from 'src/types/trainer/train.types';
 import { useNotifier } from 'src/composables/notifier';
 import FullScreenSpinner from 'src/components/tools/FullScreenSpinner.vue';
 import ConfirmDialog from 'src/components/tools/ConfirmDialog.vue';
+import { farFile } from '@quasar/extras/fontawesome-v6';
 
 export const useTrainerStore = defineStore('trainer', () => {
   /* Stores */
@@ -88,7 +89,7 @@ export const useTrainerStore = defineStore('trainer', () => {
           persistent: true,
         }).onOk(() => {
           void (async () => {
-            config.disableTaskRunner = true;
+            config.noWorker = true;
 
             const newSpinner = $q.dialog({
               component: FullScreenSpinner,
@@ -122,7 +123,7 @@ export const useTrainerStore = defineStore('trainer', () => {
       percent: 0,
       color: 'green-2',
       error: false,
-      icon: 'fa-regular fa-file',
+      icon: farFile,
       uploading: true,
       speed: 0,
     };

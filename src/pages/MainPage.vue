@@ -23,40 +23,8 @@
     </div>
 
     <div class="row q-gutter-md q-mb-md">
-      <q-card flat bordered class="col-md-5 bg-white">
-        <q-card-section>
-          <div class="text-subtitle1">Autre widget</div>
-          <q-item>
-            <q-item-section avatar>
-              <q-skeleton type="QAvatar" />
-            </q-item-section>
 
-            <q-item-section>
-              <q-item-label>
-                <q-skeleton type="text" />
-              </q-item-label>
-              <q-item-label caption>
-                <q-skeleton type="text" width="65%" />
-              </q-item-label>
-            </q-item-section>
-          </q-item>
-
-          <q-item>
-            <q-item-section avatar>
-              <q-skeleton type="QAvatar" />
-            </q-item-section>
-
-            <q-item-section>
-              <q-item-label>
-                <q-skeleton type="text" />
-              </q-item-label>
-              <q-item-label caption>
-                <q-skeleton type="text" width="90%" />
-              </q-item-label>
-            </q-item-section>
-          </q-item>
-        </q-card-section>
-      </q-card>
+      <TaskRunner v-if="isAdmin && taskrunner?.enable" class="col-md-5 bg-white"/>
 
       <q-card flat bordered class="col-md-5 bg-white">
         <q-card-section>
@@ -93,7 +61,7 @@
         </q-card-section>
       </q-card>
 
-      <q-card flat bordered class="col-md bg-white">
+      <q-card flat bordered class="col-md bg-white self-center">
         <HourDate />
       </q-card>
 
@@ -136,17 +104,20 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia';
 import FileExplorer from 'src/components/files/FileExplorer.vue';
+import TaskRunner from 'src/components/widgets/TaskRunner.vue';
 import HourDate from 'src/components/widgets/HourDate.vue';
 import { getTextColorForPalette, glossyStyle, sortPaletteByBrightness } from 'src/helpers/color-utils';
 import { useConfigStore } from 'src/stores/config-store';
 import { useUserStore } from 'src/stores/users-store';
 import { computed, ref } from 'vue';
+import { usePluginStore } from 'src/stores/plugins-store';
 
 const userStore = useUserStore();
-const { currentUser } = storeToRefs(userStore);
+const { currentUser, isAdmin } = storeToRefs(userStore);
 const configStore = useConfigStore();
 const { currentTheme } = storeToRefs(configStore);
 const showFileExplorer = ref(true);
+const pluginStore = usePluginStore();
 
 // Initiales pour avatar
 const currentUserInitials = computed(() => {
@@ -156,6 +127,7 @@ const currentUserInitials = computed(() => {
   return (fn + ln).toUpperCase();
 });
 
+const taskrunner = computed(() => pluginStore.getByName('taskrunner'));
 const gradient = computed(() => `${glossyStyle}, linear-gradient(90deg, ${currentTheme.value.join(', ')})`);
 const sortedPal = computed(() => sortPaletteByBrightness(currentTheme.value));
 const textColor = computed(() => getTextColorForPalette(sortedPal.value));

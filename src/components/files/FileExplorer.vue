@@ -7,13 +7,13 @@
 
     <!-- Barre de navigation -->
     <q-card-section :class="'row items-center' + (showInput ? ' justify-between' : ' justify-start bg-grey-3 glossy text-white')" style="position: sticky; top: 0; z-index: 2">
-      <q-btn flat dense icon="home" color="primary" @click="goToHome">
+      <q-btn flat dense :icon="matHome" color="primary" @click="goToHome">
         <q-tooltip>Accueil</q-tooltip>
       </q-btn>
-      <q-btn flat dense icon="refresh" color="secondary" @click="refreshCurrentFolder">
+      <q-btn flat dense :icon="matRefresh" color="secondary" @click="refreshCurrentFolder">
         <q-tooltip>Rafraîchir</q-tooltip>
       </q-btn>
-      <q-btn flat dense icon="arrow_back" color="negative" @click="goBack" :disable="!canGoBack" class="q-mr-sm">
+      <q-btn flat dense :icon="matArrowBack" color="negative" @click="goBack" :disable="!canGoBack" class="q-mr-sm">
         <q-tooltip>Retour</q-tooltip>
       </q-btn>
 
@@ -58,7 +58,7 @@
       >
         <template v-slot:header-cell-actions>
           <q-th class="q-pa-none justify-center items-center">
-            <q-btn color="secondary" icon="add" dense outline @click="startCreateDir()">
+            <q-btn color="secondary" :icon="matAdd" dense outline @click="startCreateDir()">
               <q-tooltip>Créer un dossier</q-tooltip>
             </q-btn>
           </q-th>
@@ -66,7 +66,7 @@
 
         <template v-slot:header-cell-delete>
           <q-th class="q-pa-none justify-center items-center">
-            <q-btn color="negative" icon="mdi-trash-can-outline" dense outline @click="removeItems()">
+            <q-btn color="negative" :icon="mdiTrashCanOutline" dense outline @click="removeItems()">
               <q-tooltip>Supprimer les éléments sélectionnés</q-tooltip>
             </q-btn>
           </q-th>
@@ -80,7 +80,7 @@
 
         <template v-if="trainMode && !fileToUpload" v-slot:header-cell-select>
           <q-th class="q-pa-none justify-center items-center">
-            <q-btn color="primary" icon="mdi-format-list-checks" dense outline>
+            <q-btn color="primary" :icon="mdiFormatListChecks" dense outline>
               <q-tooltip>Sélectionner un fichier</q-tooltip>
             </q-btn>
           </q-th>
@@ -136,7 +136,7 @@
 
         <template v-slot:body-cell-actions="props">
           <q-td :props="props" align="center" auto-width class="text-center">
-            <q-btn flat dense round icon="more_vert" size="sm">
+            <q-btn flat dense round :icon="matMoreVert" size="sm">
               <q-menu>
                 <q-list style="min-width: 150px">
                   <q-item clickable @click="startRename(props.row)">
@@ -177,7 +177,7 @@
         <div class="q-mt-sm text-center text-italic text-caption text-accent">"{{ renameDialog.item?.name }}"</div>
         <q-input v-model="renameDialog.baseName" dense autofocus class="q-mt-sm" :suffix="renameDialog.extension" filled width="auto">
           <template v-slot:before>
-            <q-icon name="chevron_right" color="primary" />
+            <q-icon :name="matChevronRight" color="primary" />
           </template>
         </q-input>
       </q-card-section>
@@ -196,7 +196,7 @@
         <div class="text-h6 q-my-md q-mx-lg text-center">Créer un nouveau dossier :</div>
         <q-input v-model="createFolderDialog.folderName" dense autofocus class="q-mt-sm" filled width="auto">
           <template v-slot:before>
-            <q-icon name="chevron_right" color="primary" />
+            <q-icon :name=matChevronRight color="primary" />
           </template>
         </q-input>
       </q-card-section>
@@ -226,6 +226,8 @@ import { AllowedTypesForViewing, colorForFile, computeFolderSize, convertMimeTyp
 import ConfirmDialog from '../tools/ConfirmDialog.vue';
 import InputFile from 'src/components/files/InputFile.vue';
 import FileViewer from 'src/components/files/FileViewer.vue';
+import { mdiFormatListChecks, mdiTrashCanOutline } from '@quasar/extras/mdi-v7';
+import { matAdd, matArrowBack, matChevronRight, matHome, matMoreVert, matRefresh } from '@quasar/extras/material-icons';
 
 const filesStore = useFilesStore();
 const userStore = useUserStore();
