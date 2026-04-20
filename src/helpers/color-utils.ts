@@ -147,11 +147,11 @@ export function sortPaletteByBrightness(pal: string[]) {
  * @param pal
  * @returns '#ffffff' ou '#000000'
  */
-export function getTextColorForPalette(pal: string[]): string {
+export function getTextColorForPalette(pal: string[]): { name: string; value: string } {
   const lumSum = pal.reduce((sum, hex) => sum + getLuminance(hex), 0);
   const lumAvg = lumSum / pal.length;
   const threshold = 150;
-  return lumAvg < threshold ? '#ffffff' : '#000000';
+  return lumAvg < threshold ? { name: 'white', value: '#ffffff' } : { name: 'black', value: '#000000' };
 }
 
 /**

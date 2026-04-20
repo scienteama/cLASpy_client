@@ -20,7 +20,24 @@ const routes: RouteRecordRaw[] = [
     meta: { requiresAuth: true },
     children: [
       { path: 'train', name: 'ml-train', component: () => import('pages/TrainPage.vue') },
-      { path: 'predict', name: 'ml-predict', component: () => import('pages/ErrorNotFound.vue') },
+      {
+        path: 'predict/:step?',
+        name: 'ml-predict',
+        component: () => import('pages/PredicterPage.vue'),
+        props: true,
+        beforeEnter: (to) => {
+          if (!to.params.step) {
+            return { name: 'ml-predict', params: { step: 1 } };
+          }
+
+          const valid = ['1', '2', '3'];
+          if (!valid.includes(to.params.step as string)) {
+            return { name: 'ml-predict', params: { step: 1 } };
+          }
+
+          return true;
+        },
+      },
       { path: 'segment', name: 'ml-segment', component: () => import('pages/ErrorNotFound.vue') },
     ],
   },

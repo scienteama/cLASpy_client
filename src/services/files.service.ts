@@ -7,6 +7,12 @@ import type { FileModel, FolderModel, UploadFileParams } from 'src/types/files.t
  * Centralise les appels API pour la gestion des fichiers et dossiers
  */
 class FileService {
+  fileLoaders = {
+    all: () => this.getRoot(),
+    model: () => this.getModels(),
+    las: () => this.getLasFiles(),
+  } as const;
+
   async uploadFile(params: UploadFileParams): Promise<WorkDone<FileModel>> {
     const response = await api.post<WorkDone<FileModel>>('/files/upload', params.data, {
       onUploadProgress: params.onUploadProgress ?? (() => {}),
@@ -21,8 +27,18 @@ class FileService {
     return response.data;
   }
 
-  async listDirectory(parentId?: string | null): Promise<WorkDone<FolderModel>> {
-    return this.getRoot(parentId);
+  async getModels(parentId?: string | null): Promise<WorkDone<FolderModel>> {
+    const response = await api.get<WorkDone<FolderModel>>('/files/models', {
+      params: parentId ? { parent_id: parentId } : {},
+    });
+    return response.data;
+  }
+
+  async getLasFiles(parentId?: string | null): Promise<WorkDone<FolderModel>> {
+    const response = await api.get<WorkDone<FolderModel>>('/files/las', {
+      params: parentId ? { parent_id: parentId } : {},
+    });
+    return response.data;
   }
 
   async createDirectory(name: string, parentId?: string | null): Promise<WorkDone<string>> {

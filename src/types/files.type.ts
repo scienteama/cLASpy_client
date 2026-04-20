@@ -50,6 +50,8 @@ export function isFile(item: FolderModel | FileModel): item is FileModel {
   return item.type === 'file';
 }
 
+export type FileType = 'all' | 'model' | 'las';
+
 export interface PointCloudFile {
   name: string;
   type: '.csv' | '.las';

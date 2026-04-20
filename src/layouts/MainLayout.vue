@@ -83,22 +83,44 @@
       <q-toolbar>
         <q-tabs v-if="availableML" v-model="tab" align="left" active-color="warning" inline-label indicator-color="transparent">
           <!-- Dropdown Machine Learning -->
-          <q-btn-dropdown class="q-ml-md" :icon="mdiCogOutline" flat label="Machine Learning" size="md" :color="tab.startsWith('/ml') ? 'warning' : undefined">
-            <q-list>
-              <q-item clickable @click="go('/ml/train')">
-                <q-item-section>Entraînement</q-item-section>
-              </q-item>
-              <q-item clickable @click="go('/ml/predict')">
-                <q-item-section>Prédiction</q-item-section>
-              </q-item>
-              <q-item clickable @click="go('/ml/segment')">
-                <q-item-section>Segmentation</q-item-section>
+          <q-btn-dropdown
+            class="q-ml-md"
+            :icon="mlHeaders.icon"
+            flat
+            menu-anchor="bottom start"
+            menu-self="top start"
+            :label="mlHeaders.label"
+            size="lg"
+            :color="tab.startsWith('/ml') ? 'warning' : undefined"
+          >
+            <q-list class="bg-claspy-dark1">
+              <q-item
+                v-for="item in mlItems"
+                :key="item.path"
+                clickable
+                @click="go(item.path)"
+                :active="item.active"
+                active-class="bg-primary text-white"
+                :disable="item.label === 'Segmentation'"
+                class="glossy"
+              >
+                <q-item-section avatar>
+                  <q-icon color="white" :name="item.icon" />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label overline class="text-uppercase text-white">{{ item.label }}</q-item-label>
+                  <q-item-label>{{ item.description }}</q-item-label>
+                </q-item-section>
+
+                <q-item-section side v-if="item.active">
+                  <q-icon name="check" />
+                </q-item-section>
               </q-item>
             </q-list>
           </q-btn-dropdown>
 
           <!-- Utilisateurs -->
-          <q-tab name="/users/list" label="Utilisateurs" :icon="mdiAccountMultipleOutline" @click="go('/users/list')" />
+          <q-btn class="q-ml-md" :icon="mdiAccountMultipleOutline" flat :label="'Utilisateurs'" size="lg" :color="tab.startsWith('/users') ? 'warning' : undefined" @click="go('/users/list')" />
         </q-tabs>
         <q-space />
 
@@ -211,7 +233,7 @@ import { useAuth } from 'src/stores/auth-store';
 import { useRouter } from 'vue-router';
 import { useNavigation } from 'src/composables/navigation';
 import { websocketService } from 'src/services/websocket.service';
-import { mdiAccountMultipleOutline, mdiBellOutline, mdiCogOutline } from '@quasar/extras/mdi-v7';
+import { mdiAccountMultipleOutline, mdiBellOutline, mdiCheckerboard, mdiCogOutline, mdiPlaySpeed, mdiVectorDifference } from '@quasar/extras/mdi-v7';
 import { matAdd, matArrowDropDown, matCheckBox, matDisabledByDefault, matExtension, matHelp, matHome, matSettings, matTerminal, matViewTimeline } from '@quasar/extras/material-icons';
 
 const { style } = dom;
@@ -229,6 +251,32 @@ const wsState = computed(() => websocketService?.getState().isConnected);
 
 const fileUploadProgress = computed(() => fileStore.fileUploadProgress);
 const availableML = computed(() => plugins.value.some((p) => p.name === 'claspy_ml' && p.enable));
+
+const mlMode = computed(() => {
+  if (currentPath.value.startsWith('/ml/train')) return 'train';
+  if (currentPath.value.startsWith('/ml/predict')) return 'predict';
+  if (currentPath.value.startsWith('/ml/segment')) return 'segment';
+  return null;
+});
+
+const mlHeaders = computed(() => {
+  switch (mlMode.value) {
+    case 'train':
+      return { label: 'Entraînement', icon: mdiCogOutline };
+    case 'predict':
+      return { label: 'Prédiction', icon: mdiCheckerboard };
+    case 'segment':
+      return { label: 'Segmentation', icon: mdiVectorDifference };
+    default:
+      return { label: 'Machine Learning', icon: mdiPlaySpeed };
+  }
+});
+
+const mlItems = computed(() => [
+  { label: 'Entraînement', description: 'Entraîner un modèle de machine learning', path: '/ml/train', active: mlMode.value === 'train', icon: mdiCogOutline },
+  { label: 'Prédiction', description: 'Effectuer des prédictions avec un modèle de machine learning', path: '/ml/predict', active: mlMode.value === 'predict', icon: mdiCheckerboard },
+  { label: 'Segmentation', description: 'A venir', path: '/ml/segment', active: mlMode.value === 'segment', icon: mdiVectorDifference },
+]);
 
 const { plugins } = storeToRefs(pluginStore);
 const { addPlugin, removePlugin } = pluginStore;

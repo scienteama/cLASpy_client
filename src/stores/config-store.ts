@@ -1,8 +1,8 @@
 import { defineStore } from 'pinia';
 import { configService } from 'src/services/conf.service';
 import type { ApiSettings } from 'src/types/api.type';
-import { defaultPals } from 'src/helpers/color-utils';
-import { ref } from 'vue';
+import { defaultPals, getTextColorForPalette, glossyStyle, sortPaletteByBrightness } from 'src/helpers/color-utils';
+import { computed, ref } from 'vue';
 
 export const useConfigStore = defineStore(
   'config',
@@ -12,6 +12,11 @@ export const useConfigStore = defineStore(
     const isLoading = ref(false);
     const currentTheme = ref<string[]>([]);
     const defaultThemes = ref(defaultPals);
+
+    const gradient = computed(() => `${glossyStyle}, linear-gradient(90deg, ${currentTheme.value.join(', ')})`);
+    const sortedPal = computed(() => sortPaletteByBrightness(currentTheme.value));
+    const textColor = computed(() => getTextColorForPalette(sortedPal.value));
+    const computedStyle = computed(() => ({ background: gradient.value, color: textColor.value }));
 
     async function initStore() {
       await getApiConfig();
@@ -33,6 +38,7 @@ export const useConfigStore = defineStore(
       apiSettings,
       currentTheme,
       defaultThemes,
+      computedStyle,
       getApiConfig,
       initStore,
     };

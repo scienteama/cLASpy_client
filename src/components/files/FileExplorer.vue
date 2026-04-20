@@ -42,7 +42,7 @@
     </q-card-section>
 
     <!-- Table de fichiers -->
-    <q-card-section>
+    <q-card-section :style="computedStyle.background">
       <q-table class="file-explorer-table q-mx-md" :rows="rows" :columns="computedColumns" row-key="id" flat bordered :loading="loading" @row-dblclick="onRowDblClick" virtual-scroll>
         <template v-slot:header-cell-actions>
           <q-th class="q-pa-none justify-center items-center">
@@ -54,7 +54,7 @@
 
         <template v-slot:header-cell-delete>
           <q-th class="q-pa-none justify-center items-center">
-            <q-btn color="negative" :icon="mdiTrashCanOutline" dense outline @click="removeItems()">
+            <q-btn color="negative" :icon="mdiTrashCanOutline" :disable="!selectedItems.length" dense outline @click="removeItems()">
               <q-tooltip>Supprimer les éléments sélectionnés</q-tooltip>
             </q-btn>
           </q-th>
@@ -216,10 +216,13 @@ import InputFile from 'src/components/files/InputFile.vue';
 import FileViewer from 'src/components/files/FileViewer.vue';
 import { mdiFormatListChecks, mdiTrashCanOutline } from '@quasar/extras/mdi-v7';
 import { matAdd, matArrowBack, matChevronRight, matHome, matMoreVert, matRefresh } from '@quasar/extras/material-icons';
+import { useConfigStore } from 'src/stores/config-store';
 
 const filesStore = useFilesStore();
 const userStore = useUserStore();
 const trainerStore = useTrainerStore();
+const configStore = useConfigStore();
+const { computedStyle } = storeToRefs(configStore);
 const $q = useQuasar();
 
 const props = defineProps({
@@ -425,7 +428,7 @@ function removeItem(item: { id: string; name: string; type: string }) {
 }
 
 function removeItems() {
-  const message = `Etes-vous sûr de vouloir supprimer tous ces éléments ?`;
+  const message = `Etes-vous sûr de vouloir supprimer le ou les éléments sélectionnés ?`;
   $q.dialog({
     component: ConfirmDialog,
     componentProps: { title: 'Confirmation de suppression', message },
@@ -441,7 +444,6 @@ watch(
   () => selectedFile.value,
   (newVal) => {
     if (props.trainMode) {
-      console.log('Selected file:', newVal);
       if (newVal && newVal.type == 'file') {
         existingFile.value = newVal;
       } else {

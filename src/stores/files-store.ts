@@ -3,14 +3,16 @@ import { ref, computed } from 'vue';
 import { useQuasar } from 'quasar';
 import type { AxiosError, AxiosProgressEvent } from 'axios';
 import { fileService } from 'src/services/files.service';
-import { isFolder, type FileUploadProgress, type FolderModel } from 'src/types/files.type';
+import { type FileType, isFolder, type FileUploadProgress, type FolderModel } from 'src/types/files.type';
 import { type ErrorResponse, isAxiosErrorResponse } from 'src/types/api.type';
 import { useUserStore } from './users-store';
 import { farFile } from '@quasar/extras/fontawesome-v6';
 import { matInsertDriveFile } from '@quasar/extras/material-icons';
+import { useRoute } from 'vue-router';
 
 export const useFilesStore = defineStore('files', () => {
   const $q = useQuasar();
+  const route = useRoute();
   const userStore = useUserStore();
   const { currentUser } = storeToRefs(userStore);
 
@@ -60,16 +62,34 @@ export const useFilesStore = defineStore('files', () => {
   }
 
   // --- Actions principales ---
-  async function reloadRoot() {
+  async function reloadRoot(): Promise<void> {
     loading.value = true;
+
+    let fileType: FileType;
+    switch (route.path) {
+      case '/ml/predict/1':
+        fileType = 'las';
+        break;
+      case '/ml/predict/2':
+        fileType = 'model';
+        break;
+      default:
+        fileType = 'all';
+    }
+
     try {
-      const res = await fileService.getRoot();
+      const res = await fileService.fileLoaders[fileType]();
+
       if (res.isOk) {
         rootTree.value = res.data;
         currentFolder.value = rootTree.value;
       }
     } catch (err) {
-      $q.notify({ type: 'negative', message: 'Impossible de charger les fichiers.' });
+      $q.notify({
+        type: 'negative',
+        message: 'Impossible de charger les fichiers.',
+      });
+
       throw err;
     } finally {
       loading.value = false;
