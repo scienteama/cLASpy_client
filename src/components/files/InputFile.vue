@@ -45,17 +45,17 @@
 import { ref, computed, onBeforeUnmount, watch } from 'vue';
 import { useFilesStore } from 'src/stores/files-store';
 import { storeToRefs } from 'pinia';
-import { useTrainerStore } from 'src/stores/train-store';
 import { matCloudUpload } from '@quasar/extras/material-icons';
 import { farFile, fasPaperclip } from '@quasar/extras/fontawesome-v6';
+import { useMLStore } from 'src/stores/ml-store';
 
 const props = defineProps({
   isTrainMode: { type: Boolean, default: false },
 });
 
 const filesStore = useFilesStore();
-const trainerStore = useTrainerStore();
-const { fileToUpload } = storeToRefs(trainerStore);
+const mlStore = useMLStore();
+const { fileToUpload } = storeToRefs(mlStore);
 const { fileUploadProgress } = storeToRefs(filesStore);
 
 const file = ref<File | null>(null);

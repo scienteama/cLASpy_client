@@ -81,7 +81,7 @@
 
     <q-header elevated class="text-white glossy q-pa-sm q-mx-xs q-mt-xs bg-claspy-dark1">
       <q-toolbar>
-        <q-tabs v-if="availableML" v-model="tab" align="left" active-color="warning" inline-label indicator-color="transparent">
+        <q-tabs v-model="tab" align="left" active-color="warning" inline-label indicator-color="transparent">
           <!-- Dropdown Machine Learning -->
           <q-btn-dropdown
             class="q-ml-md"
@@ -101,7 +101,7 @@
                 @click="go(item.path)"
                 :active="item.active"
                 active-class="bg-primary text-white"
-                :disable="item.label === 'Segmentation'"
+                :disable="item.label === 'Segmentation' || !availableML"
                 class="glossy"
               >
                 <q-item-section avatar>

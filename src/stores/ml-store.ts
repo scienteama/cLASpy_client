@@ -13,7 +13,7 @@ import FullScreenSpinner from 'src/components/tools/FullScreenSpinner.vue';
 import ConfirmDialog from 'src/components/tools/ConfirmDialog.vue';
 import { farFile } from '@quasar/extras/fontawesome-v6';
 
-export const useTrainerStore = defineStore('trainer', () => {
+export const useMLStore = defineStore('ml', () => {
   /* Stores */
   const $q = useQuasar();
   const $n = useNotifier();

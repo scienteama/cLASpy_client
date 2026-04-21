@@ -116,19 +116,19 @@ import FeaturesList from './FeaturesList.vue';
 import { computed, ref } from 'vue';
 import { useFilesStore } from 'src/stores/files-store';
 import { storeToRefs } from 'pinia';
-import { useTrainerStore } from 'src/stores/train-store';
 import { mdiArrowSplitHorizontal } from '@quasar/extras/mdi-v7';
 import { matCancel } from '@quasar/extras/material-icons';
 import { farFile, farFolderOpen } from '@quasar/extras/fontawesome-v6';
+import { useMLStore } from 'src/stores/ml-store';
 
-const trainerStore = useTrainerStore();
+const mlStore = useMLStore();
 const fileStore = useFilesStore();
-const { pointCloudFile, existingFile, uploadedFileName, folderId } = storeToRefs(trainerStore);
+const { pointCloudFile, existingFile, uploadedFileName, folderId } = storeToRefs(mlStore);
 const { currentFolderDisplayPath } = storeToRefs(fileStore);
 
 const showFileExplorer = ref<boolean>(true);
 const showFeaturesDialog = ref<boolean>(false);
-const splitter = ref(50);
+const splitter = ref(40);
 
 const fileLoaded = computed(() => (existingFile.value ? existingFile.value.name : uploadedFileName.value));
 

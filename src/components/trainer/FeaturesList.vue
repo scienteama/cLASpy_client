@@ -31,7 +31,7 @@
 <script setup lang="ts">
 import { mdiCubeOutline } from '@quasar/extras/mdi-v7';
 import { storeToRefs } from 'pinia';
-import { useTrainerStore } from 'src/stores/train-store';
+import { useMLStore } from 'src/stores/ml-store';
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 
 const featsCard = ref<HTMLElement | null>(null);
@@ -41,8 +41,8 @@ const props = defineProps({
   itemClickable: { type: Boolean, default: true },
 });
 
-const trainerStore = useTrainerStore();
-const { pointCloudFile, selectedFeatures } = storeToRefs(trainerStore);
+const mlStore = useMLStore();
+const { pointCloudFile, selectedFeatures } = storeToRefs(mlStore);
 
 const features = computed(() => pointCloudFile.value?.featuresList);
 const isDragging = ref(false);

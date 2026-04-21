@@ -92,11 +92,11 @@
 
 <script setup lang="ts">
 import { storeToRefs } from 'pinia';
-import { useTrainerStore } from 'src/stores/train-store';
 import HighLight from '../tools/HighLight.vue';
 import { downloadJSON } from 'src/helpers/files-utils';
 import { mdiCodeJson, mdiFileDownloadOutline } from '@quasar/extras/mdi-v7';
+import { useMLStore } from 'src/stores/ml-store';
 
-const trainerStore = useTrainerStore();
-const { trainConfig } = storeToRefs(trainerStore);
+const mlStore = useMLStore();
+const { trainConfig } = storeToRefs(mlStore);
 </script>

@@ -41,7 +41,6 @@
 </template>
 <script setup lang="ts">
 import { type ComponentPublicInstance, computed, nextTick, ref, watch } from 'vue';
-import { useTrainerStore } from 'src/stores/train-store';
 import { storeToRefs } from 'pinia';
 import { QBtn, useQuasar } from 'quasar';
 import FileLoader from './FileLoader.vue';
@@ -52,12 +51,13 @@ import { matCloudUpload } from '@quasar/extras/material-icons';
 import { mdiFileOutline } from '@quasar/extras/mdi-v7';
 import { fasGears, fasList } from '@quasar/extras/fontawesome-v6';
 import { useConfigStore } from 'src/stores/config-store';
+import { useMLStore } from 'src/stores/ml-store';
 
 const $q = useQuasar();
-const trainerStore = useTrainerStore();
+const mlStore = useMLStore();
 const configStore = useConfigStore();
 const { computedStyle } = storeToRefs(configStore);
-const { fileToUpload, existingFile, uploadedFileName, pointCloudFile, step } = storeToRefs(trainerStore);
+const { fileToUpload, existingFile, uploadedFileName, pointCloudFile, step } = storeToRefs(mlStore);
 
 const continueBtn = ref<QBtn | null>(null);
 const algoSelect = ref<ComponentPublicInstance<{ validateForm: () => Promise<boolean>; submitTrain: () => boolean; resetTrainForm: () => void }> | null>(null);
@@ -108,7 +108,7 @@ function runTrain() {
       cancelLabel: 'Annuler',
     },
   }).onOk(() => {
-    void trainerStore.runTrainAsync();
+    void mlStore.runTrainAsync();
   });
 }
 
@@ -125,7 +125,7 @@ async function focusToContinue() {
 }
 
 async function sendUploadEvent() {
-  await trainerStore.uploadPointCloudFile();
+  await mlStore.uploadPointCloudFile();
 }
 </script>
 <style scoped lang="scss">

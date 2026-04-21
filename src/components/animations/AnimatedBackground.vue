@@ -42,14 +42,13 @@
 
 <script lang="ts" setup>
 import { ref, onMounted, onBeforeUnmount, nextTick, watch, computed } from 'vue';
-import Trianglify from 'trianglify';
 import classPyIcon from '../../assets/pythie_alpha_hd_miroir.png';
 import type { Point } from 'src/types/global.types';
-
 import { useConfigStore } from 'src/stores/config-store';
 import { storeToRefs } from 'pinia';
 import { generatePal } from 'src/helpers/color-utils';
 import { mdiFormatListBulletedSquare, mdiPaletteAdvanced, mdiPaletteOutline } from '@quasar/extras/mdi-v7';
+import Delaunator from 'delaunator';
 
 const configStore = useConfigStore();
 const { defaultThemes, currentTheme } = storeToRefs(configStore);
@@ -114,30 +113,55 @@ function draw() {
     }
   });
 
-  const vertices = points.map((p) => [p.x, p.y] as [number, number]);
-  const xColors = currentTheme.value;
+  const colors = currentTheme.value;
 
-  const pattern = Trianglify({
-    width,
-    height,
-    points: vertices,
-    xColors,
-  });
+  const coords = points.map((p) => [p.x, p.y]);
+  const delaunay = Delaunator.from(coords);
 
-  pattern.polys.forEach((poly) => {
-    const v = poly.vertexIndices.map((i) => pattern.points[i]);
+  function lerpColor(c1: string, c2: string, t: number) {
+    const parse = (c: string) => c.match(/\w\w/g)!.map((x) => parseInt(x, 16));
+    const [r1, g1, b1] = parse(c1);
+    const [r2, g2, b2] = parse(c2);
 
-    ctx!.beginPath();
-    ctx!.moveTo(v[0]![0], v[0]![1]);
-    ctx!.lineTo(v[1]![0], v[1]![1]);
-    ctx!.lineTo(v[2]![0], v[2]![1]);
-    ctx!.closePath();
+    const r = Math.round(r1! + (r2! - r1!) * t);
+    const g = Math.round(g1! + (g2! - g1!) * t);
+    const b = Math.round(b1! + (b2! - b1!) * t);
 
-    ctx!.fillStyle = poly.color.hex();
-    ctx!.fill();
-    ctx!.lineWidth = props.lineWidth;
-    ctx!.stroke();
-  });
+    return `rgb(${r}, ${g}, ${b})`;
+  }
+
+  for (let i = 0; i < delaunay.triangles.length; i += 3) {
+    const a = points[delaunay.triangles[i]!];
+    const b = points[delaunay.triangles[i + 1]!];
+    const c = points[delaunay.triangles[i + 2]!];
+
+    if (!a || !b || !c) continue;
+
+    ctx.beginPath();
+    ctx.moveTo(a.x, a.y);
+    ctx.lineTo(b.x, b.y);
+    ctx.lineTo(c.x, c.y);
+    ctx.closePath();
+
+    const cx = (a.x + b.x + c.x) / 3;
+    const cy = (a.y + b.y + c.y) / 3;
+
+    const t = (cx + cy) / (width + height);
+
+    const scaled = t * (colors.length - 1);
+    const index = Math.floor(scaled);
+    const nextIndex = Math.min(index + 1, colors.length - 1);
+    const localT = scaled - index;
+
+    const color = lerpColor(colors[index]!, colors[nextIndex]!, localT);
+
+    ctx.fillStyle = color;
+    ctx.fill();
+
+    ctx.lineWidth = props.lineWidth;
+    ctx.strokeStyle = color;
+    ctx.stroke();
+  }
 
   animationFrameId = requestAnimationFrame(draw);
 }

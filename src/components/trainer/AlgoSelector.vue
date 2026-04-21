@@ -235,7 +235,6 @@ import { storeToRefs } from 'pinia';
 import { QCard, QCheckbox, type QForm, QInput, QSelect, type QTableColumn, QTooltip, useQuasar } from 'quasar';
 import { isInvalid, NumericInputRule, ratioRules } from 'src/helpers/validation/rules';
 import { trainerService } from 'src/services/training.service';
-import { useTrainerStore } from 'src/stores/train-store';
 import { newSeed } from 'src/helpers/global-utils';
 import { computed, type ComputedRef, onMounted, ref, watch } from 'vue';
 import { useNotifier } from 'src/composables/notifier';
@@ -246,14 +245,15 @@ import { mdiArrowSplitVertical, mdiDiceMultipleOutline, mdiPlusMinusVariant, mdi
 import { matAdd } from '@quasar/extras/material-icons';
 import { fasBrain, fasGears, fasMicrochip, fasUpRightFromSquare } from '@quasar/extras/fontawesome-v6';
 import { fasProjectDiagram } from '@quasar/extras/fontawesome-v5';
+import { useMLStore } from 'src/stores/ml-store';
 
 const splitterModel = ref(50);
 
 /* Stores and composables */
 const $q = useQuasar();
 const $n = useNotifier();
-const trainerStore = useTrainerStore();
-const { existingFile, folderId, trainConfig } = storeToRefs(trainerStore);
+const mlStore = useMLStore();
+const { existingFile, folderId, trainConfig } = storeToRefs(mlStore);
 
 /* Emitters */
 const emit = defineEmits<{
@@ -262,7 +262,7 @@ const emit = defineEmits<{
 }>();
 
 /* Refs, computed refs and const */
-const pointsNumber = computed(() => trainerStore.getNumberOfSamples());
+const pointsNumber = computed(() => mlStore.getNumberOfSamples());
 const formTrain = ref<QForm | null>(null);
 const numberOfSamples = ref(pointsNumber.value);
 const trainingRatio = ref(0.5);
@@ -277,7 +277,7 @@ const showAlgoParams = ref(false);
 const showTrainParams = ref(false);
 const currentAlgoName = ref<string | null>(null);
 const selectedAlgorithm = ref<SklearnAlgorithmParams[SklearnAlgorithmName] | null>(null);
-const features = computed<string[]>(() => Array.from(trainerStore.selectedFeatures));
+const features = computed<string[]>(() => Array.from(mlStore.selectedFeatures));
 
 /* Tables */
 const columns: QTableColumn[] = [
@@ -458,7 +458,7 @@ function resetTrainForm() {
   }).onOk(() => {
     // Reset train config
     resetNumberOfSamples();
-    trainerStore.selectedFeatures.clear();
+    mlStore.selectedFeatures.clear();
     trainingRatio.value = 0.5;
     scaler.value = scalerOpts[0];
     scorer.value = scorerList[0];

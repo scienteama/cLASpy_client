@@ -4,8 +4,7 @@
     v-model="step"
     horizontal
     animated
-    keep-alive
-    done-color="positive"
+    keep-alivedone-color="positive"
     active-color="primary"
     header-class="predict-stepper-header"
     :style="{ '--computed-bg': computedStyle.background }"
@@ -44,13 +43,13 @@ import { fasGears, fasList } from '@quasar/extras/fontawesome-v6';
 import { useRoute, useRouter } from 'vue-router';
 import { useConfigStore } from 'src/stores/config-store';
 import { storeToRefs } from 'pinia';
-import { useTrainerStore } from 'src/stores/train-store';
 import { matCloudUpload } from '@quasar/extras/material-icons';
+import { useMLStore } from 'src/stores/ml-store';
 
 const route = useRoute();
 const router = useRouter();
 const configStore = useConfigStore();
-const mlStore = useTrainerStore();
+const mlStore = useMLStore();
 const { computedStyle } = storeToRefs(configStore);
 const { fileToUpload, existingFile, uploadedFileName, pointCloudFile } = storeToRefs(mlStore);
 

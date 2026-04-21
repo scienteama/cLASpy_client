@@ -40,12 +40,12 @@ export class WebSocketClient {
     const handler = this.handlers[msg.type];
     if (handler) {
       try {
-        await handler(msg as WSMessage);
+        await handler(msg);
       } catch (err) {
         console.error('Erreur dans handler WS pour type', msg.type, err);
       }
     } else {
-      this.state.messages.push(msg as WSMessage);
+      this.state.messages.push(msg);
     }
   }
 
