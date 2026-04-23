@@ -1,12 +1,6 @@
 <template>
   <div class="items-start q-gutter-y-md" style="width: auto; min-width: 70%">
-    <q-file
-      :model-value="file"
-      @update:model-value="updateFile"
-      :label="isTrainMode ? 'Uploader ou sélectionner un fichier' : 'Uploader un fichier'"
-      outlined
-      :clearable="!fileUploadProgress.uploading"
-    >
+    <q-file :model-value="file" @update:model-value="updateFile" :label="inputLabel" outlined :clearable="!fileUploadProgress.uploading" :accept="authorizedMimeTypes">
       <template #before>
         <q-icon :name="fasPaperclip" color="primary" />
       </template>
@@ -32,7 +26,7 @@
       </template>
 
       <template #after v-if="canUpload">
-        <div v-if="!isTrainMode">
+        <div v-if="!isTrainMode && !isPredictMode">
           <q-btn v-if="!fileUploadProgress.uploading" color="primary" dense :icon="matCloudUpload" round @click="upload" :disable="!canUpload" />
           <q-badge v-else color="accent" text-color="white" rounded size="md" :label="(fileUploadProgress.percent * 100).toFixed(0) + '%'" />
         </div>
@@ -51,14 +45,34 @@ import { useMLStore } from 'src/stores/ml-store';
 
 const props = defineProps({
   isTrainMode: { type: Boolean, default: false },
+  isPredictMode: { type: Boolean, default: false },
 });
 
 const filesStore = useFilesStore();
 const mlStore = useMLStore();
-const { fileToUpload } = storeToRefs(mlStore);
+const { fileToUpload, modelToUpload } = storeToRefs(mlStore);
 const { fileUploadProgress } = storeToRefs(filesStore);
 
 const file = ref<File | null>(null);
+
+const inputLabel = computed(() => {
+  if (props.isTrainMode) {
+    return 'Uploader ou sélectionner un fichier';
+  } else if (props.isPredictMode) {
+    return 'Uploader ou sélectionner un modèle';
+  }
+  return 'Uploader un fichier';
+});
+
+const authorizedMimeTypes = computed(() => {
+  if (props.isTrainMode) {
+    return '.las';
+  } else if (props.isPredictMode) {
+    return '.model';
+  }
+  return undefined;
+});
+
 const canUpload = computed(() => file.value !== null);
 
 function cancelFile() {
@@ -77,7 +91,7 @@ async function upload() {
   if (!file.value) return;
 
   try {
-    if (!props.isTrainMode) {
+    if (!props.isTrainMode && !props.isPredictMode) {
       await filesStore.uploadFile(file.value);
     }
   } catch (err) {
@@ -100,6 +114,8 @@ watch(
   (newVal) => {
     if (props.isTrainMode) {
       fileToUpload.value = newVal;
+    } else if (props.isPredictMode) {
+      modelToUpload.value = newVal;
     }
   }
 );

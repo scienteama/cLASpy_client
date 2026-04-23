@@ -5,5 +5,5 @@
 </template>
 
 <script setup lang="ts">
-import PredicterBase from 'src/components/predicter/PredicterBase.vue';
+import PredicterBase from 'src/components/ml/PredicterBase.vue';
 </script>

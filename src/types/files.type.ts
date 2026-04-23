@@ -60,3 +60,12 @@ export interface PointCloudFile {
   lasPointFormat?: number;
   featuresList?: string[];
 }
+
+export interface ModelFile {
+  name: string;
+  scaler: string;
+  pca: string;
+  featuresList: string[];
+  algorithm: string;
+  parameters: string[];
+}

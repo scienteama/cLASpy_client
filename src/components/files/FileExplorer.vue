@@ -66,10 +66,13 @@
           </q-td>
         </template>
 
-        <template v-if="trainMode && !fileToUpload" v-slot:header-cell-select>
+        <template v-slot:header-cell-select v-if="trainMode || predictMode">
           <q-th class="q-pa-none justify-center items-center">
-            <q-btn color="primary" :icon="mdiFormatListChecks" dense outline>
+            <q-btn v-if="trainMode && !fileToUpload" color="primary" :icon="mdiFormatListChecks" dense outline>
               <q-tooltip>Sélectionner un fichier</q-tooltip>
+            </q-btn>
+            <q-btn v-else-if="predictMode && !modelToUpload" color="primary" :icon="mdiFormatListChecks" dense outline>
+              <q-tooltip>Sélectionner un modèle</q-tooltip>
             </q-btn>
           </q-th>
         </template>
@@ -77,6 +80,13 @@
         <template v-if="trainMode && !fileToUpload" v-slot:body-cell-select="scope">
           <q-td align="center" auto-width>
             <div v-if="trainMode && scope.row.type === 'file' && ['application/las', 'text/csv'].includes(scope.row.mimeType)">
+              <q-toggle :model-value="isSelected(scope.row)" @update:model-value="toggleSelection(scope.row)" />
+            </div>
+          </q-td>
+        </template>
+        <template v-else-if="predictMode && !modelToUpload" v-slot:body-cell-select="scope">
+          <q-td align="center" auto-width>
+            <div v-if="predictMode && scope.row.type === 'file' && ['application/model'].includes(scope.row.mimeType)">
               <q-toggle :model-value="isSelected(scope.row)" @update:model-value="toggleSelection(scope.row)" />
             </div>
           </q-td>
@@ -229,6 +239,7 @@ const props = defineProps({
   showInput: { type: Boolean, default: true },
   showTitle: { type: Boolean, default: true },
   trainMode: { type: Boolean, default: false },
+  predictMode: { type: Boolean, default: false },
   titleName: { type: String, default: 'Explorateur de fichiers' },
 });
 
@@ -236,7 +247,7 @@ const selectedItems = ref<(FileModel | FolderModel)[]>([]);
 const selectedFile = ref<FileModel | null>(null);
 const { rows, loading, canGoBack, rootTree, currentFolder } = storeToRefs(filesStore);
 const { isAdmin, currentUser } = storeToRefs(userStore);
-const { existingFile, fileToUpload } = storeToRefs(mlStore);
+const { existingFile, fileToUpload, modelToUpload, existingModel } = storeToRefs(mlStore);
 const { reloadRoot, goBack, goToFolder, renameItem, deleteItem, goToHome, createFolder, refreshCurrentFolder } = filesStore;
 
 const createFolderDialog = ref<{ show: boolean; folderName: string }>({ show: false, folderName: '' });
@@ -448,6 +459,12 @@ watch(
         existingFile.value = newVal;
       } else {
         existingFile.value = null;
+      }
+    } else if (props.predictMode) {
+      if (newVal && newVal.type == 'file') {
+        existingModel.value = newVal;
+      } else {
+        existingModel.value = null;
       }
     }
   }

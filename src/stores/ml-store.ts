@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { AxiosError, AxiosProgressEvent } from 'axios';
 import { type ErrorResponse, isAxiosErrorResponse } from 'src/types/api.type';
-import type { FileModel, PointCloudFile } from 'src/types/files.type';
+import type { FileModel, ModelFile, PointCloudFile } from 'src/types/files.type';
 import { defineStore, storeToRefs } from 'pinia';
 import { trainerService } from 'src/services/training.service';
 import { computed, ref, watch } from 'vue';
@@ -25,6 +25,12 @@ export const useMLStore = defineStore('ml', () => {
   const fileToUpload = ref<File | null>(null);
   const existingFile = ref<FileModel | null>(null);
   const uploadedFileName = ref<string | null>(null);
+
+  const modelFile = ref<ModelFile>();
+  const modelToUpload = ref<File | null>(null);
+  const existingModel = ref<FileModel | null>(null);
+  const uploadedModelName = ref<string | null>(null);
+
   const uploadIsDone = ref(false);
   const trainConfig = ref<TrainParameters>();
   const selectedFeatures = ref<Set<string>>(new Set());
@@ -38,6 +44,14 @@ export const useMLStore = defineStore('ml', () => {
     const res = await trainerService.getPointCloudFileInfos(fileId);
     if (res.isOk && res.data) {
       pointCloudFile.value = res.data;
+    }
+  };
+
+  const loadModelFileInfos = async (fileId: string) => {
+    const res = await trainerService.getModelFileInfos(fileId);
+    if (res.isOk && res.data) {
+      modelFile.value = res.data;
+      selectedFeatures.value = new Set(res.data.featuresList);
     }
   };
 
@@ -202,9 +216,18 @@ export const useMLStore = defineStore('ml', () => {
     }
   });
 
+  watch(existingModel, async (newVal) => {
+    if (newVal?.id) {
+      await loadModelFileInfos(newVal.id);
+    } else {
+      modelFile.value = undefined;
+    }
+  });
+
   watch(uploadIsDone, (done) => {
     if (done) {
       fileToUpload.value = null;
+      modelToUpload.value = null;
       uploadIsDone.value = false;
     }
   });
@@ -212,7 +235,11 @@ export const useMLStore = defineStore('ml', () => {
   return {
     pointCloudFile,
     fileToUpload,
+    modelToUpload,
     existingFile,
+    existingModel,
+    uploadedModelName,
+    modelFile,
     uploadedFileName,
     uploadIsDone,
     folderId,

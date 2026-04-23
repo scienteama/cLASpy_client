@@ -2,7 +2,10 @@
   <div ref="featsCard">
     <q-card>
       <q-toolbar v-if="showTitle" class="bg-blue-1 text-primary shadow-2">
-        <q-toolbar-title>Attributs :</q-toolbar-title>
+        <q-toolbar-title v-if="features && features.length > 0">
+          {{ `${selectedFeatures.size ? selectedFeatures.size : 0} / ${features.length} Attribut(s) sélectionné(s)` }}
+        </q-toolbar-title>
+        <q-toolbar-title v-else> Aucun attribut disponible </q-toolbar-title>
       </q-toolbar>
 
       <q-list bordered padding dense style="max-height: 40vh; overflow-y: auto" @mouseup="onMouseUp">
@@ -39,6 +42,7 @@ const featsCard = ref<HTMLElement | null>(null);
 const props = defineProps({
   showTitle: { type: Boolean, default: true },
   itemClickable: { type: Boolean, default: true },
+  modelFeatures: { type: Array as () => string[], default: () => [] },
 });
 
 const mlStore = useMLStore();

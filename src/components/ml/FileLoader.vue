@@ -11,7 +11,6 @@
                 <template v-if="fileLoaded == null">
                   <InputFile class="col-12" :is-train-mode="true" :folderId="folderId" />
                 </template>
-
                 <template v-if="fileLoaded">
                   <q-input class="col-12" outlined readonly :label="fileLoaded" label-color="accent" :model-value="''">
                     <template #before>
@@ -131,7 +130,6 @@ const showFeaturesDialog = ref<boolean>(false);
 const splitter = ref(40);
 
 const fileLoaded = computed(() => (existingFile.value ? existingFile.value.name : uploadedFileName.value));
-
 const folderPath = computed(() => {
   return currentFolderDisplayPath.value.join('/');
 });

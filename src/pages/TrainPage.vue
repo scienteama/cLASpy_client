@@ -5,5 +5,5 @@
 </template>
 
 <script setup lang="ts">
-import TrainBase from 'src/components/trainer/TrainBase.vue';
+import TrainBase from 'src/components/ml/TrainBase.vue';
 </script>

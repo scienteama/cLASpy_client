@@ -3,7 +3,7 @@ import { ref, computed } from 'vue';
 import { useQuasar } from 'quasar';
 import type { AxiosError, AxiosProgressEvent } from 'axios';
 import { fileService } from 'src/services/files.service';
-import { type FileType, isFolder, type FileUploadProgress, type FolderModel } from 'src/types/files.type';
+import { type FileType, isFolder, type FileUploadProgress, type FolderModel, type FileModel } from 'src/types/files.type';
 import { type ErrorResponse, isAxiosErrorResponse } from 'src/types/api.type';
 import { useUserStore } from './users-store';
 import { farFile } from '@quasar/extras/fontawesome-v6';
@@ -125,7 +125,7 @@ export const useFilesStore = defineStore('files', () => {
   }
 
   // --- Upload ---
-  async function uploadFile(file: File): Promise<void> {
+  async function uploadFile(file: File): Promise<FileModel | void> {
     if (!file || !currentFolder.value || !currentUser.value) return;
 
     fileUploadProgress.value = {
@@ -182,6 +182,7 @@ export const useFilesStore = defineStore('files', () => {
         fileUploadProgress.value.color = 'green-4';
         await refreshCurrentFolder();
         $q.notify({ type: 'positive', message: res.result || 'Fichier uploadé avec succès.' });
+        return res.data;
       } else {
         throw new Error(res.result || 'Erreur upload.');
       }
