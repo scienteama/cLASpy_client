@@ -1,13 +1,14 @@
 <template>
   <q-page padding>
-    <q-toolbar class="q-mb-md glossy rounded-borders bg-orange-3 inset-shadow-down">
-      <q-toolbar-title class="text-wrap">
-        Gestion des utilisateurs :
-        <q-badge rounded color="red" align="middle" :label="numberOfUsers" />
-      </q-toolbar-title>
-
-      <q-btn label="Ajouter" color="claspy-dark1" :icon="matAdd" @click="openCreateDialog" class="q-ma-sm" />
-    </q-toolbar>
+    <q-card flat class="q-mb-md" :style="computedStyle">
+      <q-card-section class="row items-center justify-between">
+          <div class="text-h5 text-weight-bold title-page"
+          :style="{ '--computed-color': computedStyle.color.name }">Gestion des utilisateurs :
+            <q-badge rounded color="red" align="middle" :label="numberOfUsers" />
+          </div>
+        <q-btn label="Ajouter" outline :text-color="computedStyle.color.name" :icon="matAdd" @click="openCreateDialog" class="q-ma-sm" />
+      </q-card-section>
+    </q-card>
 
     <div class="q-pa-sm">
       <!-- Table desktop -->
@@ -110,9 +111,12 @@ import { useUserStore } from 'src/stores/users-store';
 import { formUserRules } from 'src/helpers/validation/rules';
 import ConfirmDialog from 'src/components/tools/ConfirmDialog.vue';
 import { matAdd, matDelete, matEdit, matVisibility, matVisibilityOff } from '@quasar/extras/material-icons';
+import { useConfigStore } from 'src/stores/config-store';
 
 const $q = useQuasar();
 const userStore = useUserStore();
+const configStore = useConfigStore();
+const { computedStyle } = storeToRefs(configStore);
 const { users, getAllowedRoles } = storeToRefs(userStore);
 
 const numberOfUsers = computed(() => users.value.length);
@@ -232,3 +236,8 @@ onMounted(async () => {
   await userStore.getAllUsers();
 });
 </script>
+<style lang="scss" scoped>
+.title-page {
+  color: var(--computed-color);
+}
+</style>

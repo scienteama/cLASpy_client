@@ -180,3 +180,12 @@ export const glossyStyle = `linear-gradient(
     rgba(0, 0, 0, 0.12) 51%,
     rgba(0, 0, 0, 0.04)
   )`;
+
+
+export function invertColor(hex: string) {
+  hex = hex.replace('#', '');
+  const r = (255 - parseInt(hex.substring(0, 2), 16)).toString(16).padStart(2, '0');
+  const g = (255 - parseInt(hex.substring(2, 4), 16)).toString(16).padStart(2, '0');
+  const b = (255 - parseInt(hex.substring(4, 6), 16)).toString(16).padStart(2, '0');
+  return `#${r}${g}${b}`;
+}

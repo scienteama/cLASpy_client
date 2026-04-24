@@ -1,17 +1,18 @@
 <template>
   <q-page class="q-pa-md column bg-grey-3">
     <!-- Titre -->
-    <q-card flat class="q-mb-md" :style="cardStyle">
+    <q-card flat class="q-mb-md" :style="computedStyle">
       <q-card-section class="row items-center justify-between">
-        <div>
+        <div class="main-title-page" :style="{ '--computed-color': computedStyle.color.name }">
           <div class="text-h5 text-weight-bold">Tableau de bord</div>
           <div class="text-subtitle2 q-mt-xs">Bienvenue dans votre espace personnel, {{ currentUser?.firstname }}.</div>
         </div>
-        <q-avatar size="56px" color="primary" text-color="white">
-          {{ currentUserInitials }}
+        <q-avatar :style="{ '--computed-avatar-color': invertColor(computedStyle.color.value), '--computed-bg': computedStyle.color.value}"
+          class="user-avatar">{{ currentUserInitials }}
         </q-avatar>
       </q-card-section>
     </q-card>
+
 
     <!-- Widgets -->
     <div class="row q-mb-md">
@@ -105,16 +106,16 @@ import { storeToRefs } from 'pinia';
 import FileExplorer from 'src/components/files/FileExplorer.vue';
 import TaskRunner from 'src/components/widgets/TaskRunner.vue';
 import HourDate from 'src/components/widgets/HourDate.vue';
-import { getTextColorForPalette, glossyStyle, sortPaletteByBrightness } from 'src/helpers/color-utils';
 import { useConfigStore } from 'src/stores/config-store';
 import { useUserStore } from 'src/stores/users-store';
 import { computed, ref } from 'vue';
 import { usePluginStore } from 'src/stores/plugins-store';
+import { invertColor } from 'src/helpers/color-utils';
 
 const userStore = useUserStore();
 const { currentUser, isAdmin } = storeToRefs(userStore);
 const configStore = useConfigStore();
-const { currentTheme } = storeToRefs(configStore);
+const { computedStyle } = storeToRefs(configStore);
 const showFileExplorer = ref(true);
 const pluginStore = usePluginStore();
 
@@ -127,14 +128,18 @@ const currentUserInitials = computed(() => {
 });
 
 const taskrunner = computed(() => pluginStore.getByName('taskrunner'));
-const gradient = computed(() => `${glossyStyle}, linear-gradient(90deg, ${currentTheme.value.join(', ')})`);
-const sortedPal = computed(() => sortPaletteByBrightness(currentTheme.value));
-const textColor = computed(() => getTextColorForPalette(sortedPal.value));
-const cardStyle = computed(() => ({ background: gradient.value, color: textColor.value }));
 </script>
 
 <style scoped>
 .q-card-section {
   min-height: 80px;
+}
+.main-title-page {
+  color: var(--computed-color);
+}
+.user-avatar {
+  color: var(--computed-avatar-color);
+  size: 56px;
+  background-color: var(--computed-bg);
 }
 </style>
