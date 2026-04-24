@@ -119,6 +119,7 @@ export const formUserRules = {
    * Mot de passe avec majuscule, chiffre, caractère spécial, 8-16 caractères
    */
   password: (val: string) => credentialsRegex.password.test(val) || 'Au moins 1 majuscule, 1 chiffre, 1 caractère spécial et 8 à 16 caractères',
+  passwordMatch: (checkVal: string) => (val: string) => val === checkVal || 'Les mots de passe ne correspondent pas',
 
   /**
    * Validation d’adresse email

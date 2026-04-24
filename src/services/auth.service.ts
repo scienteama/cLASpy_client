@@ -1,5 +1,5 @@
 import { api } from 'src/boot/axios';
-import type { Dictionnary, WorkDone } from 'src/types/api.type';
+import type { Dictionnary, WorkDone } from 'src/models/types/api.type';
 
 /**
  * Centralise les appels API pour la gestion de l'authentification

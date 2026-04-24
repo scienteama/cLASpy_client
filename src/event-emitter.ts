@@ -1,5 +1,5 @@
 import mitt, { type Emitter, type Handler } from 'mitt';
-import { type AppEvents } from './types/global.types';
+import { type AppEvents } from './models/types/global.types';
 
 export class AppEmitter {
   private emitter: Emitter<AppEvents>;

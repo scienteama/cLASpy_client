@@ -212,7 +212,7 @@
 </template>
 
 <script setup lang="ts">
-import type { FileModel, FolderModel } from 'src/types/files.type';
+import type { FileModel, FolderModel } from 'src/models/types/files.type';
 import { ref, onMounted, computed, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useFilesStore } from 'src/stores/files-store';

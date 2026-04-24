@@ -1,6 +1,6 @@
 import { api } from 'src/boot/axios';
-import type { WorkDone } from 'src/types/api.type';
-import type { User, UserIn } from 'src/types/users.type';
+import type { WorkDone } from 'src/models/types/api.type';
+import type { User, UserIn } from 'src/models/types/users.type';
 
 /**
  * Gestion des utilisateurs

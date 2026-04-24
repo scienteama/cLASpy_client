@@ -57,7 +57,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import type { LoginDto } from 'src/types/auth.type';
+import type { LoginDto } from 'src/models/types/auth.type';
 import { useQuasar } from 'quasar';
 import imgLogin from 'src/assets/pythie_alpha_hd_miroir_resized.png';
 import ConfirmDialog from 'src/components/tools/ConfirmDialog.vue';

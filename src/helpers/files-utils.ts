@@ -1,6 +1,6 @@
 import { farFile, farFileAudio, farFileExcel, farFileImage, farFileLines, farFilePdf, farFilePowerpoint, farFileVideo, farFileWord, farFolder, farFolderOpen } from '@quasar/extras/fontawesome-v6';
 import { mdiDataMatrix, mdiFileCog } from '@quasar/extras/mdi-v7';
-import type { FileModel, FolderModel } from 'src/types/files.type';
+import type { FileModel, FolderModel } from 'src/models/types/files.type';
 
 /**
  * Retourne l’icône associée à un type MIME de fichier.

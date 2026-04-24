@@ -7,12 +7,9 @@
           <div class="text-h5 text-weight-bold">Tableau de bord</div>
           <div class="text-subtitle2 q-mt-xs">Bienvenue dans votre espace personnel, {{ currentUser?.firstname }}.</div>
         </div>
-        <q-avatar :style="{ '--computed-avatar-color': invertColor(computedStyle.color.value), '--computed-bg': computedStyle.color.value}"
-          class="user-avatar">{{ currentUserInitials }}
-        </q-avatar>
+        <q-avatar :style="{ '--computed-avatar-color': invertColor(computedStyle.color.value), '--computed-bg': computedStyle.color.value }" class="user-avatar">{{ currentUserInitials }} </q-avatar>
       </q-card-section>
     </q-card>
-
 
     <!-- Widgets -->
     <div class="row q-mb-md">

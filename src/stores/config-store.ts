@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { configService } from 'src/services/conf.service';
-import type { ApiSettings } from 'src/types/api.type';
+import type { ApiSettings } from 'src/models/types/api.type';
 import { defaultPals, getTextColorForPalette, glossyStyle, sortPaletteByBrightness } from 'src/helpers/color-utils';
 import { computed, ref } from 'vue';
 

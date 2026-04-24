@@ -1,4 +1,4 @@
-import type { User } from '../types/users.type';
+import type { User } from '../models/types/users.type';
 import { camelCase, mapKeys } from 'lodash';
 
 /**

@@ -2,17 +2,17 @@
   <q-page padding>
     <q-card flat class="q-mb-md" :style="computedStyle">
       <q-card-section class="row items-center justify-between">
-          <div class="text-h5 text-weight-bold title-page"
-          :style="{ '--computed-color': computedStyle.color.name }">Gestion des utilisateurs :
-            <q-badge rounded color="red" align="middle" :label="numberOfUsers" />
-          </div>
+        <div class="text-h5 text-weight-bold title-page" :style="{ '--computed-color': computedStyle.color.name }">
+          Gestion des utilisateurs :
+          <q-badge rounded color="red" align="middle" :label="numberOfUsers" style="font-size: large; padding: 5px" />
+        </div>
         <q-btn label="Ajouter" outline :text-color="computedStyle.color.name" :icon="matAdd" @click="openCreateDialog" class="q-ma-sm" />
       </q-card-section>
     </q-card>
 
     <div class="q-pa-sm">
       <!-- Table desktop -->
-      <q-table v-if="!$q.screen.lt.md" flat bordered :rows="users" :columns="columns" :rows-per-page-options="[0, 5, 10, 20]" row-key="id" class="responsive-table">
+      <q-table v-if="!$q.screen.lt.md" flat bordered :rows="users" :columns="columns" :rows-per-page-options="[0, 5, 10, 20]" row-key="id" class="users-table">
         <template v-slot:body="props">
           <q-tr
             :props="props"
@@ -22,9 +22,9 @@
           >
             <q-td v-for="col in props.cols" :key="col.name" :props="props" class="q-px-sm">
               <template v-if="col.name === 'actions'">
-                <div class="row no-wrap items-center q-gutter-sm">
-                  <q-btn v-if="userStore.isPrivileged" flat :icon="matEdit" color="primary" @click="openEditDialog(props.row)" dense size="sm" />
-                  <q-btn v-if="userStore.isAdmin" flat :icon="matDelete" color="negative" @click="confirmDelete(props.row)" :disabled="props.row.id === userStore.currentUser?.id" dense size="sm">
+                <div class="row no-wrap items-center justify-center">
+                  <q-btn v-if="userStore.isPrivileged" flat :icon="matEdit" color="primary" @click="openEditDialog(props.row)" dense size="md" />
+                  <q-btn v-if="userStore.isAdmin" flat :icon="matDelete" color="negative" @click="confirmDelete(props.row)" :disabled="props.row.id === userStore.currentUser?.id" dense size="md">
                     <q-tooltip v-if="props.row.id === userStore.currentUser?.id" transition-show="flip-right" transition-hide="flip-left"> Action indisponible </q-tooltip>
                   </q-btn>
                 </div>
@@ -76,6 +76,22 @@
                 </template>
               </q-input>
 
+              <q-input
+                v-if="newPassword"
+                v-model="checkPassword"
+                filled
+                :type="isPwd ? 'password' : 'text'"
+                autocomplete="new-password"
+                label="Confirmer le mot de passe"
+                dense
+                placeholder="**************"
+                :rules="[formUserRules.passwordMatch(newPassword)]"
+              >
+                <template v-slot:append>
+                  <q-icon :name="isPwd ? matVisibilityOff : matVisibility" class="cursor-pointer" @click="isPwd = !isPwd" />
+                </template>
+              </q-input>
+
               <q-select
                 dense
                 filled
@@ -103,7 +119,7 @@
 
 <script setup lang="ts">
 import type { QTableColumn } from 'quasar';
-import type { User, UserIn } from 'src/types/users.type';
+import type { User, UserIn } from 'src/models/types/users.type';
 import { storeToRefs } from 'pinia';
 import { useQuasar } from 'quasar';
 import { computed, onMounted, ref } from 'vue';
@@ -125,6 +141,7 @@ const createCard = ref(false);
 const editingUser = ref(false);
 const passwordChanged = ref(false);
 const newPassword = ref('');
+const checkPassword = ref('');
 const isPwd = ref(true);
 
 const formUser = ref<Partial<User>>({
@@ -195,8 +212,9 @@ async function submitUserForm() {
       },
       persistent: true,
     }).onOk(() => {
-      void (async () => {
-        await userStore.addUser(newUser);
+      void (() => {
+        console.log(newUser);
+        //await userStore.addUser(newUser);
       })();
     });
   }
@@ -236,8 +254,36 @@ onMounted(async () => {
   await userStore.getAllUsers();
 });
 </script>
-<style lang="scss" scoped>
+<style lang="scss">
 .title-page {
   color: var(--computed-color);
+}
+
+.users-table {
+  max-height: 60vh;
+  .q-table__top,
+  .q-table__bottom,
+  thead tr:first-child th {
+    background-color: $blue-1;
+    font-weight: bold;
+    font-size: 14px;
+  }
+
+  thead tr th {
+    position: sticky;
+    z-index: 1;
+  }
+
+  thead tr:first-child th {
+    top: 0;
+  }
+
+  &.q-table--loading thead tr:last-child th {
+    top: 48px;
+  }
+
+  tbody {
+    scroll-margin-top: 48px;
+  }
 }
 </style>

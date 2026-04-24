@@ -131,75 +131,69 @@
 
           <q-badge :color="wsState ? 'positive' : 'negative'" rounded size="md" />
           <q-btn v-if="$q.screen.gt.xs" dense flat round size="md" :icon="mdiBellOutline" />
-          <q-btn v-if="$q.screen.gt.xs" dense flat>
+
+          <!-- <q-btn v-if="$q.screen.gt.xs" dense flat>
             <div class="row items-center no-wrap">
               <q-icon :name="matAdd" size="md" />
               <q-icon :name="matArrowDropDown" size="sm" style="margin-left: -2px" />
             </div>
             <q-menu auto-close>
               <q-list dense style="min-width: 100px">
-                <q-item clickable class="GL__menu-link">
+                <q-item clickable>
                   <q-item-section>Action1</q-item-section>
                 </q-item>
-                <q-item clickable class="GL__menu-link">
+                <q-item clickable>
                   <q-item-section>Action2</q-item-section>
-                </q-item>
-                <q-item clickable class="GL__menu-link">
-                  <q-item-section>Action3</q-item-section>
-                </q-item>
-                <q-item clickable class="GL__menu-link">
-                  <q-item-section>Action4</q-item-section>
                 </q-item>
                 <q-separator />
                 <q-item-label header>Autre1</q-item-label>
-                <q-item clickable class="GL__menu-link">
+                <q-item clickable>
                   <q-item-section>Autre2</q-item-section>
                 </q-item>
               </q-list>
             </q-menu>
-          </q-btn>
+          </q-btn> -->
 
-          <q-btn dense flat no-wrap>
-            <q-avatar v-if="currentUser" color="grey" rounded size="md" text-color="white">
+          <q-btn flat no-wrap>
+            <q-avatar v-if="currentUser" rounded size="lg" text-color="white">
               {{ getUserInitials(currentUser) }}
             </q-avatar>
             <q-icon :name="matArrowDropDown" size="sm" />
 
-            <q-menu auto-close>
-              <q-list dense>
-                <q-item class="GL__menu-link-signed-in">
-                  <q-item-section>
-                    <div>
-                      <strong>{{ currentUser?.firstname }} {{ currentUser?.lastname }}</strong>
-                    </div>
+            <q-menu auto-close fit class="text-bold" style="white-space: nowrap">
+              <q-list>
+                <q-item class="bg-claspy-dark1 text-white glossy">
+                  <q-item-section avatar>
+                    <q-icon :name="mdiAccount" />
                   </q-item-section>
+                  <q-item-section class="text-uppercase"> {{ currentUser?.firstname }} {{ currentUser?.lastname }} </q-item-section>
                 </q-item>
                 <q-separator />
-                <q-item clickable class="GL__menu-link-status"> </q-item>
-                <q-separator />
-                <q-item clickable class="GL__menu-link">
+                <q-item clickable class="text-uppercase">
+                  <q-item-section avatar>
+                    <q-icon :name="mdiHomeAccount" color="secondary" />
+                  </q-item-section>
                   <q-item-section>Profil</q-item-section>
                 </q-item>
-                <q-item clickable class="GL__menu-link">
-                  <q-item-section>Autre1</q-item-section>
-                </q-item>
-                <q-item clickable class="GL__menu-link">
-                  <q-item-section>Autre2</q-item-section>
-                </q-item>
-                <q-item clickable class="GL__menu-link">
-                  <q-item-section>Autre3</q-item-section>
-                </q-item>
-                <q-item clickable class="GL__menu-link">
-                  <q-item-section>Autre4</q-item-section>
-                </q-item>
                 <q-separator />
-                <q-item clickable class="GL__menu-link">
+                <q-item clickable class="text-uppercase">
+                  <q-item-section avatar>
+                    <q-icon :name="mdiHelpBoxOutline" color="primary" />
+                  </q-item-section>
                   <q-item-section>Aide</q-item-section>
                 </q-item>
-                <q-item clickable class="GL__menu-link">
+                <q-separator />
+                <q-item clickable class="text-uppercase">
+                  <q-item-section avatar>
+                    <q-icon :name="mdiCogOutline" color="warning" />
+                  </q-item-section>
                   <q-item-section>Paramètres</q-item-section>
                 </q-item>
-                <q-item clickable class="GL__menu-link" @click="disconnect()">
+                <q-separator />
+                <q-item clickable @click="disconnect()" class="bg-negative text-white text-uppercase glossy">
+                  <q-item-section avatar>
+                    <q-icon :name="mdiLogout" />
+                  </q-item-section>
                   <q-item-section>Déconnexion</q-item-section>
                 </q-item>
               </q-list>
@@ -218,7 +212,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Plugin } from 'src/types/plugins.types';
+import type { Plugin } from 'src/models/types/plugins.types';
 import { ref, onMounted, computed, watch } from 'vue';
 import { dom, useQuasar } from 'quasar';
 import AnimatedBackground from 'src/components/animations/AnimatedBackground.vue';
@@ -233,8 +227,19 @@ import { useAuth } from 'src/stores/auth-store';
 import { useRouter } from 'vue-router';
 import { useNavigation } from 'src/composables/navigation';
 import { websocketService } from 'src/services/websocket.service';
-import { mdiAccountMultipleOutline, mdiBellOutline, mdiCheckerboard, mdiCogOutline, mdiPlaySpeed, mdiVectorDifference } from '@quasar/extras/mdi-v7';
-import { matAdd, matArrowDropDown, matCheckBox, matDisabledByDefault, matExtension, matHelp, matHome, matSettings, matTerminal, matViewTimeline } from '@quasar/extras/material-icons';
+import {
+  mdiAccount,
+  mdiAccountMultipleOutline,
+  mdiBellOutline,
+  mdiCheckerboard,
+  mdiCogOutline,
+  mdiHelpBoxOutline,
+  mdiHomeAccount,
+  mdiLogout,
+  mdiPlaySpeed,
+  mdiVectorDifference,
+} from '@quasar/extras/mdi-v7';
+import { matArrowDropDown, matCheckBox, matDisabledByDefault, matExtension, matHelp, matHome, matSettings, matTerminal, matViewTimeline } from '@quasar/extras/material-icons';
 
 const { style } = dom;
 const headerHeight = ref('0px');

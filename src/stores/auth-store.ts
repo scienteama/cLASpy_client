@@ -1,13 +1,13 @@
 import { defineStore } from 'pinia';
 import { useQuasar } from 'quasar';
 import { authService } from 'src/services/auth.service';
-import type { LoginDto } from 'src/types/auth.type';
 import { useUserStore } from './users-store';
 import { ref } from 'vue';
-import type { User } from 'src/types/users.type';
 import { useConfigStore } from './config-store';
 import { createWebsocket, registerWSHandler } from 'src/services/websocket.service';
 import { useFilesStore } from './files-store';
+import { type LoginDto } from 'src/models/types/auth.type';
+import { type User } from 'src/models/types/users.type';
 
 export const useAuth = defineStore('auth', () => {
   const $q = useQuasar();

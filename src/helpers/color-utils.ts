@@ -1,4 +1,4 @@
-import type { HSL } from 'src/types/global.types';
+import type { HSL } from 'src/models/types/global.types';
 
 /**
  * Convertit une couleur hexadécimale en HSL.
@@ -180,7 +180,6 @@ export const glossyStyle = `linear-gradient(
     rgba(0, 0, 0, 0.12) 51%,
     rgba(0, 0, 0, 0.04)
   )`;
-
 
 export function invertColor(hex: string) {
   hex = hex.replace('#', '');

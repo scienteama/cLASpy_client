@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { AxiosError, AxiosProgressEvent } from 'axios';
-import { type ErrorResponse, isAxiosErrorResponse } from 'src/types/api.type';
-import type { FileModel, ModelFile, PointCloudFile } from 'src/types/files.type';
+import { type ErrorResponse, isAxiosErrorResponse } from 'src/models/types/api.type';
+import type { FileModel, ModelFile, PointCloudFile } from 'src/models/types/files.type';
 import { defineStore, storeToRefs } from 'pinia';
 import { trainerService } from 'src/services/training.service';
 import { computed, ref, watch } from 'vue';
 import { useFilesStore } from './files-store';
 import { useQuasar } from 'quasar';
-import type { TrainParameters } from 'src/types/trainer/train.types';
+import type { TrainParameters } from 'src/models/types/ml/train.types';
 import { useNotifier } from 'src/composables/notifier';
 import FullScreenSpinner from 'src/components/tools/FullScreenSpinner.vue';
 import ConfirmDialog from 'src/components/tools/ConfirmDialog.vue';

@@ -24,10 +24,3 @@ export interface Role {
   created_at: string;
   updated_at: string;
 }
-
-export enum UserRoleEnum {
-  ADMIN = 1, // Accès complet
-  POWER_USER = 2, // Utilisateur avancé
-  STANDARD_USER = 3, // Utilisateur normal
-  READ_ONLY = 4, // Consultation uniquement
-}

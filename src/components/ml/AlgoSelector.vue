@@ -229,8 +229,8 @@
 </template>
 
 <script setup lang="ts">
-import type { TrainParameters } from 'src/types/trainer/train.types';
-import type { AlgoParameter, AlgoParameters, SklearnAlgorithmName, SklearnAlgorithmParams } from 'src/types/trainer/algorithms.types';
+import type { TrainParameters } from 'src/models/types/ml/train.types';
+import type { AlgoParameter, AlgoParameters, SklearnAlgorithmName, SklearnAlgorithmParams } from 'src/models/types/ml/algorithms.types';
 import { storeToRefs } from 'pinia';
 import { QCard, QCheckbox, type QForm, QInput, QSelect, type QTableColumn, QTooltip, useQuasar } from 'quasar';
 import { isInvalid, NumericInputRule, ratioRules } from 'src/helpers/validation/rules';

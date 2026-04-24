@@ -1,8 +1,9 @@
 import { defineStore } from 'pinia';
 import { useQuasar } from 'quasar';
 import { userService } from 'src/services/users.service';
-import { type UserIn, UserRoleEnum, type User } from 'src/types/users.type';
+import { type UserIn, type User } from 'src/models/types/users.type';
 import { ref, computed } from 'vue';
+import { MapUserRoleEnum, UserRoleEnum } from 'src/models/enums/roles';
 
 export const useUserStore = defineStore(
   'user',
@@ -96,17 +97,30 @@ export const useUserStore = defineStore(
 
     const getAllowedRoles = computed(() => {
       const role = currentUser.value?.role_id;
+      const roles: { id: number; name: string }[] = [];
+
+      const addRole = (roleId: number) => {
+        const name = MapUserRoleEnum.get(roleId);
+        if (name) roles.push({ id: roleId, name });
+      };
 
       switch (role) {
         case UserRoleEnum.ADMIN:
-          return [UserRoleEnum.ADMIN, UserRoleEnum.POWER_USER, UserRoleEnum.STANDARD_USER, UserRoleEnum.READ_ONLY];
+          addRole(UserRoleEnum.ADMIN);
+          addRole(UserRoleEnum.POWER_USER);
+          addRole(UserRoleEnum.STANDARD_USER);
+          addRole(UserRoleEnum.READ_ONLY);
+          break;
         case UserRoleEnum.POWER_USER:
-          return [UserRoleEnum.STANDARD_USER, UserRoleEnum.READ_ONLY];
+          addRole(UserRoleEnum.STANDARD_USER);
+          addRole(UserRoleEnum.READ_ONLY);
+          break;
         case UserRoleEnum.STANDARD_USER:
-          return [UserRoleEnum.READ_ONLY];
-        default:
-          return [];
+          addRole(UserRoleEnum.READ_ONLY);
+          break;
       }
+
+      return roles;
     });
 
     return {

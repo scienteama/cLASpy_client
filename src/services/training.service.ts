@@ -1,8 +1,8 @@
 import { api } from 'src/boot/axios';
-import type { WorkDone } from 'src/types/api.type';
-import type { ModelFile, PointCloudFile, UploadFileParams } from 'src/types/files.type';
-import type { SklearnAlgorithmName, SklearnAlgorithmParams } from 'src/types/trainer/algorithms.types';
-import type { TrainParameters } from 'src/types/trainer/train.types';
+import type { WorkDone } from 'src/models/types/api.type';
+import type { ModelFile, PointCloudFile, UploadFileParams } from 'src/models/types/files.type';
+import type { SklearnAlgorithmName, SklearnAlgorithmParams } from 'src/models/types/ml/algorithms.types';
+import type { TrainParameters } from 'src/models/types/ml/train.types';
 
 /**
  * Claspy Trainer Service

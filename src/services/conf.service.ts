@@ -1,5 +1,5 @@
 import { api } from 'src/boot/axios';
-import type { ApiSettings, WorkDone } from 'src/types/api.type';
+import type { ApiSettings, WorkDone } from 'src/models/types/api.type';
 import { transformToCamelCase } from 'src/helpers/global-utils';
 
 /**
