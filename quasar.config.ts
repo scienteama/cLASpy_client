@@ -2,7 +2,7 @@ import { defineConfig } from '#q-app/wrappers';
 
 export default defineConfig(() => {
   return {
-    boot: ['axios', 'plugin-loader'],
+    boot: ['axios', 'plugin-loader', 'load-handlers'],
     css: ['app.scss'],
     extras: ['roboto-font', 'material-icons'],
 
@@ -55,7 +55,7 @@ export default defineConfig(() => {
     devServer: {
       https: true,
       port: 8081,
-      open: true,
+      open: false,
       proxy: {
         '/api': {
           target: 'https://localhost:5000',

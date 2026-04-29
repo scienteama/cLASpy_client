@@ -22,6 +22,14 @@ export const useFilesStore = defineStore('files', () => {
   const currentFolderDisplayPath = ref<string[]>([]);
   const loading = ref(false);
 
+  const rootTreeSize = computed(() => {
+    if (!rootTree.value) return 0;
+    if ('size_bytes' in rootTree.value) {
+      return rootTree.value.size_bytes as number;
+    }
+    return 0;
+  });
+
   // --- État upload ---
   const fileUploadProgress = ref<FileUploadProgress>({
     percent: 0,
@@ -289,6 +297,7 @@ export const useFilesStore = defineStore('files', () => {
     rows,
     canGoBack,
     fileUploadProgress,
+    rootTreeSize,
     reloadRoot,
     goToHome,
     goBack,

@@ -226,7 +226,6 @@ import { getUserInitials } from 'src/helpers/global-utils';
 import { useAuth } from 'src/stores/auth-store';
 import { useRouter } from 'vue-router';
 import { useNavigation } from 'src/composables/navigation';
-import { websocketService } from 'src/services/websocket.service';
 import {
   mdiAccount,
   mdiAccountMultipleOutline,
@@ -240,6 +239,7 @@ import {
   mdiVectorDifference,
 } from '@quasar/extras/mdi-v7';
 import { matArrowDropDown, matCheckBox, matDisabledByDefault, matExtension, matHelp, matHome, matSettings, matTerminal, matViewTimeline } from '@quasar/extras/material-icons';
+import { socketClient } from 'src/services/socket.service';
 
 const { style } = dom;
 const headerHeight = ref('0px');
@@ -252,7 +252,7 @@ const { currentUser } = useUserStore();
 const { userLogout } = useAuth();
 const router = useRouter();
 
-const wsState = computed(() => websocketService?.getState().isConnected);
+const wsState = computed(() => socketClient.getState().isConnected);
 
 const fileUploadProgress = computed(() => fileStore.fileUploadProgress);
 const availableML = computed(() => plugins.value.some((p) => p.name === 'claspy_ml' && p.enable));

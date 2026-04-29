@@ -23,57 +23,18 @@
     <div class="row q-gutter-md q-mb-md">
       <TaskRunner v-if="isAdmin && taskrunner?.enable" class="col-md-5 bg-white" />
 
-      <q-card flat bordered class="col-md-5 bg-white">
+      <q-card flat bordered :class="isAdmin ? 'col-md-2' : 'col-md-4' + ' bg-white'" style="height: 150px">
         <q-card-section>
-          <div class="text-subtitle1">Autre widget</div>
-          <q-item>
-            <q-item-section avatar>
-              <q-skeleton type="QAvatar" />
-            </q-item-section>
-
-            <q-item-section>
-              <q-item-label>
-                <q-skeleton type="text" />
-              </q-item-label>
-              <q-item-label caption>
-                <q-skeleton type="text" width="65%" />
-              </q-item-label>
-            </q-item-section>
-          </q-item>
-
-          <q-item>
-            <q-item-section avatar>
-              <q-skeleton type="QAvatar" />
-            </q-item-section>
-
-            <q-item-section>
-              <q-item-label>
-                <q-skeleton type="text" />
-              </q-item-label>
-              <q-item-label caption>
-                <q-skeleton type="text" width="90%" />
-              </q-item-label>
-            </q-item-section>
-          </q-item>
+          <div class="text-subtitle1 text-weight-medium q-mb-sm">
+            {{ isAdmin ? 'Espace disque' : 'Espace personnel' }}
+          </div>
+          <SpaceUsed />
         </q-card-section>
       </q-card>
 
-      <q-card flat bordered class="col-md bg-white self-center">
+      <q-card flat bordered class="col-md bg-white self-start" style="height: 150px">
         <HourDate />
       </q-card>
-
-      <!-- <q-card flat bordered class="col-12 col-md-3 bg-white">
-        <q-card-section>
-          <div class="text-subtitle1">Espace disque utilisé</div>
-          <q-linear-progress
-            color="green"
-            track-color="grey-3"
-            :value='0.65'
-            class="q-mt-sm"
-          />
-          <div class="text-caption text-grey-7 q-mt-xs">65% utilisé</div>
-        </q-card-section>
-      </q-card> -->
     </div>
 
     <!-- FileExplorer -->
@@ -103,6 +64,7 @@ import { storeToRefs } from 'pinia';
 import FileExplorer from 'src/components/files/FileExplorer.vue';
 import TaskRunner from 'src/components/widgets/TaskRunner.vue';
 import HourDate from 'src/components/widgets/HourDate.vue';
+import SpaceUsed from 'src/components/widgets/SpaceUsed.vue';
 import { useConfigStore } from 'src/stores/config-store';
 import { useUserStore } from 'src/stores/users-store';
 import { computed, ref } from 'vue';
@@ -111,8 +73,10 @@ import { invertColor } from 'src/helpers/color-utils';
 
 const userStore = useUserStore();
 const { currentUser, isAdmin } = storeToRefs(userStore);
+
 const configStore = useConfigStore();
 const { computedStyle } = storeToRefs(configStore);
+
 const showFileExplorer = ref(true);
 const pluginStore = usePluginStore();
 

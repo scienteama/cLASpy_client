@@ -4,10 +4,9 @@ import { authService } from 'src/services/auth.service';
 import { useUserStore } from './users-store';
 import { ref } from 'vue';
 import { useConfigStore } from './config-store';
-import { createWebsocket, registerWSHandler } from 'src/services/websocket.service';
-import { useFilesStore } from './files-store';
 import { type LoginDto } from 'src/models/types/auth.type';
 import { type User } from 'src/models/types/users.type';
+import { socketClient } from 'src/services/socket.service';
 
 export const useAuth = defineStore('auth', () => {
   const $q = useQuasar();
@@ -16,17 +15,11 @@ export const useAuth = defineStore('auth', () => {
   const isAuthenticated = ref(false);
   const checked = ref(false);
 
-  async function initialize() {
+  async function checkSession() {
     if (checked.value) return;
     try {
       const session = await authService.checkSession();
       isAuthenticated.value = session.data['isAuthenticated']!;
-      if (isAuthenticated.value) {
-        createWebsocket();
-        registerWSHandler('ml_task_done', async () => {
-          await useFilesStore().reloadRoot();
-        });
-      }
     } catch {
       isAuthenticated.value = false;
     } finally {
@@ -46,14 +39,8 @@ export const useAuth = defineStore('auth', () => {
       await configStore.initStore();
       if (me != null) {
         isAuthenticated.value = true;
-
-        // Connexion WebSocket
-        createWebsocket();
-        // Enregistrement handler ML task
-        registerWSHandler('ml_task_done', async () => {
-          await useFilesStore().reloadRoot();
-        });
-
+        await userStore.init();
+        socketClient.connect();
         return me;
       } else {
         $q.notify({ type: 'negative', message: 'Erreur lors du chargement du profil.' });
@@ -70,6 +57,7 @@ export const useAuth = defineStore('auth', () => {
     const result = await authService.logout();
     if (result.isOk) {
       userStore.clearUser();
+      socketClient.close();
       isAuthenticated.value = false;
       $q.notify({ type: 'positive', message: 'Déconnexion réussie' });
       return true;
@@ -82,7 +70,7 @@ export const useAuth = defineStore('auth', () => {
   return {
     isAuthenticated,
     checked,
-    initialize,
+    checkSession,
     userLogin,
     userLogout,
   };

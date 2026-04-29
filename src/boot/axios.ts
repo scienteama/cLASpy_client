@@ -7,7 +7,7 @@ import { useAuth } from 'src/stores/auth-store';
 import { isAxiosErrorResponse } from 'src/models/types/api.type';
 
 export const api_url = import.meta.env.VITE_API_URL || 'https://localhost:5000/api';
-export const wss_url = import.meta.env.VITE_WSS_URL || 'wss://localhost:8081/api/events/ws'; // proxy configuré pour rediriger vers le backend
+export const socket_url = import.meta.env.VITE_WSS_URL || 'https://localhost:5000';
 
 const api = axios.create({
   baseURL: api_url,

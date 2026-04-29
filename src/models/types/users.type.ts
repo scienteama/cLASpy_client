@@ -21,6 +21,7 @@ export interface Role {
   id: number;
   name: string;
   description: string;
+  maxSpace: number;
   created_at: string;
   updated_at: string;
 }

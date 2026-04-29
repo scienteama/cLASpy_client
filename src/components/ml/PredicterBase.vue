@@ -145,7 +145,6 @@ async function sendUploadModelEvent() {
   if (!modelToUpload.value) return;
   try {
     const res = await filesStore.uploadFile(modelToUpload.value);
-    console.log(res);
     if (res) {
       mlStore.uploadedModelName = res.name;
     }

@@ -1,16 +1,20 @@
 import { defineStore } from 'pinia';
 import { useQuasar } from 'quasar';
 import { userService } from 'src/services/users.service';
-import { type UserIn, type User } from 'src/models/types/users.type';
+import { type UserIn, type User, type Role } from 'src/models/types/users.type';
 import { ref, computed } from 'vue';
 import { MapUserRoleEnum, UserRoleEnum } from 'src/models/enums/roles';
+import { roleService } from 'src/services/roles.service';
 
 export const useUserStore = defineStore(
   'user',
   () => {
     const $q = useQuasar();
     const currentUser = ref<User | null>(null);
+    const currentRole = computed(() => roles.value.find((f) => f.id == currentUser.value?.role_id));
+
     const users = ref<User[]>([]);
+    const roles = ref<Role[]>([]);
     const isLoggedIn = computed(() => !!currentUser.value);
 
     const isAdmin = computed(() => currentUser.value?.role_id == UserRoleEnum.ADMIN);
@@ -24,6 +28,10 @@ export const useUserStore = defineStore(
      * - POWER_USER : accès avancé (édition, gestion restreinte)
      */
     const isPrivileged = computed(() => [UserRoleEnum.ADMIN, UserRoleEnum.POWER_USER].includes(currentUser.value?.role_id ?? 0));
+
+    async function init() {
+      await getAllRoles();
+    }
 
     async function updateUser(userId: number, partial: Partial<User>) {
       if (!isAdmin.value) {
@@ -69,6 +77,11 @@ export const useUserStore = defineStore(
     async function getAllUsers() {
       const res = await userService.getAllUsers();
       if (res.isOk) users.value = res.data;
+    }
+
+    async function getAllRoles() {
+      const res = await roleService.getAllRoles();
+      if (res.isOk) roles.value = res.data;
     }
 
     async function getById(userId: number) {
@@ -125,6 +138,8 @@ export const useUserStore = defineStore(
 
     return {
       currentUser,
+      currentRole,
+      roles,
       users,
       isLoggedIn,
       isAdmin,
@@ -141,6 +156,7 @@ export const useUserStore = defineStore(
       getAllUsers,
       getMe,
       clearUser,
+      init,
     };
   },
   {
