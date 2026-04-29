@@ -2,7 +2,7 @@ import { defineConfig } from '#q-app/wrappers';
 
 export default defineConfig(() => {
   return {
-    boot: ['axios', 'plugin-loader', 'load-handlers'],
+    boot: ['axios', 'plugin-loader', 'init-socket'],
     css: ['app.scss'],
     extras: ['roboto-font', 'material-icons'],
 
