@@ -242,7 +242,7 @@ function confirmDelete(user: User) {
       message: `
         <div style="color: #333;">
           <p>Êtes-vous sûr de vouloir supprimer cet utilisateur ?</p>
-          <p class="text-bold text-accent">N ° ${user.firstname} ${user.lastname}</p>
+          <p class="text-bold text-accent">${user.firstname} ${user.lastname}</p>
           <p class="text-negative">Cette action est <strong>irréversible</strong> et supprimera également les fichiers et données associés à cet utilisateur :<br/>
         </div>`,
       confirmLabel: 'Confirmer',

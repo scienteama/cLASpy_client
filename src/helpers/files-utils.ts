@@ -1,6 +1,9 @@
 import { farFile, farFileAudio, farFileExcel, farFileImage, farFileLines, farFilePdf, farFilePowerpoint, farFileVideo, farFileWord, farFolder, farFolderOpen } from '@quasar/extras/fontawesome-v6';
 import { mdiDataMatrix, mdiFileCog } from '@quasar/extras/mdi-v7';
+import { storeToRefs } from 'pinia';
+import { useNotifier } from 'src/composables/notifier';
 import type { FileModel, FolderModel } from 'src/models/types/files.type';
+import { useUserStore } from 'src/stores/users-store';
 
 /**
  * Retourne l’icône associée à un type MIME de fichier.
@@ -233,4 +236,22 @@ export function downloadFile(name: string, content: string) {
 export function downloadJSON(o: object, filename: string) {
   const json = JSON.stringify(o, null, 2);
   downloadFile(`${filename}.json`, json);
+}
+
+export function checkFileSize(file: File) {
+  if (!file) return false
+
+  const $n = useNotifier();
+  const userStore = useUserStore();
+  const { maxDiskSpace, spaceDiskUsed } = storeToRefs(userStore);
+
+  const available = maxDiskSpace.value - spaceDiskUsed.value
+
+  const ok = file.size <= available
+
+  if (!ok) {
+    $n.notifyWarning("L'espace disque est insuffisant pour ce fichier.")
+  }
+
+  return ok
 }

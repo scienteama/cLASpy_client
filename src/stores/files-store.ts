@@ -189,6 +189,7 @@ export const useFilesStore = defineStore('files', () => {
         fileUploadProgress.value.percent = 1;
         fileUploadProgress.value.color = 'green-4';
         await refreshCurrentFolder();
+        await userStore.getMe();
         $q.notify({ type: 'positive', message: res.result || 'Fichier uploadé avec succès.' });
         return res.data;
       } else {
@@ -253,6 +254,7 @@ export const useFilesStore = defineStore('files', () => {
       const res = await fileService.removeFileOrDir(id);
       if (res.isOk) {
         await refreshCurrentFolder();
+        await userStore.getMe();
         $q.notify({ type: 'positive', message: 'Supprimé.' });
       } else {
         $q.notify({ type: 'negative', message: 'Échec de la suppression.' });
@@ -267,6 +269,7 @@ export const useFilesStore = defineStore('files', () => {
       const res = await fileService.deleteItems(ids);
       if (res.isOk) {
         await refreshCurrentFolder();
+        await userStore.getMe();
         $q.notify({ type: 'positive', message: 'Éléments supprimés.' });
       } else {
         $q.notify({ type: 'negative', message: 'Échec de la suppression.' });

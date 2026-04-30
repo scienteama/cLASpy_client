@@ -25,8 +25,13 @@
 
       <q-card flat bordered :class="isAdmin ? 'col-md-2' : 'col-md-4' + ' bg-white'" style="height: 150px">
         <q-card-section>
-          <div class="text-subtitle1 text-weight-medium q-mb-sm">
-            {{ isAdmin ? 'Espace disque' : 'Espace personnel' }}
+          <div class="text-subtitle1 text-weight-medium q-mb-sm row items-center justify-between">
+            <div class="col">{{ isAdmin ? 'Espace disque' : 'Espace personnel' }}</div>
+            <div class="col-auto">
+              <q-btn flat dense :icon="matRefresh" color="primary" @click="userStore.getMe()">
+                <q-tooltip>Rafraîchir</q-tooltip>
+              </q-btn>
+            </div>
           </div>
           <SpaceUsed />
         </q-card-section>
@@ -70,6 +75,7 @@ import { useUserStore } from 'src/stores/users-store';
 import { computed, ref } from 'vue';
 import { usePluginStore } from 'src/stores/plugins-store';
 import { invertColor } from 'src/helpers/color-utils';
+import { matRefresh } from '@quasar/extras/material-icons';
 
 const userStore = useUserStore();
 const { currentUser, isAdmin } = storeToRefs(userStore);

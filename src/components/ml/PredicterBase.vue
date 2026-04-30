@@ -97,6 +97,7 @@ import { matCloudUpload } from '@quasar/extras/material-icons';
 import { useMLStore } from 'src/stores/ml-store';
 import { useFilesStore } from 'src/stores/files-store';
 import { farFile } from '@quasar/extras/fontawesome-v7';
+import { checkFileSize } from 'src/helpers/files-utils';
 
 const route = useRoute();
 const router = useRouter();
@@ -143,6 +144,7 @@ async function sendUploadEvent() {
 
 async function sendUploadModelEvent() {
   if (!modelToUpload.value) return;
+  if (!checkFileSize(modelToUpload.value)) return
   try {
     const res = await filesStore.uploadFile(modelToUpload.value);
     if (res) {

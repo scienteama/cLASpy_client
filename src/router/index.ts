@@ -2,6 +2,7 @@ import { defineRouter } from '#q-app/wrappers';
 import { createMemoryHistory, createRouter, createWebHashHistory, createWebHistory } from 'vue-router';
 import routes from './routes';
 import { useAuth } from 'src/stores/auth-store';
+import { useUserStore } from 'src/stores/users-store';
 
 /*
  * If not building with SSR mode, you can
@@ -27,6 +28,7 @@ export default defineRouter(function (/* { store, ssrContext } */) {
 
   Router.beforeEach(async (to, from, next) => {
     const auth = useAuth();
+    const user = useUserStore();
 
     if (!to.meta?.requiresAuth) {
       next();
@@ -45,6 +47,9 @@ export default defineRouter(function (/* { store, ssrContext } */) {
     if (!auth.isAuthenticated) {
       next('/auth/login');
       return;
+    }
+    else{
+      await user.init();
     }
 
     next();

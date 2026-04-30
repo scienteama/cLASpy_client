@@ -13,6 +13,22 @@ export const useUserStore = defineStore(
     const currentUser = ref<User | null>(null);
     const currentRole = computed(() => roles.value.find((f) => f.id == currentUser.value?.role_id));
 
+    const maxDiskSpace = computed(() => {
+      if (!currentRole.value) return 0;
+
+      const ADMIN_ID = Number(UserRoleEnum.ADMIN);
+      if (currentRole.value.id !== ADMIN_ID) {
+        return currentRole.value.maxSpace;
+      }
+
+      return Infinity;
+    });
+
+    const spaceDiskUsed = computed(() => {
+      if (!currentUser.value) return 0;
+      return currentUser.value.storage.storage_used_bytes;
+    })
+
     const users = ref<User[]>([]);
     const roles = ref<Role[]>([]);
     const isLoggedIn = computed(() => !!currentUser.value);
@@ -148,6 +164,8 @@ export const useUserStore = defineStore(
       readOnly,
       isPrivileged,
       getAllowedRoles,
+      maxDiskSpace,
+      spaceDiskUsed,
       updateUser,
       addUser,
       deleteUser,

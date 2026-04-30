@@ -42,6 +42,7 @@ import { storeToRefs } from 'pinia';
 import { matCloudUpload } from '@quasar/extras/material-icons';
 import { farFile, fasPaperclip } from '@quasar/extras/fontawesome-v6';
 import { useMLStore } from 'src/stores/ml-store';
+import { checkFileSize } from 'src/helpers/files-utils';
 
 const props = defineProps({
   isTrainMode: { type: Boolean, default: false },
@@ -87,8 +88,11 @@ function updateFile(newFile: File | null) {
   file.value = newFile;
 }
 
+
 async function upload() {
   if (!file.value) return;
+
+  if (!checkFileSize(file.value)) return
 
   try {
     if (!props.isTrainMode && !props.isPredictMode) {

@@ -12,12 +12,15 @@ import { useNotifier } from 'src/composables/notifier';
 import FullScreenSpinner from 'src/components/tools/FullScreenSpinner.vue';
 import ConfirmDialog from 'src/components/tools/ConfirmDialog.vue';
 import { farFile } from '@quasar/extras/fontawesome-v6';
+import { useUserStore } from './users-store';
+import { checkFileSize } from 'src/helpers/files-utils';
 
 export const useMLStore = defineStore('ml', () => {
   /* Stores */
   const $q = useQuasar();
   const $n = useNotifier();
   const filesStore = useFilesStore();
+  const userStore = useUserStore();
   const { fileUploadProgress, currentFolder } = storeToRefs(filesStore);
 
   /* State */
@@ -133,6 +136,8 @@ export const useMLStore = defineStore('ml', () => {
   async function uploadPointCloudFile(): Promise<void> {
     if (!fileToUpload.value) return;
 
+    if (!checkFileSize(fileToUpload.value)) return
+
     fileUploadProgress.value = {
       percent: 0,
       color: 'green-2',
@@ -185,6 +190,7 @@ export const useMLStore = defineStore('ml', () => {
         uploadedFileName.value = res.data.name;
         markUploadDone();
         await filesStore.refreshCurrentFolder();
+        await userStore.getMe();
       } else {
         throw new Error(res.result || 'Erreur upload.');
       }
