@@ -33,15 +33,13 @@ const { rootTreeSize } = storeToRefs(fileStore);
 const userStore = useUserStore();
 const { maxDiskSpace, isAdmin, spaceDiskUsed } = storeToRefs(userStore);
 
-
-
 const percentage = computed(() => {
   if (!isFinite(maxDiskSpace.value)) return 0;
     return spaceDiskUsed.value / maxDiskSpace.value;
 });
 
 const freeSpace = computed(() => {
-  return maxDiskSpace.value - spaceDiskUsed.value;
+  return Math.max(0, maxDiskSpace.value - spaceDiskUsed.value);
 });
 
 const isNearLimit = computed(() => percentage.value > 0.7);
