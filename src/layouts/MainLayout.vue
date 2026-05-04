@@ -1,5 +1,5 @@
 <template>
-  <q-layout class="bg-grey-1" view="lHh lpR fFf" style="height: 100vh; overflow: hidden">
+  <q-layout class="bg-grey-1" view="lHh lpR lFf" style="height: 100vh; overflow: hidden">
     <q-drawer show-if-above side="left" bordered class="column no-wrap">
       <!-- Header Left Drawer -->
       <div class="text-center text-h4 text-white q-pa-sm q-mx-xs q-mt-xs glossy bg-grey-7 inset-shadow-down" :style="{ minHeight: headerHeight }">
@@ -129,7 +129,6 @@
             <q-tooltip> Upload en cours : {{ fileUploadProgress.speed }} Mo/s </q-tooltip>
           </q-badge>
 
-          <q-badge :color="wsState ? 'positive' : 'negative'" rounded size="md" />
           <q-btn v-if="$q.screen.gt.xs" dense flat round size="md" :icon="mdiBellOutline" />
 
           <!-- <q-btn v-if="$q.screen.gt.xs" dense flat>
@@ -203,6 +202,12 @@
       </q-toolbar>
     </q-header>
 
+    <q-footer reveal elevated class="text-white glossy bg-claspy-dark1 row items-center justify-end">
+      <q-badge :color="wsState ? 'positive' : 'negative'" rounded :label="wsState ? 'actif' : 'inactif'" class="q-mr-sm" />
+      <q-separator vertical dark />
+      <SessionDuration :exp="exp" class="q-mr-sm q-ml-sm" />
+    </q-footer>
+
     <div class="fit overflow-auto" style="min-height: calc(100vh - headerHeight)">
       <q-page-container>
         <router-view />
@@ -218,6 +223,7 @@ import { dom, useQuasar } from 'quasar';
 import AnimatedBackground from 'src/components/animations/AnimatedBackground.vue';
 import FullScreenSpinner from 'src/components/tools/FullScreenSpinner.vue';
 import ConfirmDialog from 'src/components/tools/ConfirmDialog.vue';
+import SessionDuration from 'src/components/tools/SessionDuration.vue';
 import { useFilesStore } from 'src/stores/files-store';
 import { usePluginStore } from 'src/stores/plugins-store';
 import { storeToRefs } from 'pinia';
@@ -249,7 +255,7 @@ const { go, currentPath } = useNavigation();
 const fileStore = useFilesStore();
 const pluginStore = usePluginStore();
 const { currentUser } = useUserStore();
-const { userLogout } = useAuth();
+const { userLogout, exp } = useAuth();
 const router = useRouter();
 
 const wsState = computed(() => socketClient.getState().isConnected);

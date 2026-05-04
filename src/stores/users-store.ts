@@ -27,7 +27,7 @@ export const useUserStore = defineStore(
     const spaceDiskUsed = computed(() => {
       if (!currentUser.value) return 0;
       return currentUser.value.storage.storage_used_bytes;
-    })
+    });
 
     const users = ref<User[]>([]);
     const roles = ref<Role[]>([]);

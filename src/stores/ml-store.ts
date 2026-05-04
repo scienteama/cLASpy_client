@@ -136,7 +136,7 @@ export const useMLStore = defineStore('ml', () => {
   async function uploadPointCloudFile(): Promise<void> {
     if (!fileToUpload.value) return;
 
-    if (!checkFileSize(fileToUpload.value)) return
+    if (!checkFileSize(fileToUpload.value)) return;
 
     fileUploadProgress.value = {
       percent: 0,

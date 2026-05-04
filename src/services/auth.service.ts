@@ -1,5 +1,5 @@
 import { api } from 'src/boot/axios';
-import type { Dictionnary, WorkDone } from 'src/models/types/api.type';
+import type { AuthResponse, WorkDone } from 'src/models/types/api.type';
 
 /**
  * Centralise les appels API pour la gestion de l'authentification
@@ -16,8 +16,8 @@ class AuthService {
     return response.data;
   }
 
-  async checkSession(): Promise<WorkDone<Dictionnary<boolean>>> {
-    const response = await api.get<WorkDone<Dictionnary<boolean>>>('auth/check-session');
+  async checkSession(): Promise<WorkDone<AuthResponse>> {
+    const response = await api.get<WorkDone<AuthResponse>>('auth/check-session');
     return response.data;
   }
 }

@@ -43,12 +43,10 @@ export default defineRouter(function (/* { store, ssrContext } */) {
       }
     }
 
-
     if (!auth.isAuthenticated) {
       next('/auth/login');
       return;
-    }
-    else{
+    } else {
       await user.init();
     }
 

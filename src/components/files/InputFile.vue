@@ -88,11 +88,10 @@ function updateFile(newFile: File | null) {
   file.value = newFile;
 }
 
-
 async function upload() {
   if (!file.value) return;
 
-  if (!checkFileSize(file.value)) return
+  if (!checkFileSize(file.value)) return;
 
   try {
     if (!props.isTrainMode && !props.isPredictMode) {

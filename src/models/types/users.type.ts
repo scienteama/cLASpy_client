@@ -7,7 +7,7 @@ export interface User {
   updated_at: string;
   last_login?: string;
   role_id: number;
-  storage: UserStorage
+  storage: UserStorage;
 }
 
 export interface UserStorage {

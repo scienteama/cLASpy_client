@@ -239,19 +239,19 @@ export function downloadJSON(o: object, filename: string) {
 }
 
 export function checkFileSize(file: File) {
-  if (!file) return false
+  if (!file) return false;
 
   const $n = useNotifier();
   const userStore = useUserStore();
   const { maxDiskSpace, spaceDiskUsed } = storeToRefs(userStore);
 
-  const available = maxDiskSpace.value - spaceDiskUsed.value
+  const available = maxDiskSpace.value - spaceDiskUsed.value;
 
-  const ok = file.size <= available
+  const ok = file.size <= available;
 
   if (!ok) {
-    $n.notifyWarning("L'espace disque est insuffisant pour ce fichier.")
+    $n.notifyWarning("L'espace disque est insuffisant pour ce fichier.");
   }
 
-  return ok
+  return ok;
 }

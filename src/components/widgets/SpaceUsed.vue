@@ -14,7 +14,7 @@
         <span v-if="isAdmin" class="text-bold q-ml-sm">Illimité</span>
         <span v-else class="text-bold q-ml-sm">{{ formattedFree }}</span>
       </div>
-      <span v-if="!isAdmin && isNearLimit" :class="`text-${colorlabel.color}`">{{colorlabel.msg}}</span>
+      <span v-if="!isAdmin && isNearLimit" :class="`text-${colorlabel.color}`">{{ colorlabel.msg }}</span>
     </div>
   </div>
 </template>
@@ -35,7 +35,7 @@ const { maxDiskSpace, isAdmin, spaceDiskUsed } = storeToRefs(userStore);
 
 const percentage = computed(() => {
   if (!isFinite(maxDiskSpace.value)) return 0;
-    return spaceDiskUsed.value / maxDiskSpace.value;
+  return spaceDiskUsed.value / maxDiskSpace.value;
 });
 
 const freeSpace = computed(() => {
@@ -45,21 +45,20 @@ const freeSpace = computed(() => {
 const isNearLimit = computed(() => percentage.value > 0.7);
 const colorlabel = computed(() => {
   if (percentage.value >= 1) {
-    return {color:'negative', msg: " ⚠ Limite atteinte"}
+    return { color: 'negative', msg: ' ⚠ Limite atteinte' };
   } else if (percentage.value >= 0.9) {
-    return {color:'negative', msg: " ⚠ Limite presque atteinte"}
+    return { color: 'negative', msg: ' ⚠ Limite presque atteinte' };
   } else if (percentage.value >= 0.7) {
-    return {color:'warning', msg: " ⚠ Limite presque atteinte"}
+    return { color: 'warning', msg: ' ⚠ Limite presque atteinte' };
   } else {
-    return {color:'positive', msg:""}
+    return { color: 'positive', msg: '' };
   }
-})
+});
 
 const formattedUsed = computed(() => {
   if (isAdmin.value) {
     return formatFileSize(rootTreeSize.value);
-  }
-  else{
+  } else {
     return formatFileSize(spaceDiskUsed.value);
   }
 });

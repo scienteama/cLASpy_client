@@ -13,13 +13,19 @@ export const useAuth = defineStore('auth', () => {
   const userStore = useUserStore();
   const configStore = useConfigStore();
   const isAuthenticated = ref(false);
+  const exp = ref(0);
   const checked = ref(false);
 
   async function checkSession() {
     if (checked.value) return;
     try {
       const session = await authService.checkSession();
-      isAuthenticated.value = session.data['isAuthenticated']!;
+      if (session.isOk && session.data) {
+        isAuthenticated.value = session.data.isAuthenticated;
+        exp.value = session.data.exp;
+      } else {
+        isAuthenticated.value = false;
+      }
     } catch {
       isAuthenticated.value = false;
     } finally {
@@ -69,6 +75,7 @@ export const useAuth = defineStore('auth', () => {
 
   return {
     isAuthenticated,
+    exp,
     checked,
     checkSession,
     userLogin,

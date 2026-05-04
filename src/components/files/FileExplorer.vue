@@ -4,7 +4,7 @@
       <q-card-section class="text-h6">{{ titleName }}</q-card-section>
       <q-separator />
     </div>
-    
+
     <!-- Barre de navigation -->
     <q-card-section :class="'row items-center' + (showInput ? ' justify-between' : ' justify-start bg-grey-3 glossy text-white')" style="position: sticky; top: 0; z-index: 2">
       <q-btn flat dense :icon="matHome" color="primary" @click="goToHome">
@@ -433,14 +433,12 @@ function removeItem(item: { id: string; name: string; type: string }) {
     persistent: true,
   }).onOk(() => {
     deleteItem(item.id)
-    .then(() => {
-        selectedItems.value = selectedItems.value.filter(
-          (i) => i.id !== item.id
-        )
+      .then(() => {
+        selectedItems.value = selectedItems.value.filter((i) => i.id !== item.id);
       })
-    .catch((err) => {
-      $q.notify({ type: 'negative', message: err instanceof Error ? err.message : 'Erreur lors du renommage.' });
-    });
+      .catch((err) => {
+        $q.notify({ type: 'negative', message: err instanceof Error ? err.message : 'Erreur lors du renommage.' });
+      });
   });
 }
 
@@ -451,18 +449,17 @@ function removeItems() {
     componentProps: { title: 'Confirmation de suppression', message },
     persistent: true,
   }).onOk(() => {
-    const idsToDelete = selectedItems.value.map(item => item.id)
+    const idsToDelete = selectedItems.value.map((item) => item.id);
 
-    filesStore.deleteItems(idsToDelete)
+    filesStore
+      .deleteItems(idsToDelete)
       .then(() => {
-        const set = new Set(idsToDelete)
-        selectedItems.value = selectedItems.value.filter(
-          item => !set.has(item.id)
-        )
+        const set = new Set(idsToDelete);
+        selectedItems.value = selectedItems.value.filter((item) => !set.has(item.id));
       })
-    .catch((err) => {
-      $q.notify({ type: 'negative', message: err instanceof Error ? err.message : 'Erreur lors de la suppression.' });
-    });
+      .catch((err) => {
+        $q.notify({ type: 'negative', message: err instanceof Error ? err.message : 'Erreur lors de la suppression.' });
+      });
   });
 }
 

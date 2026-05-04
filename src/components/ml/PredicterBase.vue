@@ -144,7 +144,7 @@ async function sendUploadEvent() {
 
 async function sendUploadModelEvent() {
   if (!modelToUpload.value) return;
-  if (!checkFileSize(modelToUpload.value)) return
+  if (!checkFileSize(modelToUpload.value)) return;
   try {
     const res = await filesStore.uploadFile(modelToUpload.value);
     if (res) {

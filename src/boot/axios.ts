@@ -50,8 +50,7 @@ export default defineBoot(({ app, router }) => {
     }
   );
 
-  // pour accès global via this.$axios / this.$api
-  app.config.globalProperties.$axios = axios;
+  app.config.globalProperties.$axios = api;
   app.config.globalProperties.$api = api;
 });
 

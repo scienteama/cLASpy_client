@@ -8,6 +8,18 @@ export interface Dictionnary<T> {
   [key: string]: T;
 }
 
+export interface TokenData {
+  id: number;
+  email: string;
+  roleId: number;
+}
+
+export interface AuthResponse {
+  isAuthenticated: boolean;
+  exp: number;
+  sessionUserData?: TokenData;
+}
+
 export interface ErrorResponse {
   isOk: boolean;
   result: string;
