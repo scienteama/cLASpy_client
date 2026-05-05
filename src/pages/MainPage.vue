@@ -23,7 +23,7 @@
     <div class="row q-gutter-md q-mb-md">
       <TaskRunner v-if="isAdmin && taskrunner?.enable" class="col-md-5 bg-white" />
 
-      <q-card flat bordered :class="isAdmin ? 'col-md-2' : 'col-md-4' + ' bg-white'" style="height: 150px">
+      <q-card flat bordered :class="isAdmin ? 'col-md-2' : 'col-md-4' + ' bg-white'" style="height: 200px">
         <q-card-section>
           <div class="text-subtitle1 text-weight-medium q-mb-sm row items-center justify-between">
             <div class="col">{{ isAdmin ? 'Espace disque' : 'Espace personnel' }}</div>
@@ -37,7 +37,25 @@
         </q-card-section>
       </q-card>
 
-      <q-card flat bordered class="col-md bg-white self-start" style="height: 150px">
+      <q-card flat bordered class="col-auto bg-white" style="height: 200px">
+        <q-card-section>
+          <div class="text-subtitle1 text-weight-medium row items-center justify-between">
+            <div class="col">
+              {{ 'Performances : ' + (showRealTime && isAdmin ? 'temps réel' : '30 minutes') }}
+              <q-tooltip>Moyenne sur 30 minutes</q-tooltip>
+            </div>
+            <div class="col-auto">
+              <q-toggle v-if="isAdmin" class="cursor-pointer" v-model="showRealTime" color="primary" size="sm"> </q-toggle>
+              <q-btn flat dense :icon="matRefresh" color="primary" @click="metric.refreshMetricStore()">
+                <q-tooltip>Rafraîchir</q-tooltip>
+              </q-btn>
+            </div>
+          </div>
+        </q-card-section>
+        <MetricsStats :is-real-time="showRealTime" />
+      </q-card>
+
+      <q-card flat bordered class="col-md bg-white self-start" style="height: 200px">
         <HourDate />
       </q-card>
     </div>
@@ -70,13 +88,17 @@ import FileExplorer from 'src/components/files/FileExplorer.vue';
 import TaskRunner from 'src/components/widgets/TaskRunner.vue';
 import HourDate from 'src/components/widgets/HourDate.vue';
 import SpaceUsed from 'src/components/widgets/SpaceUsed.vue';
+import MetricsStats from 'src/components/widgets/MetricsStats.vue';
 import { useConfigStore } from 'src/stores/config-store';
 import { useUserStore } from 'src/stores/users-store';
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { usePluginStore } from 'src/stores/plugins-store';
 import { invertColor } from 'src/helpers/color-utils';
 import { matRefresh } from '@quasar/extras/material-icons';
+import { useMetricsStore } from 'src/stores/metrics-store';
+import { useAuth } from 'src/stores/auth-store';
 
+const auth = useAuth();
 const userStore = useUserStore();
 const { currentUser, isAdmin } = storeToRefs(userStore);
 
@@ -84,7 +106,9 @@ const configStore = useConfigStore();
 const { computedStyle } = storeToRefs(configStore);
 
 const showFileExplorer = ref(true);
+const showRealTime = ref(false);
 const pluginStore = usePluginStore();
+const metric = useMetricsStore();
 
 // Initiales pour avatar
 const currentUserInitials = computed(() => {
@@ -95,6 +119,10 @@ const currentUserInitials = computed(() => {
 });
 
 const taskrunner = computed(() => pluginStore.getByName('taskrunner'));
+
+onMounted(async () => {
+  await auth.checkSession();
+});
 </script>
 
 <style scoped>

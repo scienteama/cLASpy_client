@@ -13,3 +13,33 @@ export interface Point {
   dy?: number;
   fixed?: boolean;
 }
+
+export interface Metrics {
+  cpu: Processor;
+  ram: Memory;
+  disk: Disk;
+}
+
+export interface MetricPoint {
+  t: number;
+  v: number;
+}
+
+export interface Memory {
+  total: number;
+  used: number;
+  available: number;
+  percent: number;
+  free: number;
+}
+
+export interface Disk {
+  total: number;
+  used: number;
+  percent: number;
+  free: number;
+}
+
+export interface Processor {
+  percent: number;
+}
