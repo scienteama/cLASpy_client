@@ -6,8 +6,10 @@ import { Notify } from 'quasar';
 import { useAuth } from 'src/stores/auth-store';
 import { isAxiosErrorResponse } from 'src/models/types/api.type';
 
-export const api_url = import.meta.env.VITE_API_URL || 'https://localhost:5000/api';
-export const socket_url = import.meta.env.VITE_WSS_URL || 'https://localhost:5000';
+export const api_url = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+export const socket_url = import.meta.env.VITE_WSS_URL || 'http://localhost:5000';
+
+//export const socket_url = window.location.origin;
 
 const api = axios.create({
   baseURL: api_url,
@@ -16,6 +18,14 @@ const api = axios.create({
 
 export default defineBoot(({ app, router }) => {
   const auth = useAuth();
+
+  api.interceptors.request.use((config) => {
+    const token = localStorage.getItem('access_token');
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`;
+    }
+    return config;
+  });
 
   api.interceptors.response.use(
     (response) => response,

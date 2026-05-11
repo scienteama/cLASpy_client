@@ -39,8 +39,8 @@ export const useAuth = defineStore('auth', () => {
     credentials.append('password', params.password);
 
     const res = await authService.login(credentials);
-
     if (res.isOk) {
+      setToken(res.data.access_token);
       const me = await userStore.getMe();
       await configStore.initStore();
       if (me != null) {
@@ -71,6 +71,10 @@ export const useAuth = defineStore('auth', () => {
       $q.notify({ type: 'negative', message: 'Erreur lors de la déconnexion.' });
       return false;
     }
+  }
+
+  function setToken(token: string) {
+    localStorage.setItem('access_token', token);
   }
 
   return {

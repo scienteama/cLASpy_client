@@ -131,7 +131,7 @@ export default defineConfig(() => {
       // specify the debugging port to use for the Electron app when running in development mode
       inspectPort: 5858,
 
-      bundler: 'packager', // 'packager' or 'builder'
+      bundler: 'builder', // 'packager' or 'builder'
 
       packager: {
         // https://github.com/electron-userland/electron-packager/blob/master/docs/api.md#options
@@ -148,6 +148,32 @@ export default defineConfig(() => {
         // https://www.electron.build/configuration/configuration
 
         appId: 'claspy-client',
+        productName: 'cLASpy Client',
+        directories: {
+          buildResources: 'src-electron/icons',
+        },
+        asar: false,
+        icon: 'public/icons/favicon.ico',
+        forceCodeSigning: false,
+        win: {
+          target: [
+            {
+              target: 'nsis',
+              arch: ['x64'],
+            },
+            {
+              target: 'portable',
+              arch: ['x64'],
+            },
+          ],
+        },
+        nsis: {
+          oneClick: false,
+          allowToChangeInstallationDirectory: true,
+          createDesktopShortcut: true,
+          createStartMenuShortcut: true,
+          shortcutName: 'cLASpy Client',
+        },
       },
     },
 
