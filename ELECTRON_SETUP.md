@@ -14,6 +14,7 @@ yarn build:electron
 ```
 
 Les fichiers générés seront dans:
+
 - `dist/electron/Packaged/`
   - `cLASpy-Client-Setup-x.x.x.exe` - Installeur
   - `cLASpy-Client-x.x.x-portable.exe` - Version portable
@@ -54,5 +55,3 @@ const sendNotif = () => {
 
 En développement, l'app se connecte à `https://localhost:8081`.
 En production, assurez-vous que le backend est accessible.
-
-

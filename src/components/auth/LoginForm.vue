@@ -64,14 +64,17 @@ import ConfirmDialog from 'src/components/tools/ConfirmDialog.vue';
 import { formUserRules } from 'src/helpers/validation/rules';
 import { useAuth } from 'src/stores/auth-store';
 import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { matLock, matLockReset, matMail, matVisibility, matVisibilityOff } from '@quasar/extras/material-icons';
 
-const loginForm = ref<LoginDto>({ email: '', password: '' });
-const isPwd = ref(true);
 const $q = useQuasar();
 const auth = useAuth();
 const router = useRouter();
+const route = useRoute();
+
+const email = ref((route.query.email as string) || '');
+const loginForm = ref<LoginDto>({ email: email.value, password: '' });
+const isPwd = ref(true);
 
 async function onLogin() {
   const result = await auth.userLogin(loginForm.value);
@@ -102,14 +105,3 @@ function onReset() {
   }
 }
 </script>
-<style lang="scss" scoped>
-.bg-shadow-box {
-  background: rgba(0, 0, 0, 0.116);
-  border-radius: 10px;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  box-shadow:
-    rgba(50, 50, 93, 0.25) 0px 30px 60px -12px inset,
-    rgba(0, 0, 0, 0.3) 0px 18px 36px -18px inset;
-}
-</style>

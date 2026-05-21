@@ -14,7 +14,7 @@ export const useUserStore = defineStore(
     const currentUser = ref<User | null>(null);
     const currentRole = computed(() => roles.value.find((f) => f.id == currentUser.value?.role_id));
     const metricStore = useMetricsStore();
-    const {metrics} = storeToRefs(metricStore);
+    const { metrics } = storeToRefs(metricStore);
 
     const maxDiskSpace = computed(() => {
       if (!currentRole.value) return 0;
@@ -35,6 +35,7 @@ export const useUserStore = defineStore(
       return currentUser.value.storage.storage_used_bytes;
     });
 
+    const usersCount = computed(() => users.value.length);
     const users = ref<User[]>([]);
     const roles = ref<Role[]>([]);
     const isLoggedIn = computed(() => !!currentUser.value);
@@ -82,6 +83,11 @@ export const useUserStore = defineStore(
         users.value.push(res.data);
         $q.notify({ type: 'positive', message: res.result || 'Utilisateur créé avec succès' });
       }
+    }
+
+    async function createFirstUser(user: UserIn) {
+      const res = await userService.createFirstUser(user);
+      return res;
     }
 
     async function deleteUser(userId: number) {
@@ -163,6 +169,7 @@ export const useUserStore = defineStore(
       currentRole,
       roles,
       users,
+      usersCount,
       isLoggedIn,
       isAdmin,
       powerUser,
@@ -172,6 +179,7 @@ export const useUserStore = defineStore(
       getAllowedRoles,
       maxDiskSpace,
       spaceDiskUsed,
+      createFirstUser,
       updateUser,
       addUser,
       deleteUser,

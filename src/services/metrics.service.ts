@@ -10,7 +10,7 @@ class MetricsService {
 
   async getDiskInfos(): Promise<WorkDone<Disk>> {
     const result = await api.get<WorkDone<Disk>>('/metrics/disk/infos');
-    return result.data; 
+    return result.data;
   }
 
   async getMemoryHistory(): Promise<WorkDone<MetricPoint[]>> {

@@ -48,3 +48,7 @@ export interface ApiSettings {
   recoveryDir: string;
   defaultOutputDir: string;
 }
+
+export interface FirstLaunchStatus {
+  firstLaunchCompleted: boolean;
+}

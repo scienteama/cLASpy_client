@@ -6,7 +6,7 @@
           <q-avatar color="grey" rounded size="lg">
             <q-img :src="pythie" />
           </q-avatar>
-          cLASpy_Client
+          CLASPY_T
         </q-toolbar-title>
         <q-btn dense flat round :icon="mdiPaletteOutline" size="md" @click="chooseColor = true" />
         <q-btn dense flat round :icon="mdiPaletteAdvanced" outline size="md" class="q-ml-sm" @click="chooseTheme = true" />

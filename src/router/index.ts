@@ -3,6 +3,7 @@ import { createMemoryHistory, createRouter, createWebHashHistory, createWebHisto
 import routes from './routes';
 import { useAuth } from 'src/stores/auth-store';
 import { useUserStore } from 'src/stores/users-store';
+import { useConfigStore } from 'src/stores/config-store';
 
 /*
  * If not building with SSR mode, you can
@@ -26,31 +27,44 @@ export default defineRouter(function (/* { store, ssrContext } */) {
     history: createHistory(process.env.VUE_ROUTER_BASE),
   });
 
-  Router.beforeEach(async (to, from, next) => {
+  Router.beforeEach(async (to) => {
     const auth = useAuth();
     const user = useUserStore();
+    const config = useConfigStore();
 
-    if (!to.meta?.requiresAuth) {
-      next();
-      return;
+    const isFirstUserMode = config.setupStatus === false || config.setupStatus == null;
+
+    // Première utilisation
+    if (isFirstUserMode && to.name !== 'first-login') {
+      return { name: 'first-login' };
     }
 
-    if (!auth.checked) {
-      try {
-        await auth.checkSession();
-      } catch {
-        // None
+    // Redirection vers login si déjà configuré
+    if (!isFirstUserMode && to.name === 'first-login') {
+      return { name: 'login' };
+    }
+
+    // auth check
+    if (to.meta?.requiresAuth) {
+      if (!auth.checked) {
+        try {
+          await auth.checkSession();
+        } catch {
+          // None
+        }
       }
-    }
 
-    if (!auth.isAuthenticated) {
-      next('/auth/login');
-      return;
-    } else {
+      if (!auth.isAuthenticated) {
+        return {
+          name: 'login',
+          query: { email: user.currentUser?.email },
+        };
+      }
+
       await user.init();
     }
 
-    next();
+    return true;
   });
 
   return Router;

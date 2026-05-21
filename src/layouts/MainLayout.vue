@@ -1,9 +1,9 @@
 <template>
-  <q-layout class="bg-grey-1" view="lHh lpR lFf" style="height: 100vh; overflow: hidden">
+  <q-layout class="bg-grey-1" view="lHh lpR fFf" style="height: 100vh; overflow: hidden">
     <q-drawer show-if-above side="left" bordered class="column no-wrap">
       <!-- Header Left Drawer -->
       <div class="text-center text-h4 text-white q-pa-sm q-mx-xs q-mt-xs glossy bg-grey-7 inset-shadow-down" :style="{ minHeight: headerHeight }">
-        cLASpy_Client
+        CLASPY_T
         <!-- Shadow overlay -->
         <div class="drawer-header"></div>
       </div>
@@ -101,7 +101,7 @@
                 @click="go(item.path)"
                 :active="item.active"
                 active-class="bg-primary text-white"
-                :disable="item.label === 'Segmentation' || !availableML"
+                :disable="item.label === 'Segmentation'"
                 class="glossy"
               >
                 <q-item-section avatar>
@@ -261,7 +261,7 @@ const router = useRouter();
 const wsState = computed(() => socketClient.getState().isConnected);
 
 const fileUploadProgress = computed(() => fileStore.fileUploadProgress);
-const availableML = computed(() => plugins.value.some((p) => p.name === 'claspy_ml' && p.enable));
+//const availableML = computed(() => plugins.value.some((p) => p.name === 'claspy_ml' && p.enable));
 
 const mlMode = computed(() => {
   if (currentPath.value.startsWith('/ml/train')) return 'train';
@@ -286,7 +286,7 @@ const mlHeaders = computed(() => {
 const mlItems = computed(() => [
   { label: 'Entraînement', description: 'Entraîner un modèle de machine learning', path: '/ml/train', active: mlMode.value === 'train', icon: mdiCogOutline },
   { label: 'Prédiction', description: 'Effectuer des prédictions avec un modèle de machine learning', path: '/ml/predict', active: mlMode.value === 'predict', icon: mdiCheckerboard },
-  { label: 'Segmentation', description: 'A venir', path: '/ml/segment', active: mlMode.value === 'segment', icon: mdiVectorDifference },
+  // { label: 'Segmentation', description: 'A venir', path: '/ml/segment', active: mlMode.value === 'segment', icon: mdiVectorDifference },
 ]);
 
 const { plugins } = storeToRefs(pluginStore);
@@ -404,7 +404,7 @@ function disconnect() {
   }).onOk(() => {
     void (async () => {
       const res = await userLogout();
-      if (res) await router.push('/auth/login');
+      if (res) await router.push({ name: 'login', query: { email: currentUser?.email } });
     })();
   });
 }

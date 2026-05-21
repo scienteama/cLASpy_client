@@ -12,6 +12,11 @@ class UserService {
     return users.data;
   }
 
+  async getUsersCount(): Promise<WorkDone<number>> {
+    const count = await api.get<WorkDone<number>>('/users/count');
+    return count.data;
+  }
+
   async getUserById(userId: number): Promise<WorkDone<User>> {
     const user = await api.get<WorkDone<User>>(`/users/get-by-id/${userId}`);
     return user.data;
@@ -25,6 +30,11 @@ class UserService {
   async getCurrentUser(): Promise<WorkDone<User>> {
     const user = await api.get<WorkDone<User>>('/users/me');
     return user.data;
+  }
+
+  async createFirstUser(user: UserIn): Promise<WorkDone<User>> {
+    const createdUser = await api.post<WorkDone<User>>('/users/add-first', user);
+    return createdUser.data;
   }
 
   async addUser(newUser: UserIn): Promise<WorkDone<User>> {

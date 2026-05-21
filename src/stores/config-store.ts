@@ -12,6 +12,7 @@ export const useConfigStore = defineStore(
     const isLoading = ref(false);
     const currentTheme = ref<string[]>([]);
     const defaultThemes = ref(defaultPals);
+    const setupStatus = ref(false);
 
     const gradient = computed(() => `${glossyStyle}, linear-gradient(90deg, ${currentTheme.value.join(', ')})`);
     const sortedPal = computed(() => sortPaletteByBrightness(currentTheme.value));
@@ -20,6 +21,11 @@ export const useConfigStore = defineStore(
 
     async function initStore() {
       await getApiConfig();
+    }
+
+    async function getSetupStatus() {
+      const setup = await configService.getSetupStatus();
+      if (setup.isOk) setupStatus.value = setup.data.firstLaunchCompleted;
     }
 
     async function getApiConfig(force = false) {
@@ -38,7 +44,7 @@ export const useConfigStore = defineStore(
     function getThemeFromStorage() {
       const storedTheme = localStorage.getItem('theme');
       if (storedTheme) {
-        currentTheme.value = storedTheme.split(',').map(color => color.trim());
+        currentTheme.value = storedTheme.split(',').map((color) => color.trim());
       } else {
         currentTheme.value = [];
       }
@@ -50,12 +56,13 @@ export const useConfigStore = defineStore(
       }
     });
 
-
     return {
       apiSettings,
       currentTheme,
       defaultThemes,
       computedStyle,
+      setupStatus,
+      getSetupStatus,
       getApiConfig,
       getThemeFromStorage,
       initStore,
@@ -63,7 +70,7 @@ export const useConfigStore = defineStore(
   },
   {
     persist: {
-      pick: ['apiSettings'],
+      pick: ['apiSettings', 'setupStatus'],
     },
   }
 );
