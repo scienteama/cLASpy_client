@@ -3,18 +3,16 @@
     <div class="disk-usage__header">
       <div>
         Total utilisé :
-        <span v-if="isAdmin" class="text-bold q-ml-sm">{{ formattedUsed }}</span>
-        <span v-else class="text-bold q-ml-sm">{{ formattedUsed }} / {{ formattedMax }}</span>
+        <span class="text-bold q-ml-sm">{{ formattedUsed }} / {{ formattedMax }}</span>
       </div>
     </div>
-    <ProgressBar v-if="!isAdmin" :value="percentage" :color="colorlabel.color" size="20px" unit="%" :stripe="true" />
+    <ProgressBar :value="percentage" :color="colorlabel.color" size="20px" unit="%" :stripe="true" />
     <div class="disk-usage__footer">
       <div>
         Total restant :
-        <span v-if="isAdmin" class="text-bold q-ml-sm">Illimité</span>
-        <span v-else class="text-bold q-ml-sm">{{ formattedFree }}</span>
+        <span class="text-bold q-ml-sm">{{ formattedFree }}</span>
       </div>
-      <span v-if="!isAdmin && isNearLimit" :class="`text-${colorlabel.color}`">{{ colorlabel.msg }}</span>
+      <span v-if="isNearLimit" :class="`text-${colorlabel.color}`">{{ colorlabel.msg }}</span>
     </div>
   </div>
 </template>

@@ -43,6 +43,15 @@ export const useMetricsStore = defineStore('metrics', () => {
     }
   }
 
+  async function getDiskInfos() {
+    const res = await metricsService.getDiskInfos();
+    if (res.isOk && res.data) {
+      metrics.value.disk.total = res.data.total;
+      metrics.value.disk.used = res.data.used;
+      metrics.value.disk.free = res.data.free;
+    }
+  }
+
   async function getMemoryHistory() {
     const res = await metricsService.getMemoryHistory();
     if (res.isOk && res.data) {
@@ -51,7 +60,7 @@ export const useMetricsStore = defineStore('metrics', () => {
   }
 
   async function refreshMetricStore() {
-    await Promise.all([getCpuHistory(), getMemoryHistory()]);
+    await Promise.all([getCpuHistory(), getMemoryHistory(), getDiskInfos()]);
   }
 
   function startAutoRefresh(intervalMs = 300000) {

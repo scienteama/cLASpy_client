@@ -23,7 +23,7 @@
     <div class="row q-gutter-md q-mb-md">
       <TaskRunner v-if="isAdmin && taskrunner?.enable" class="col-md-5 bg-white" />
 
-      <q-card flat bordered :class="isAdmin ? 'col-md-2' : 'col-md-4' + ' bg-white'" style="height: 200px">
+      <q-card flat bordered class="col-md-4 bg-white'" style="height: 200px">
         <q-card-section>
           <div class="text-subtitle1 text-weight-medium q-mb-sm row items-center justify-between">
             <div class="col">{{ isAdmin ? 'Espace disque' : 'Espace personnel' }}</div>
