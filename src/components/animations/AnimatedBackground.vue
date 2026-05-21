@@ -202,8 +202,9 @@ watch(themePal, async () => {
 });
 
 onMounted(async () => {
-  if (baseTheme.value && currentTheme.value.length == 0) {
-    currentTheme.value = baseTheme.value;
+  configStore.getThemeFromStorage();
+  if (currentTheme.value.length == 0) {
+    currentTheme.value = baseTheme.value!;
   }
 
   await nextTick();

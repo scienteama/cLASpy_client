@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import { configService } from 'src/services/conf.service';
 import type { ApiSettings } from 'src/models/types/api.type';
 import { defaultPals, getTextColorForPalette, glossyStyle, sortPaletteByBrightness } from 'src/helpers/color-utils';
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 export const useConfigStore = defineStore(
   'config',
@@ -34,12 +34,30 @@ export const useConfigStore = defineStore(
         isLoading.value = false;
       }
     }
+
+    function getThemeFromStorage() {
+      const storedTheme = localStorage.getItem('theme');
+      if (storedTheme) {
+        currentTheme.value = storedTheme.split(',').map(color => color.trim());
+      } else {
+        currentTheme.value = [];
+      }
+    }
+
+    watch(currentTheme, () => {
+      if (currentTheme.value) {
+        localStorage.setItem('theme', currentTheme.value.join(','));
+      }
+    });
+
+
     return {
       apiSettings,
       currentTheme,
       defaultThemes,
       computedStyle,
       getApiConfig,
+      getThemeFromStorage,
       initStore,
     };
   },

@@ -122,47 +122,24 @@ export default defineConfig(() => {
       hideSplashscreen: true,
     },
     electron: {
-      // extendElectronMainConf (esbuildConf) {},
-      // extendElectronPreloadConf (esbuildConf) {},
-      // extendPackageJson (json) {},
-      // Electron preload scripts (if any) from /src-electron, WITHOUT file extension
       preloadScripts: ['electron-preload'],
-
       // specify the debugging port to use for the Electron app when running in development mode
       inspectPort: 5858,
-
-      bundler: 'builder', // 'packager' or 'builder'
-
-      packager: {
-        // https://github.com/electron-userland/electron-packager/blob/master/docs/api.md#options
-        // OS X / Mac App Store
-        // appBundleId: '',
-        // appCategoryType: '',
-        // osxSign: '',
-        // protocol: 'myapp://path',
-        // Windows only
-        // win32metadata: { ... }
-      },
-
+      bundler: 'builder',
       builder: {
-        // https://www.electron.build/configuration/configuration
-
         appId: 'claspy-client',
         productName: 'cLASpy Client',
         directories: {
           buildResources: 'src-electron/icons',
         },
-        asar: false,
-        icon: 'public/icons/favicon.ico',
+        asar: true,
+        compression: 'maximum',
         forceCodeSigning: false,
         win: {
+          icon: 'src-electron/icons/icon.ico',
           target: [
             {
               target: 'nsis',
-              arch: ['x64'],
-            },
-            {
-              target: 'portable',
               arch: ['x64'],
             },
           ],
@@ -171,7 +148,7 @@ export default defineConfig(() => {
           oneClick: false,
           allowToChangeInstallationDirectory: true,
           createDesktopShortcut: true,
-          createStartMenuShortcut: true,
+          createStartMenuShortcut: false,
           shortcutName: 'cLASpy Client',
         },
       },

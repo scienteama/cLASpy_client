@@ -65,6 +65,7 @@ export const useAuth = defineStore('auth', () => {
       userStore.clearUser();
       socketClient.close();
       isAuthenticated.value = false;
+      clearToken();
       $q.notify({ type: 'positive', message: 'Déconnexion réussie' });
       return true;
     } else {
@@ -75,6 +76,10 @@ export const useAuth = defineStore('auth', () => {
 
   function setToken(token: string) {
     localStorage.setItem('access_token', token);
+  }
+
+  function clearToken() {
+    localStorage.removeItem('access_token');
   }
 
   return {
