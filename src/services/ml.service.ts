@@ -2,13 +2,14 @@ import { api } from 'src/boot/axios';
 import type { WorkDone } from 'src/models/types/api.type';
 import type { ModelFile, PointCloudFile, UploadFileParams } from 'src/models/types/files.type';
 import type { SklearnAlgorithmName, SklearnAlgorithmParams } from 'src/models/types/ml/algorithms.types';
+import type { PredictParameters } from 'src/models/types/ml/predict.types';
 import type { TrainParameters } from 'src/models/types/ml/train.types';
 
 /**
  * Claspy Trainer Service
  */
 
-class TrainerService {
+class MLService {
   async loadPointCloudFile(params: UploadFileParams): Promise<WorkDone<PointCloudFile>> {
     const response = await api.post<WorkDone<PointCloudFile>>('/claspy_ml/load-data', params.data, {
       onUploadProgress: params.onUploadProgress ?? (() => {}),
@@ -45,6 +46,11 @@ class TrainerService {
     const response = await api.post<WorkDone<string>>('/claspy_ml/run-train', params);
     return response.data;
   }
+
+  async runPrediction(params: PredictParameters): Promise<WorkDone<string>> {
+    const response = await api.post<WorkDone<string>>('/claspy_ml/run-prediction', params);
+    return response.data;
+  }
 }
 
-export const trainerService = new TrainerService();
+export const mlService = new MLService();

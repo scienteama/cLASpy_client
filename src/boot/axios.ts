@@ -69,38 +69,34 @@ export default defineBoot(({ app, router }) => {
       if (error.code === 'ECONNREFUSED') {
         msg = 'Le serveur est inaccessible';
       } else if (error.code === 'ECONNABORTED') {
-
-      /*
-       * =========================
-       * Timeout
-       * =========================
-       */
+        /*
+         * =========================
+         * Timeout
+         * =========================
+         */
         msg = 'Délai de connexion dépassé';
       } else if (error.code === 'ERR_NETWORK') {
-
-      /*
-       * =========================
-       * Erreur réseau / aucune réponse
-       * =========================
-       */
+        /*
+         * =========================
+         * Erreur réseau / aucune réponse
+         * =========================
+         */
         msg = 'Aucune réponse du serveur';
       } else if (error.response?.data && isAxiosErrorResponse(error.response.data)) {
-
-      /*
-       * =========================
-       * Réponse HTTP backend
-       * =========================
-       */
+        /*
+         * =========================
+         * Réponse HTTP backend
+         * =========================
+         */
         const api_error = error.response.data;
 
         msg = api_error.data?.detail || api_error.result || msg;
       } else if (error instanceof Error) {
-
-      /*
-       * =========================
-       * Fallback - message d'erreur générique
-       * =========================
-       */
+        /*
+         * =========================
+         * Fallback - message d'erreur générique
+         * =========================
+         */
         msg = error.message;
       }
 

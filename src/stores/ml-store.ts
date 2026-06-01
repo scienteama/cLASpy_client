@@ -3,7 +3,7 @@ import type { AxiosError, AxiosProgressEvent } from 'axios';
 import { type ErrorResponse, isAxiosErrorResponse } from 'src/models/types/api.type';
 import type { FileModel, ModelFile, PointCloudFile } from 'src/models/types/files.type';
 import { defineStore, storeToRefs } from 'pinia';
-import { trainerService } from 'src/services/training.service';
+import { mlService } from 'src/services/ml.service';
 import { computed, ref, watch } from 'vue';
 import { useFilesStore } from './files-store';
 import { useQuasar } from 'quasar';
@@ -14,6 +14,7 @@ import ConfirmDialog from 'src/components/tools/ConfirmDialog.vue';
 import { farFile } from '@quasar/extras/fontawesome-v6';
 import { useUserStore } from './users-store';
 import { checkFileSize } from 'src/helpers/files-utils';
+import type { PredictParameters } from 'src/models/types/ml/predict.types';
 
 export const useMLStore = defineStore('ml', () => {
   /* Stores */
@@ -44,14 +45,14 @@ export const useMLStore = defineStore('ml', () => {
 
   /* Methods */
   const loadPointCloudFileInfos = async (fileId: string) => {
-    const res = await trainerService.getPointCloudFileInfos(fileId);
+    const res = await mlService.getPointCloudFileInfos(fileId);
     if (res.isOk && res.data) {
       pointCloudFile.value = res.data;
     }
   };
 
   const loadModelFileInfos = async (fileId: string) => {
-    const res = await trainerService.getModelFileInfos(fileId);
+    const res = await mlService.getModelFileInfos(fileId);
     if (res.isOk && res.data) {
       modelFile.value = res.data;
       selectedFeatures.value = new Set(res.data.featuresList);
@@ -84,11 +85,11 @@ export const useMLStore = defineStore('ml', () => {
     });
 
     try {
-      const res = await trainerService.runTrainWithConfig(config);
+      const res = await mlService.runTrainWithConfig(config);
       loading.hide();
       if (res.isOk) {
         $n.notifySuccess(res.result);
-        step.value = 1;
+        resetStore();
         await filesStore.reloadRoot();
       }
     } catch (err: any) {
@@ -114,11 +115,11 @@ export const useMLStore = defineStore('ml', () => {
             });
 
             try {
-              const trainRes = await trainerService.runTrainWithConfig(config);
+              const trainRes = await mlService.runTrainWithConfig(config);
               if (trainRes.isOk) {
                 $n.notifySuccess(trainRes.result);
-                step.value = 1;
                 await filesStore.reloadRoot();
+                resetStore();
               }
             } catch (err: any) {
               $n.notifyError(err?.message);
@@ -130,6 +131,32 @@ export const useMLStore = defineStore('ml', () => {
       } else {
         $n.notifyError(err?.message);
       }
+    }
+  }
+
+  async function runPredictAsync(predictConfig: PredictParameters): Promise<boolean> {
+    const loading = $q.dialog({
+      component: FullScreenSpinner,
+      componentProps: {
+        message: 'Prédiction en cours...',
+        color: 'cyan',
+        size: '60px',
+      },
+    });
+    try {
+      const res = await mlService.runPrediction(predictConfig);
+      loading.hide();
+      if (res.isOk) {
+        $n.notifySuccess(res.result);
+        resetStore();
+        await filesStore.reloadRoot();
+        return true;
+      }
+      return false;
+    } catch (err: any) {
+      loading.hide();
+      $n.notifyError(err?.message);
+      return false;
     }
   }
 
@@ -155,7 +182,7 @@ export const useMLStore = defineStore('ml', () => {
     let lastTime = Date.now();
 
     try {
-      const res = await trainerService.loadPointCloudFile({
+      const res = await mlService.loadPointCloudFile({
         data: formData,
         onUploadProgress: (progressEvent?: AxiosProgressEvent) => {
           if (progressEvent?.total && progressEvent.loaded) {
@@ -213,6 +240,23 @@ export const useMLStore = defineStore('ml', () => {
     }
   }
 
+  function resetStore() {
+    pointCloudFile.value = undefined;
+    fileToUpload.value = null;
+    existingFile.value = null;
+    uploadedFileName.value = null;
+
+    modelFile.value = undefined;
+    modelToUpload.value = null;
+    existingModel.value = null;
+    uploadedModelName.value = null;
+
+    uploadIsDone.value = false;
+    trainConfig.value = undefined;
+    selectedFeatures.value = new Set();
+    step.value = 1;
+  }
+
   /* Watchers */
   watch(existingFile, async (newVal) => {
     if (newVal?.id) {
@@ -253,6 +297,7 @@ export const useMLStore = defineStore('ml', () => {
     selectedFeatures,
     step,
     runTrainAsync,
+    runPredictAsync,
     markUploadDone,
     uploadPointCloudFile,
     getNumberOfSamples,

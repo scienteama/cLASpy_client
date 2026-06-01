@@ -234,7 +234,7 @@ import type { AlgoParameter, AlgoParameters, SklearnAlgorithmName, SklearnAlgori
 import { storeToRefs } from 'pinia';
 import { QCard, QCheckbox, type QForm, QInput, QSelect, type QTableColumn, QTooltip, useQuasar } from 'quasar';
 import { isInvalid, NumericInputRule, ratioRules } from 'src/helpers/validation/rules';
-import { trainerService } from 'src/services/training.service';
+import { mlService } from 'src/services/ml.service.js';
 import { newSeed } from 'src/helpers/global-utils';
 import { computed, type ComputedRef, onMounted, ref, watch } from 'vue';
 import { useNotifier } from 'src/composables/notifier';
@@ -388,7 +388,7 @@ const algoDocUrl = computed(() => {
 async function getAlgoParams() {
   if (currentAlgoName.value) {
     const algoName = currentAlgoName.value as SklearnAlgorithmName;
-    const params = await trainerService.getAlgoParamsByName(algoName);
+    const params = await mlService.getAlgoParamsByName(algoName);
 
     if (params.isOk) {
       selectedAlgorithm.value = params.data;
@@ -481,7 +481,7 @@ watch(selectedAlgorithm, (newVal) => {
 });
 
 onMounted(async () => {
-  const res = await trainerService.getAllAlgorithms();
+  const res = await mlService.getAllAlgorithms();
   if (res.isOk) {
     algorithms.value = res.data;
   }

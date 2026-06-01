@@ -38,57 +38,88 @@
 
     <q-step :name="3" title="RÉCAPITULATIF" :icon="fasList" :done="step > 3" class="column full-height">
       <!-- Récapitulatif des choix effectués -->
-      <div class="column q-pa-md">
-        <div class="text-h6">Paramètres sélectionnés</div>
-        <q-list class="q-mt-md">
-          <q-item>
-            <q-item-section side>
-              <q-item-label>Nuage de points :</q-item-label>
-            </q-item-section>
+      <div class="row full-height justify-between q-pa-md">
+        <q-card flat bordered class="col bg-white full-height column">
+          <q-card-section class="bg-teal-1">
+            <div class="text-h6">Prédiction</div>
+            <div class="text-caption text-grey">Créé le {{ new Date().toLocaleString() }}</div>
+          </q-card-section>
 
-            <q-item-section>
-              <q-item-label class="text-weight-medium text-primary">
-                {{ pointCloudFile?.name || 'Aucun fichier sélectionné' }}
-              </q-item-label>
-            </q-item-section>
-          </q-item>
+          <q-separator />
 
-          <q-item>
-            <q-item-section side>
-              <q-item-label>Modèle sélectionné : </q-item-label>
-            </q-item-section>
-            <q-item-section>
-              <q-item-label class="text-weight-medium text-primary">
-                {{ mlStore.modelFile?.name || 'Aucun fichier sélectionné' }}
-              </q-item-label>
-            </q-item-section>
-          </q-item>
+          <q-list v-if="pointCloudFile">
+            <q-item>
+              <q-item-section>
+                <q-item-label class="text-bold">Nuage de points :</q-item-label>
+                <q-item-label class="text-weight-medium text-primary q-ml-sm">
+                  {{ pointCloudFile?.name }}
+                </q-item-label>
+              </q-item-section>
+            </q-item>
 
-          <q-item>
-            <q-item-section side>
-              <q-item-label>Nombre d'attributs sélectionnés : </q-item-label>
-            </q-item-section>
-            <div class="text-weight-medium">
-              <q-chip v-for="feat in mlStore.selectedFeatures" :key="feat" square color="primary" class="glossy" text-color="white" :icon="mdiCubeOutline">
-                {{ feat }}
-              </q-chip>
-            </div>
-          </q-item>
-        </q-list>
+            <q-separator inset />
+            <q-item>
+              <q-item-section>
+                <q-item-label class="text-bold">Modèle sélectionné :</q-item-label>
+                <q-item-label class="text-weight-medium text-primary q-ml-sm">
+                  {{ mlStore.modelFile?.name || 'Aucun fichier sélectionné' }}
+                </q-item-label>
+              </q-item-section>
+            </q-item>
+
+            <q-separator inset />
+
+            <q-item>
+              <q-item-section>
+                <q-item-label class="text-bold">Algorithme :</q-item-label>
+                <q-item-label class="text-weight-medium text-primary q-ml-sm">
+                  {{ mlStore.modelFile?.algorithm || 'Aucun modèle chargé' }}
+                </q-item-label>
+              </q-item-section>
+            </q-item>
+
+            <q-separator inset />
+
+            <q-item>
+              <q-item-section>
+                <q-item-label class="text-bold">Attributs sélectionnés ({{ selectedFeatures.size }}) :</q-item-label>
+                <div class="row q-col-gutter-sm q-my-md q-ml-sm">
+                  <q-chip v-for="feature in selectedFeatures" :key="feature" removable color="teal" outline @remove="removeFeature(feature)">
+                    {{ feature }}
+                  </q-chip>
+                </div>
+              </q-item-section>
+            </q-item>
+
+            <q-separator inset v-if="removedFeatures.length > 0" />
+
+            <q-item v-if="removedFeatures.length > 0">
+              <q-item-section>
+                <q-item-label class="text-bold">Attributs supprimés ({{ removedFeatures.length }}) :</q-item-label>
+                <div class="row q-col-gutter-sm q-my-md q-ml-sm">
+                  <q-chip v-for="feature in removedFeatures" :key="feature" removable outline color="negative" @remove="restoreFeature(feature)">
+                    <span class="text-strike">{{ feature }}</span>
+                  </q-chip>
+                </div>
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </q-card>
       </div>
 
       <q-stepper-navigation class="q-pa-md bg-blue-1 row justify-end">
         <q-btn @click="step = 2" color="secondary" label="Retour" outline />
-        <q-btn color="primary" label="Executer" class="q-ml-sm" />
+        <q-btn color="primary" label="Executer" @click="runPredict()" class="q-ml-sm" />
       </q-stepper-navigation>
     </q-step>
   </q-stepper>
 </template>
 <script setup lang="ts">
+import ConfirmDialog from '../tools/ConfirmDialog.vue';
 import { computed, ref, watch } from 'vue';
 import FileLoader from '../ml/FileLoader.vue';
 import ModelLoader from '../ml/ModelLoader.vue';
-import { mdiCubeOutline, mdiFileOutline } from '@quasar/extras/mdi-v7';
+import { mdiFileOutline } from '@quasar/extras/mdi-v7';
 import { fasGears, fasList } from '@quasar/extras/fontawesome-v6';
 import { useRoute, useRouter } from 'vue-router';
 import { useConfigStore } from 'src/stores/config-store';
@@ -98,15 +129,18 @@ import { useMLStore } from 'src/stores/ml-store';
 import { useFilesStore } from 'src/stores/files-store';
 import { farFile } from '@quasar/extras/fontawesome-v7';
 import { checkFileSize } from 'src/helpers/files-utils';
+import { useQuasar } from 'quasar';
+import type { PredictParameters } from 'src/models/types/ml/predict.types.js';
 
+const $q = useQuasar();
 const route = useRoute();
 const router = useRouter();
 const filesStore = useFilesStore();
 const configStore = useConfigStore();
 const mlStore = useMLStore();
 const { computedStyle } = storeToRefs(configStore);
-const { fileToUpload, existingFile, uploadedFileName, pointCloudFile, modelToUpload, existingModel, uploadedModelName } = storeToRefs(mlStore);
-
+const { fileToUpload, existingFile, uploadedFileName, pointCloudFile, modelToUpload, existingModel, uploadedModelName, selectedFeatures } = storeToRefs(mlStore);
+const removedFeatures = ref<string[]>([]);
 const showFileExplorer = ref(true);
 
 const step = computed({
@@ -167,6 +201,45 @@ async function sendUploadModelEvent() {
       speed: 0,
     };
   }
+}
+
+function removeFeature(feature: string) {
+  selectedFeatures.value.delete(feature);
+  removedFeatures.value.push(feature);
+}
+
+function restoreFeature(feature: string) {
+  if (selectedFeatures.value && removedFeatures.value.includes(feature)) {
+    selectedFeatures.value.add(feature);
+    removedFeatures.value.splice(removedFeatures.value.indexOf(feature), 1);
+  }
+}
+
+function runPredict() {
+  if (!existingFile.value || !pointCloudFile.value || !existingModel.value) {
+    return;
+  }
+
+  const params: PredictParameters = {
+    inputFileId: existingFile.value.id,
+    modelFileId: existingModel.value.id,
+    folderId: filesStore.currentFolder?.id || 'root',
+  };
+
+  $q.dialog({
+    component: ConfirmDialog,
+    componentProps: {
+      title: "Confirmer l'action",
+      message: 'Êtes-vous sûr de vouloir lancer une prédiction avec ces paramètres ?',
+      confirmLabel: 'Confirmer',
+      cancelLabel: 'Annuler',
+    },
+  }).onOk(() => {
+    void (async () => {
+      const res = await mlStore.runPredictAsync(params);
+      if (res) step.value = 1;
+    })();
+  });
 }
 
 watch(
