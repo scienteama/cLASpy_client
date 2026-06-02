@@ -1,5 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+import { useNotifier } from 'src/composables/notifier';
 import type { User } from '../models/types/users.type';
 import { camelCase, mapKeys } from 'lodash';
+import { copyToClipboard } from 'quasar';
 
 /**
  * Vérifie si une chaîne de caractères ou un tableau est vide ou null
@@ -52,3 +56,13 @@ export function newSeed(): number {
 export const xor = (a: boolean, b: boolean) => {
   return a !== b;
 };
+
+export async function _copyToClipboard(text = '') {
+  const $n = useNotifier();
+  try {
+    await copyToClipboard(text);
+    $n.notifySuccess('Copié dans le presse-papiers');
+  } catch (err: any) {
+    $n.notifyError(`Erreur : ${err}`);
+  }
+}

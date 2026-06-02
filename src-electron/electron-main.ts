@@ -23,6 +23,8 @@ const createWindow = () => {
     },
   });
 
+  mainWindow.webContents.setZoomFactor(0.9);
+
   void (async () => {
     if (process.env.DEV) {
       await mainWindow?.loadURL(process.env.APP_URL as string);

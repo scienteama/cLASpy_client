@@ -15,7 +15,13 @@
         <div class="q-mx-xs">
           <q-list>
             <template v-for="(menuItem, index) in topMenu" :key="'top-' + index">
-              <q-item clickable v-ripple :to="menuItem.link" :class="['q-mb-xs text-h6', menuItem.bgColor ? `bg-${menuItem.bgColor} glossy text-white` : '']">
+              <q-item
+                clickable
+                v-ripple
+                :to="menuItem.link"
+                :class="['q-mb-xs text-h6', menuItem.bgColor ? `bg-${menuItem.bgColor} glossy text-white` : '']"
+                @click="menuItem.label === 'Console' && consoleStore.toggle()"
+              >
                 <q-item-section avatar>
                   <q-icon :name="menuItem.icon" />
                 </q-item-section>
@@ -214,10 +220,27 @@
       </q-page-container>
     </div>
   </q-layout>
+
+  <!-- Console -->
+  <q-dialog v-if="consoleStore.logs.length > 0" v-model="consoleStore.isOpen" persistent>
+    <q-card style="width: auto; max-width: 80vw">
+      <q-bar>
+        <q-icon :name="mdiConsole" />
+        <q-space />
+        <q-btn dense flat icon="close" v-close-popup>
+          <q-tooltip>Close</q-tooltip>
+        </q-btn>
+      </q-bar>
+      <q-card-section class="q-px-md q-pt-md q-pb-none">
+        <WebConsole />
+      </q-card-section>
+    </q-card>
+  </q-dialog>
 </template>
 
 <script setup lang="ts">
 import type { Plugin } from 'src/models/types/plugins.types';
+import WebConsole from 'src/components/WebConsole.vue';
 import { ref, onMounted, computed, watch } from 'vue';
 import { dom, useQuasar } from 'quasar';
 import AnimatedBackground from 'src/components/animations/AnimatedBackground.vue';
@@ -238,6 +261,7 @@ import {
   mdiBellOutline,
   mdiCheckerboard,
   mdiCogOutline,
+  mdiConsole,
   mdiHelpBoxOutline,
   mdiHomeAccount,
   mdiLogout,
@@ -246,6 +270,7 @@ import {
 } from '@quasar/extras/mdi-v7';
 import { matArrowDropDown, matCheckBox, matDisabledByDefault, matExtension, matHelp, matHome, matSettings, matTerminal, matViewTimeline } from '@quasar/extras/material-icons';
 import { socketClient } from 'src/services/socket.service';
+import { useConsoleStore } from 'src/stores/console.store';
 
 const { style } = dom;
 const headerHeight = ref('0px');
@@ -257,6 +282,7 @@ const pluginStore = usePluginStore();
 const { currentUser } = useUserStore();
 const { userLogout, exp } = useAuth();
 const router = useRouter();
+const consoleStore = useConsoleStore();
 
 const wsState = computed(() => socketClient.getState().isConnected);
 
