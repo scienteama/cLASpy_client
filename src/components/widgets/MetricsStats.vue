@@ -46,13 +46,14 @@ const { isAdmin } = storeToRefs(userStore);
 
 const props = defineProps<{
   isRealTime: boolean;
+  autoRefreshTime?: number;
 }>();
 
 onMounted(async () => {
   await metricStore.refreshMetricStore();
 });
 
-metricStore.startAutoRefresh();
+metricStore.startAutoRefresh(props.autoRefreshTime);
 onUnmounted(() => {
   metricStore.stopAutoRefresh();
 });

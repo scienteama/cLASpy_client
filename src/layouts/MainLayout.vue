@@ -2,9 +2,8 @@
   <q-layout class="bg-grey-1" view="lHh lpR fFf" style="height: 100vh; overflow: hidden">
     <q-drawer show-if-above side="left" bordered class="column no-wrap">
       <!-- Header Left Drawer -->
-      <div class="text-center text-h4 text-white q-pa-sm q-mx-xs q-mt-xs glossy bg-grey-7 inset-shadow-down" :style="{ minHeight: headerHeight }">
-        CLASPY_T
-        <!-- Shadow overlay -->
+      <div class="relative-position text-h4 text-white q-mx-xs q-mt-xs glossy bg-grey-7 inset-shadow-down" :style="{ minHeight: headerHeight }">
+        <span class="absolute-center">CLASPY_CLIENT</span>
         <div class="drawer-header"></div>
       </div>
 
@@ -135,7 +134,23 @@
             <q-tooltip> Upload en cours : {{ fileUploadProgress.speed }} Mo/s </q-tooltip>
           </q-badge>
 
-          <q-btn v-if="$q.screen.gt.xs" dense flat round size="md" :icon="mdiBellOutline" />
+          <!-- <q-btn v-if="$q.screen.gt.xs" dense flat round size="md" :icon="mdiBellOutline" @click="console.log('click')">
+            <q-tooltip>Notifications</q-tooltip>
+            <q-badge v-if="unreadCount != 0" color="negative" floating size="xs" :label="unreadCount"></q-badge>
+              <q-menu auto-close self="top right">
+                <NotificationList />
+              </q-menu>
+          </q-btn> -->
+
+          <q-btn dense flat round size="md" :icon="mdiBellOutline">
+            <q-tooltip>Notifications</q-tooltip>
+
+            <q-badge v-if="unreadCount" color="negative" floating size="xs" :label="unreadCount" />
+
+            <q-menu anchor="bottom right" self="top right" transition-show="scale" transition-hide="scale">
+              <NotificationList />
+            </q-menu>
+          </q-btn>
 
           <!-- <q-btn v-if="$q.screen.gt.xs" dense flat>
             <div class="row items-center no-wrap">
@@ -222,7 +237,7 @@
   </q-layout>
 
   <!-- Console -->
-  <q-dialog v-if="consoleStore.logs.length > 0" v-model="consoleStore.isOpen" persistent>
+  <q-dialog v-model="consoleStore.isOpen" persistent>
     <q-card style="width: auto; max-width: 80vw">
       <q-bar>
         <q-icon :name="mdiConsole" />
@@ -232,7 +247,7 @@
         </q-btn>
       </q-bar>
       <q-card-section class="q-px-md q-pt-md q-pb-none">
-        <WebConsole />
+        <WebConsole :show-console="consoleStore.logs.length > 0" :show-metrics="true" />
       </q-card-section>
     </q-card>
   </q-dialog>
@@ -241,6 +256,7 @@
 <script setup lang="ts">
 import type { Plugin } from 'src/models/types/plugins.types';
 import WebConsole from 'src/components/WebConsole.vue';
+import NotificationList from 'src/components/notifications/NotificationList.vue';
 import { ref, onMounted, computed, watch } from 'vue';
 import { dom, useQuasar } from 'quasar';
 import AnimatedBackground from 'src/components/animations/AnimatedBackground.vue';
@@ -271,6 +287,7 @@ import {
 import { matArrowDropDown, matCheckBox, matDisabledByDefault, matExtension, matHelp, matHome, matSettings, matTerminal, matViewTimeline } from '@quasar/extras/material-icons';
 import { socketClient } from 'src/services/socket.service';
 import { useConsoleStore } from 'src/stores/console.store';
+import { useNotificationStore } from 'src/stores/notification-store';
 
 const { style } = dom;
 const headerHeight = ref('0px');
@@ -283,6 +300,8 @@ const { currentUser } = useUserStore();
 const { userLogout, exp } = useAuth();
 const router = useRouter();
 const consoleStore = useConsoleStore();
+const notificationsStore = useNotificationStore();
+const { unreadCount } = storeToRefs(notificationsStore);
 
 const wsState = computed(() => socketClient.getState().isConnected);
 
@@ -443,11 +462,12 @@ watch(currentPath, (newPath) => {
 
 const tab = ref(currentPath.value);
 
-onMounted(() => {
+onMounted(async () => {
   const toolbar = document.querySelector('.q-header');
   if (toolbar) {
     headerHeight.value = style(toolbar, 'height');
   }
+  await notificationsStore.fetchUserNotifications();
 });
 </script>
 <style lang="scss"></style>
