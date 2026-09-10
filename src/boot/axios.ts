@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { defineBoot } from '#q-app/wrappers';
+import { defineBoot } from '#q-app';
 import axios, { type AxiosError } from 'axios';
 import { Notify } from 'quasar';
-import { useAuth } from 'src/stores/auth-store';
-import { isAxiosErrorResponse } from 'src/models/types/api.type';
-import { useUserStore } from 'src/stores/users-store';
+import { useAuth } from '@/stores/auth-store';
+import { isAxiosErrorResponse } from '@/models/types/api.type';
+import { useUserStore } from '@/stores/users-store';
 
 export const api_url = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 

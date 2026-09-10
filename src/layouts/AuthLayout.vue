@@ -65,15 +65,15 @@
 </template>
 
 <script setup lang="ts">
-import AnimatedBackground from 'src/components/animations/AnimatedBackground.vue';
-import pythie from 'src/assets/pythie_alpha_hd_miroir_resized.png';
+import AnimatedBackground from '@/components/animations/AnimatedBackground.vue';
+import pythie from '@/assets/pythie_alpha_hd_miroir_resized.png';
 import { computed, onMounted, ref, watch } from 'vue';
-import { useConfigStore } from 'src/stores/config-store';
+import { useConfigStore } from '@/stores/config-store';
 import { storeToRefs } from 'pinia';
-import { generatePal } from 'src/helpers/color-utils';
+import { generatePal } from '@/helpers/color-utils';
 import { mdiFormatListBulletedSquare, mdiPaletteAdvanced, mdiPaletteOutline } from '@quasar/extras/mdi-v7';
 import { matInfo, matMenu } from '@quasar/extras/material-icons';
-import { fabGithub } from '@quasar/extras/fontawesome-v6';
+import { fabGithub } from '@quasar/extras/fontawesome-v7';
 
 const configStore = useConfigStore();
 const { defaultThemes, currentTheme } = storeToRefs(configStore);

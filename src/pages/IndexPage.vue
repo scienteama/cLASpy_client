@@ -20,5 +20,5 @@
 </template>
 
 <script setup lang="ts">
-import ExampleComponent from 'src/components/ExampleComponent.vue';
+import ExampleComponent from '@/components/ExampleComponent.vue';
 </script>

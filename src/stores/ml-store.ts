@@ -1,20 +1,20 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { AxiosError, AxiosProgressEvent } from 'axios';
-import { type ErrorResponse, isAxiosErrorResponse } from 'src/models/types/api.type';
-import type { FileModel, ModelFile, PointCloudFile } from 'src/models/types/files.type';
+import { type ErrorResponse, isAxiosErrorResponse } from '@/models/types/api.type';
+import type { FileModel, ModelFile, PointCloudFile } from '@/models/types/files.type';
 import { defineStore, storeToRefs } from 'pinia';
-import { mlService } from 'src/services/ml.service';
+import { mlService } from '@/services/ml.service';
 import { computed, ref, watch } from 'vue';
 import { useFilesStore } from './files-store';
 import { useQuasar } from 'quasar';
-import type { TrainParameters } from 'src/models/types/ml/train.types';
-import { useNotifier } from 'src/composables/notifier';
-import FullScreenSpinner from 'src/components/tools/FullScreenSpinner.vue';
-import ConfirmDialog from 'src/components/tools/ConfirmDialog.vue';
-import { farFile } from '@quasar/extras/fontawesome-v6';
+import type { TrainParameters } from '@/models/types/ml/train.types';
+import { useNotifier } from '@/composables/notifier';
+import FullScreenSpinner from '@/components/tools/FullScreenSpinner.vue';
+import ConfirmDialog from '@/components/tools/ConfirmDialog.vue';
 import { useUserStore } from './users-store';
-import { checkFileSize } from 'src/helpers/files-utils';
-import type { PredictParameters } from 'src/models/types/ml/predict.types';
+import { checkFileSize } from '@/helpers/files-utils';
+import type { PredictParameters } from '@/models/types/ml/predict.types';
+import { farFile } from '@quasar/extras/fontawesome-v7';
 
 export const useMLStore = defineStore('ml', () => {
   /* Stores */

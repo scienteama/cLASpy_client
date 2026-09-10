@@ -1,6 +1,6 @@
-import { api } from 'src/boot/axios';
-import type { WorkDone } from 'src/models/types/api.type';
-import { type Disk, type MetricPoint } from 'src/models/types/global.types';
+import { api } from '@/boot/axios';
+import type { WorkDone } from '@/models/types/api.type';
+import { type Disk, type MetricPoint } from '@/models/types/global.types';
 
 class MetricsService {
   async getCpuHistory(): Promise<WorkDone<MetricPoint[]>> {

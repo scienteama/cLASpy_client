@@ -1,9 +1,9 @@
-import { api } from 'src/boot/axios';
-import type { WorkDone } from 'src/models/types/api.type';
-import type { ModelFile, PointCloudFile, UploadFileParams } from 'src/models/types/files.type';
-import type { SklearnAlgorithmName, SklearnAlgorithmParams } from 'src/models/types/ml/algorithms.types';
-import type { PredictParameters } from 'src/models/types/ml/predict.types';
-import type { TrainParameters } from 'src/models/types/ml/train.types';
+import { api } from '@/boot/axios';
+import type { WorkDone } from '@/models/types/api.type';
+import type { ModelFile, PointCloudFile, UploadFileParams } from '@/models/types/files.type';
+import type { SklearnAlgorithmName, SklearnAlgorithmParams } from '@/models/types/ml/algorithms.types';
+import type { PredictParameters } from '@/models/types/ml/predict.types';
+import type { FeatureComputationParams, TrainParameters } from '@/models/types/ml/train.types';
 
 /**
  * Claspy Trainer Service
@@ -49,6 +49,11 @@ class MLService {
 
   async runPrediction(params: PredictParameters): Promise<WorkDone<string>> {
     const response = await api.post<WorkDone<string>>('/claspy_ml/run-prediction', params);
+    return response.data;
+  }
+
+  async computeFeatures(params: FeatureComputationParams): Promise<WorkDone<string>> {
+    const response = await api.post<WorkDone<string>>('/claspy_ml/compute-features', params);
     return response.data;
   }
 }

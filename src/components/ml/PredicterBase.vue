@@ -120,17 +120,17 @@ import { computed, ref, watch } from 'vue';
 import FileLoader from '../ml/FileLoader.vue';
 import ModelLoader from '../ml/ModelLoader.vue';
 import { mdiFileOutline } from '@quasar/extras/mdi-v7';
-import { fasGears, fasList } from '@quasar/extras/fontawesome-v6';
+import { fasGears, fasList } from '@quasar/extras/fontawesome-v7';
 import { useRoute, useRouter } from 'vue-router';
-import { useConfigStore } from 'src/stores/config-store';
+import { useConfigStore } from '@/stores/config-store';
 import { storeToRefs } from 'pinia';
 import { matCloudUpload } from '@quasar/extras/material-icons';
-import { useMLStore } from 'src/stores/ml-store';
-import { useFilesStore } from 'src/stores/files-store';
+import { useMLStore } from '@/stores/ml-store';
+import { useFilesStore } from '@/stores/files-store';
 import { farFile } from '@quasar/extras/fontawesome-v7';
-import { checkFileSize } from 'src/helpers/files-utils';
+import { checkFileSize } from '@/helpers/files-utils';
 import { useQuasar } from 'quasar';
-import type { PredictParameters } from 'src/models/types/ml/predict.types.js';
+import type { PredictParameters } from '@/models/types/ml/predict.types.js';
 
 const $q = useQuasar();
 const route = useRoute();
@@ -187,9 +187,13 @@ async function sendUploadModelEvent() {
     mlStore.markUploadDone();
   } catch (error) {
     if (error instanceof Error) {
-      throw new Error(`Erreur lors de l'envoi du modèle : ${error}`);
+      throw new Error(`Erreur lors de l'envoi du modèle : ${error}`, {
+        cause: error,
+      });
     } else {
-      throw new Error("Erreur inconnue lors de l'envoi du modèle");
+      throw new Error("Erreur inconnue lors de l'envoi du modèle", {
+        cause: error,
+      });
     }
   } finally {
     filesStore.fileUploadProgress = {

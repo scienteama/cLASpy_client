@@ -35,8 +35,8 @@
 </template>
 <script setup lang="ts">
 import { ref, watch, onUnmounted, onMounted } from 'vue';
-import HighLight from 'src/components/tools/HighLight.vue';
-import type { FileModel } from 'src/models/types/files.type';
+import HighLight from '@/components/tools/HighLight.vue';
+import type { FileModel } from '@/models/types/files.type';
 import { mdiTextBoxCheckOutline } from '@quasar/extras/mdi-v7';
 import { matClose } from '@quasar/extras/material-icons';
 

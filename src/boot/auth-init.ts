@@ -1,7 +1,7 @@
-import { boot } from 'quasar/wrappers';
-import { useAuth } from 'src/stores/auth-store';
+import { defineBoot } from '#q-app';
+import { useAuth } from '@/stores/auth-store';
 
-export default boot(async () => {
+export default defineBoot(async () => {
   const auth = useAuth();
   await auth.checkSession();
 });

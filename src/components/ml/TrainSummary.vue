@@ -113,11 +113,11 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia';
 import HighLight from '../tools/HighLight.vue';
-import { downloadJSON } from 'src/helpers/files-utils';
+import { downloadJSON } from '@/helpers/files-utils';
 import { mdiCodeJson, mdiFileDownloadOutline } from '@quasar/extras/mdi-v7';
-import { useMLStore } from 'src/stores/ml-store';
+import { useMLStore } from '@/stores/ml-store';
 import { computed, ref } from 'vue';
-import { useFilesStore } from 'src/stores/files-store.js';
+import { useFilesStore } from '@/stores/files-store.js';
 
 const mlStore = useMLStore();
 const fileStore = useFilesStore();

@@ -1,6 +1,6 @@
-import { api } from 'src/boot/axios';
-import type { WorkDone } from 'src/models/types/api.type';
-import type { Plugin, TaskRunner } from 'src/models/types/plugins.types';
+import { api } from '@/boot/axios';
+import type { WorkDone } from '@/models/types/api.type';
+import type { Plugin, TaskRunner } from '@/models/types/plugins.types';
 
 /**
  * Gestion des plugins additionnels

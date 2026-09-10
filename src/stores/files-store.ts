@@ -2,13 +2,13 @@ import { defineStore, storeToRefs } from 'pinia';
 import { ref, computed } from 'vue';
 import { useQuasar } from 'quasar';
 import type { AxiosError, AxiosProgressEvent } from 'axios';
-import { fileService } from 'src/services/files.service';
-import { type FileType, isFolder, type FileUploadProgress, type FolderModel, type FileModel } from 'src/models/types/files.type';
-import { type ErrorResponse, isAxiosErrorResponse } from 'src/models/types/api.type';
+import { fileService } from '@/services/files.service';
+import { type FileType, isFolder, type FileUploadProgress, type FolderModel, type FileModel } from '@/models/types/files.type';
+import { type ErrorResponse, isAxiosErrorResponse } from '@/models/types/api.type';
 import { useUserStore } from './users-store';
-import { farFile } from '@quasar/extras/fontawesome-v6';
 import { matInsertDriveFile } from '@quasar/extras/material-icons';
 import { useRoute } from 'vue-router';
+import { farFile } from '@quasar/extras/fontawesome-v7';
 
 export const useFilesStore = defineStore('files', () => {
   const $q = useQuasar();

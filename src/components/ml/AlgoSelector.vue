@@ -169,8 +169,7 @@
                   <q-card-section class="scroll bg-teal-1" style="max-height: 380px">
                     <pre class="text-body2">
                 {{ selectedAlgorithm.description }}
-              </pre
-                    >
+              </pre>
                   </q-card-section>
                 </q-expansion-item>
 
@@ -229,23 +228,23 @@
 </template>
 
 <script setup lang="ts">
-import type { TrainParameters } from 'src/models/types/ml/train.types';
-import type { AlgoParameter, AlgoParameters, SklearnAlgorithmName, SklearnAlgorithmParams } from 'src/models/types/ml/algorithms.types';
+import type { TrainParameters } from '@/models/types/ml/train.types';
+import type { AlgoParameter, AlgoParameters, SklearnAlgorithmName, SklearnAlgorithmParams } from '@/models/types/ml/algorithms.types';
 import { storeToRefs } from 'pinia';
 import { QCard, QCheckbox, type QForm, QInput, QSelect, type QTableColumn, QTooltip, useQuasar } from 'quasar';
-import { isInvalid, NumericInputRule, ratioRules } from 'src/helpers/validation/rules';
-import { mlService } from 'src/services/ml.service.js';
-import { newSeed } from 'src/helpers/global-utils';
+import { isInvalid, NumericInputRule, ratioRules } from '@/helpers/validation/rules';
+import { mlService } from '@/services/ml.service.js';
+import { newSeed } from '@/helpers/global-utils';
 import { computed, type ComputedRef, onMounted, ref, watch } from 'vue';
-import { useNotifier } from 'src/composables/notifier';
-import { getInputProps, parseTypeInfo, scorerList } from 'src/helpers/components/trainer-utils';
+import { useNotifier } from '@/composables/notifier';
+import { getInputProps, parseTypeInfo, scorerList } from '@/helpers/components/trainer-utils';
 import FeaturesList from './FeaturesList.vue';
 import ConfirmDialog from '../tools/ConfirmDialog.vue';
 import { mdiArrowSplitVertical, mdiDiceMultipleOutline, mdiPlusMinusVariant, mdiTargetVariant, mdiTuneVertical, mdiWrenchCogOutline } from '@quasar/extras/mdi-v7';
 import { matAdd } from '@quasar/extras/material-icons';
-import { fasBrain, fasGears, fasMicrochip, fasUpRightFromSquare } from '@quasar/extras/fontawesome-v6';
-import { fasProjectDiagram } from '@quasar/extras/fontawesome-v5';
-import { useMLStore } from 'src/stores/ml-store';
+import { fasBrain, fasGears, fasMicrochip, fasUpRightFromSquare } from '@quasar/extras/fontawesome-v7';
+import { fasProjectDiagram } from '@quasar/extras/fontawesome-v7';
+import { useMLStore } from '@/stores/ml-store';
 
 const splitterModel = ref(50);
 
@@ -268,7 +267,7 @@ const numberOfSamples = ref(pointsNumber.value);
 const trainingRatio = ref(0.5);
 const pca = ref(0);
 const randomState = ref(0);
-const nJobsCv = ref(-1);
+const nJobsCv = ref(2);
 const scalerOpts = ['Standard', 'Robust', 'MinMax'];
 const scaler = ref(scalerOpts[0]);
 const scorer = ref(scorerList[0]);
@@ -463,7 +462,7 @@ function resetTrainForm() {
     scaler.value = scalerOpts[0];
     scorer.value = scorerList[0];
     randomState.value = 0;
-    nJobsCv.value = -1;
+    nJobsCv.value = 2;
     pca.value = 0;
     currentAlgoName.value = null;
     selectedAlgorithm.value = null;

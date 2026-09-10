@@ -2,7 +2,7 @@
   <q-card flat bordered v-if="showMetrics" class="q-pa-md q-mb-md row items-start bg-grey-2">
     <div class="col-auto q-mb-sm text-center">
       <div class="text-weight-bold q-mb-sm">Moyenne (30min)</div>
-      <MetricsStats :isRealTime="false" :auto-refresh-time="2000" />
+      <MetricsStats :isRealTime="false" />
     </div>
     <q-separator vertical color="grey-4" class="q-mx-sm" />
     <div class="col-auto q-mb-sm text-center">
@@ -13,20 +13,46 @@
 
   <q-card class="terminal-card" flat>
     <div v-if="showConsole" ref="terminalContainer" class="terminal-container">
-      <q-btn class="copy-btn" icon="content_copy" round dense flat color="primary" @click="_copyToClipboard(logs.join(''))">
+      <q-btn
+        class="copy-btn"
+        icon="content_copy"
+        round
+        dense
+        flat
+        color="primary"
+        @click="
+          _copyToClipboard(
+            entries
+              .filter((e) => e.type === 'log')
+              .map((e) => e.message)
+              .join('\n')
+          )
+        "
+      >
         <q-tooltip>Copier</q-tooltip>
       </q-btn>
 
-      <div v-for="(line, i) in logs" :key="i" class="terminal-line">
-        {{ line }}
+      <div v-for="(entry, i) in entries" :key="i" class="terminal-line">
+        <template v-if="entry.type === 'log'">
+          {{ entry.message }}
+        </template>
+        <FeatureProgressBar v-else-if="entry.type === 'progress' && progressBars[entry.label]" :bar="progressBars[entry.label]!" />
       </div>
     </div>
 
     <q-separator v-if="showConsole" />
 
     <q-card-actions align="right" class="bg-white">
-      <q-btn flat label="Performances" :icon="mdiChartAreaspline" outline color="primary" @click="showMetrics = !showMetrics" />
-      <q-btn flat label="Console" :icon="mdiConsole" outline color="primary" @click="showConsole = !showConsole" />
+      <q-btn flat :icon="mdiChartAreaspline" outline color="primary" @click="showMetrics = !showMetrics">
+        <q-tooltip>Performances</q-tooltip>
+      </q-btn>
+      <q-btn flat :icon="mdiConsole" outline color="primary" @click="showConsole = !showConsole">
+        <q-tooltip>Console</q-tooltip>
+      </q-btn>
+      <q-checkbox class="q-pa-md" v-model="keepClosed" color="primary" label="Garder fermé ?" keepColor dense>
+        <q-tooltip>Empêche ouverture automatique</q-tooltip>
+      </q-checkbox>
+      <q-space />
       <q-btn flat label="Effacer" outline color="secondary" @click="consoleStore.clear()" />
       <q-btn flat label="Fermer" outline color="negative" v-close-popup />
     </q-card-actions>
@@ -35,14 +61,15 @@
 
 <script setup lang="ts">
 import { storeToRefs } from 'pinia';
-import { _copyToClipboard } from 'src/helpers/global-utils';
-import { useConsoleStore } from 'src/stores/console.store';
+import { _copyToClipboard } from '@/helpers/global-utils';
+import { useConsoleStore } from '@/stores/console.store';
 import { ref, watch, nextTick } from 'vue';
-import MetricsStats from 'src/components/widgets/MetricsStats.vue';
+import MetricsStats from '@/components/widgets/MetricsStats.vue';
 import { mdiChartAreaspline, mdiConsole } from '@quasar/extras/mdi-v7';
+import FeatureProgressBar from './tools/FeatureProgressBar.vue';
 
 const consoleStore = useConsoleStore();
-const { logs, isOpen } = storeToRefs(consoleStore);
+const { entries, isOpen, progressBars, keepClosed } = storeToRefs(consoleStore);
 
 const terminalContainer = ref<HTMLElement | null>(null);
 
@@ -62,7 +89,7 @@ function scrollToBottom() {
 }
 
 watch(
-  logs,
+  entries,
   async () => {
     await nextTick();
     scrollToBottom();

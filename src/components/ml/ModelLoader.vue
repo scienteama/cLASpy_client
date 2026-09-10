@@ -65,7 +65,7 @@ import InputFile from '../files/InputFile.vue';
 import FileExplorer from '../files/FileExplorer.vue';
 import FeaturesList from './FeaturesList.vue';
 import { storeToRefs } from 'pinia';
-import { useMLStore } from 'src/stores/ml-store';
+import { useMLStore } from '@/stores/ml-store';
 import { computed, ref } from 'vue';
 import { mdiArrowSplitHorizontal } from '@quasar/extras/mdi-v7';
 

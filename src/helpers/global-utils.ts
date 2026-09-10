@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { useNotifier } from 'src/composables/notifier';
+import { useNotifier } from '@/composables/notifier';
 import type { User } from '../models/types/users.type';
 import { camelCase, mapKeys } from 'lodash';
 import { copyToClipboard } from 'quasar';

@@ -43,10 +43,10 @@
 <script lang="ts" setup>
 import { ref, onMounted, onBeforeUnmount, nextTick, watch, computed } from 'vue';
 import classPyIcon from '../../assets/pythie_alpha_hd_miroir.png';
-import type { Point } from 'src/models/types/global.types';
-import { useConfigStore } from 'src/stores/config-store';
+import type { Point } from '@/models/types/global.types';
+import { useConfigStore } from '@/stores/config-store';
 import { storeToRefs } from 'pinia';
-import { generatePal } from 'src/helpers/color-utils';
+import { generatePal } from '@/helpers/color-utils';
 import { mdiFormatListBulletedSquare, mdiPaletteAdvanced, mdiPaletteOutline } from '@quasar/extras/mdi-v7';
 import Delaunator from 'delaunator';
 

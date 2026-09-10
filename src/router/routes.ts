@@ -3,28 +3,28 @@ import type { RouteRecordRaw } from 'vue-router';
 const routes: RouteRecordRaw[] = [
   {
     path: '/',
-    component: () => import('layouts/MainLayout.vue'),
+    component: () => import('@/layouts/MainLayout.vue'),
     meta: { requiresAuth: true },
     redirect: '/home',
-    children: [{ path: 'home', name: 'home', component: () => import('pages/MainPage.vue') }],
+    children: [{ path: 'home', name: 'home', component: () => import('@/pages/MainPage.vue') }],
   },
   {
     path: '/users',
-    component: () => import('layouts/MainLayout.vue'),
+    component: () => import('@/layouts/MainLayout.vue'),
     meta: { requiresAuth: true },
     redirect: '/users/list',
-    children: [{ path: 'list', name: 'user-list', component: () => import('pages/UsersPage.vue') }],
+    children: [{ path: 'list', name: 'user-list', component: () => import('@/pages/UsersPage.vue') }],
   },
   {
     path: '/ml',
-    component: () => import('layouts/MainLayout.vue'),
+    component: () => import('@/layouts/MainLayout.vue'),
     meta: { requiresAuth: true },
     children: [
-      { path: 'train', name: 'ml-train', component: () => import('pages/TrainPage.vue') },
+      { path: 'train', name: 'ml-train', component: () => import('@/pages/TrainPage.vue') },
       {
         path: 'predict/:step?',
         name: 'ml-predict',
-        component: () => import('pages/PredicterPage.vue'),
+        component: () => import('@/pages/PredicterPage.vue'),
         props: true,
         beforeEnter: (to) => {
           if (!to.params.step) {
@@ -39,20 +39,27 @@ const routes: RouteRecordRaw[] = [
           return true;
         },
       },
-      { path: 'segment', name: 'ml-segment', component: () => import('pages/ErrorNotFound.vue') },
+      { path: 'segment', name: 'ml-segment', component: () => import('@/pages/ErrorNotFound.vue') },
+      { path: 'features', name: 'ml-feat', component: () => import('@/components/ml/ComputeFeatures.vue') },
     ],
   },
   {
     path: '/auth',
-    component: () => import('layouts/AuthLayout.vue'),
+    component: () => import('@/layouts/AuthLayout.vue'),
     children: [
-      { path: 'login', name: 'login', component: () => import('components/auth/LoginForm.vue') },
-      { path: 'first-login', name: 'first-login', meta: { firstUserOnly: true }, component: () => import('components/auth/FirstLogin.vue') },
+      { path: 'login', name: 'login', component: () => import('@/components/auth/LoginForm.vue') },
+      { path: 'first-login', name: 'first-login', meta: { firstUserOnly: true }, component: () => import('@/components/auth/FirstLogin.vue') },
     ],
   },
   {
+    path: '/viewer',
+    component: () => import('@/layouts/MainLayout.vue'),
+    meta: { requiresAuth: true },
+    children: [{ path: '', name: 'viewer', component: () => import('@/pages/PointCloudPage.vue') }],
+  },
+  {
     path: '/:catchAll(.*)*',
-    component: () => import('pages/ErrorNotFound.vue'),
+    component: () => import('@/pages/ErrorNotFound.vue'),
   },
 ];
 

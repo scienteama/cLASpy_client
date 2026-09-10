@@ -18,3 +18,12 @@ export interface TrainParameters {
   fillnan: string;
   noWorker?: boolean;
 }
+
+export interface FeatureComputationParams {
+  fileId: string;
+  folderId: string;
+  featureNames: string[];
+  searchRadius: number[];
+  nJobsCv: number;
+  batchSize: number;
+}

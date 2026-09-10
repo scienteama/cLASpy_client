@@ -79,7 +79,7 @@
 <script setup lang="ts">
 import { mdiBellOutline, mdiCheckAll, mdiCheckOutline, mdiDelete, mdiDeleteOutline, mdiBellCheckOutline } from '@quasar/extras/mdi-v7';
 import { storeToRefs } from 'pinia';
-import { useNotificationStore } from 'src/stores/notification-store';
+import { useNotificationStore } from '@/stores/notification-store';
 import { ref } from 'vue';
 
 const notificationStore = useNotificationStore();

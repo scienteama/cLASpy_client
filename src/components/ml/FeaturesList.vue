@@ -34,7 +34,7 @@
 <script setup lang="ts">
 import { mdiCubeOutline } from '@quasar/extras/mdi-v7';
 import { storeToRefs } from 'pinia';
-import { useMLStore } from 'src/stores/ml-store';
+import { useMLStore } from '@/stores/ml-store';
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 
 const featsCard = ref<HTMLElement | null>(null);

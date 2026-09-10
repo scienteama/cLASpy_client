@@ -8,8 +8,8 @@
 </template>
 
 <script setup lang="ts">
-import { useSessionCountdown } from 'src/composables/session';
-import { useAuth } from 'src/stores/auth-store';
+import { useSessionCountdown } from '@/composables/session';
+import { useAuth } from '@/stores/auth-store';
 import { computed } from 'vue';
 
 const props = defineProps<{

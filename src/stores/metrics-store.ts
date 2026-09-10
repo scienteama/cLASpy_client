@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import { type MetricPoint, type Metrics } from 'src/models/types/global.types';
-import { metricsService } from 'src/services/metrics.service';
+import { type MetricPoint, type Metrics } from '@/models/types/global.types';
+import { metricsService } from '@/services/metrics.service';
 
 export const useMetricsStore = defineStore('metrics', () => {
   const lastUpdate = ref(0);
@@ -27,6 +27,7 @@ export const useMetricsStore = defineStore('metrics', () => {
   const memoryHistory = ref<MetricPoint[]>([]);
 
   let intervalId: ReturnType<typeof setInterval> | null = null;
+  let refreshPromise: Promise<void> | null = null;
 
   function setMetrics(data: { cpu_percent: number; disk_percent: number; ram_used: number; ram_percent: number }) {
     metrics.value.cpu.percent = data.cpu_percent;
@@ -59,8 +60,16 @@ export const useMetricsStore = defineStore('metrics', () => {
     }
   }
 
-  async function refreshMetricStore() {
-    await Promise.all([getCpuHistory(), getMemoryHistory(), getDiskInfos()]);
+  function refreshMetricStore(): Promise<void> {
+    if (refreshPromise) return refreshPromise;
+
+    refreshPromise = Promise.all([getCpuHistory(), getMemoryHistory(), getDiskInfos()])
+      .then(() => undefined)
+      .finally(() => {
+        refreshPromise = null;
+      });
+
+    return refreshPromise;
   }
 
   function startAutoRefresh(intervalMs = 300000) {

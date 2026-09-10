@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { reactive, readonly } from 'vue';
 import { io, type Socket } from 'socket.io-client';
-import { socket_url } from 'src/boot/axios';
+import { socket_url } from '@/boot/axios';
 
 interface WSState {
   isConnected: boolean;

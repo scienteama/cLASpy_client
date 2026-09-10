@@ -1,10 +1,10 @@
 import { defineStore, storeToRefs } from 'pinia';
 import { useQuasar } from 'quasar';
-import { userService } from 'src/services/users.service';
-import { type UserIn, type User, type Role } from 'src/models/types/users.type';
+import { userService } from '@/services/users.service';
+import { type UserIn, type User, type Role } from '@/models/types/users.type';
 import { ref, computed } from 'vue';
-import { MapUserRoleEnum, UserRoleEnum } from 'src/models/enums/roles';
-import { roleService } from 'src/services/roles.service';
+import { MapUserRoleEnum, UserRoleEnum } from '@/models/enums/roles';
+import { roleService } from '@/services/roles.service';
 import { useMetricsStore } from './metrics-store';
 
 export const useUserStore = defineStore(

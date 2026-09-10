@@ -119,15 +119,15 @@
 
 <script setup lang="ts">
 import type { QTableColumn } from 'quasar';
-import type { User, UserIn } from 'src/models/types/users.type';
+import type { User, UserIn } from '@/models/types/users.type';
 import { storeToRefs } from 'pinia';
 import { useQuasar } from 'quasar';
 import { computed, onMounted, ref } from 'vue';
-import { useUserStore } from 'src/stores/users-store';
-import { formUserRules } from 'src/helpers/validation/rules';
-import ConfirmDialog from 'src/components/tools/ConfirmDialog.vue';
+import { useUserStore } from '@/stores/users-store';
+import { formUserRules } from '@/helpers/validation/rules';
+import ConfirmDialog from '@/components/tools/ConfirmDialog.vue';
 import { matAdd, matDelete, matEdit, matVisibility, matVisibilityOff } from '@quasar/extras/material-icons';
-import { useConfigStore } from 'src/stores/config-store';
+import { useConfigStore } from '@/stores/config-store';
 
 const $q = useQuasar();
 const userStore = useUserStore();

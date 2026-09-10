@@ -1,4 +1,4 @@
-import { defineConfig } from '#q-app/wrappers';
+import { defineConfig } from '#q-app';
 
 export default defineConfig(() => {
   return {

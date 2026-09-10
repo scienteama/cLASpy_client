@@ -1,7 +1,7 @@
 import type { AxiosResponse } from 'axios';
-import { api } from 'src/boot/axios';
-import type { WorkDone } from 'src/models/types/api.type';
-import type { FileModel, FolderModel, UploadFileParams } from 'src/models/types/files.type';
+import { api } from '@/boot/axios';
+import type { WorkDone } from '@/models/types/api.type';
+import type { FileModel, FolderModel, UploadFileParams } from '@/models/types/files.type';
 
 /**
  * Centralise les appels API pour la gestion des fichiers et dossiers

@@ -109,16 +109,16 @@
 </template>
 
 <script setup lang="ts">
-import InputFile from 'src/components/files/InputFile.vue';
-import FileExplorer from 'src/components/files/FileExplorer.vue';
+import InputFile from '@/components/files/InputFile.vue';
+import FileExplorer from '@/components/files/FileExplorer.vue';
 import FeaturesList from './FeaturesList.vue';
 import { computed, ref } from 'vue';
-import { useFilesStore } from 'src/stores/files-store';
+import { useFilesStore } from '@/stores/files-store';
 import { storeToRefs } from 'pinia';
 import { mdiArrowSplitHorizontal } from '@quasar/extras/mdi-v7';
 import { matCancel } from '@quasar/extras/material-icons';
-import { farFile, farFolderOpen } from '@quasar/extras/fontawesome-v6';
-import { useMLStore } from 'src/stores/ml-store';
+import { farFile, farFolderOpen } from '@quasar/extras/fontawesome-v7';
+import { useMLStore } from '@/stores/ml-store';
 
 const mlStore = useMLStore();
 const fileStore = useFilesStore();

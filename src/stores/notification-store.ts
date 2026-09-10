@@ -1,9 +1,9 @@
 import { defineStore, storeToRefs } from 'pinia';
-import { useNotifier } from 'src/composables/notifier';
+import { useNotifier } from '@/composables/notifier';
 import { computed, ref } from 'vue';
 import { useUserStore } from './users-store';
-import { type Notification } from 'src/models/types/notifications.type';
-import { notificationService } from 'src/services/notifications.service';
+import { type Notification } from '@/models/types/notifications.type';
+import { notificationService } from '@/services/notifications.service';
 
 export const useNotificationStore = defineStore('notifications', () => {
   const $n = useNotifier();

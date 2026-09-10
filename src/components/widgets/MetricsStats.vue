@@ -33,9 +33,9 @@
 </template>
 <script setup lang="ts">
 import { storeToRefs } from 'pinia';
-import { useMetricsStore } from 'src/stores/metrics-store';
+import { useMetricsStore } from '@/stores/metrics-store';
 import { onMounted, onUnmounted } from 'vue';
-import { useUserStore } from 'src/stores/users-store';
+import { useUserStore } from '@/stores/users-store';
 import SmallGraph from '../tools/SmallGraph.vue';
 
 const metricStore = useMetricsStore();

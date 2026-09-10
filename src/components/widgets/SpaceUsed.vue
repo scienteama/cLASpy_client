@@ -20,10 +20,10 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import ProgressBar from '../tools/ProgressBar.vue';
-import { useUserStore } from 'src/stores/users-store';
-import { formatFileSize } from 'src/helpers/files-utils';
+import { useUserStore } from '@/stores/users-store';
+import { formatFileSize } from '@/helpers/files-utils';
 import { storeToRefs } from 'pinia';
-import { useFilesStore } from 'src/stores/files-store';
+import { useFilesStore } from '@/stores/files-store';
 
 const fileStore = useFilesStore();
 const { rootTreeSize } = storeToRefs(fileStore);

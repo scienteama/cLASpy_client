@@ -247,30 +247,30 @@
         </q-btn>
       </q-bar>
       <q-card-section class="q-px-md q-pt-md q-pb-none">
-        <WebConsole :show-console="consoleStore.logs.length > 0" :show-metrics="true" />
+        <WebConsole :show-console="consoleStore.entries.length > 0" :show-metrics="true" />
       </q-card-section>
     </q-card>
   </q-dialog>
 </template>
 
 <script setup lang="ts">
-import type { Plugin } from 'src/models/types/plugins.types';
-import WebConsole from 'src/components/WebConsole.vue';
-import NotificationList from 'src/components/notifications/NotificationList.vue';
+import type { Plugin } from '@/models/types/plugins.types';
+import WebConsole from '@/components/WebConsole.vue';
+import NotificationList from '@/components/notifications/NotificationList.vue';
 import { ref, onMounted, computed, watch } from 'vue';
 import { dom, useQuasar } from 'quasar';
-import AnimatedBackground from 'src/components/animations/AnimatedBackground.vue';
-import FullScreenSpinner from 'src/components/tools/FullScreenSpinner.vue';
-import ConfirmDialog from 'src/components/tools/ConfirmDialog.vue';
-import SessionDuration from 'src/components/tools/SessionDuration.vue';
-import { useFilesStore } from 'src/stores/files-store';
-import { usePluginStore } from 'src/stores/plugins-store';
+import AnimatedBackground from '@/components/animations/AnimatedBackground.vue';
+import FullScreenSpinner from '@/components/tools/FullScreenSpinner.vue';
+import ConfirmDialog from '@/components/tools/ConfirmDialog.vue';
+import SessionDuration from '@/components/tools/SessionDuration.vue';
+import { useFilesStore } from '@/stores/files-store';
+import { usePluginStore } from '@/stores/plugins-store';
 import { storeToRefs } from 'pinia';
-import { useUserStore } from 'src/stores/users-store';
-import { getUserInitials } from 'src/helpers/global-utils';
-import { useAuth } from 'src/stores/auth-store';
+import { useUserStore } from '@/stores/users-store';
+import { getUserInitials } from '@/helpers/global-utils';
+import { useAuth } from '@/stores/auth-store';
 import { useRouter } from 'vue-router';
-import { useNavigation } from 'src/composables/navigation';
+import { useNavigation } from '@/composables/navigation';
 import {
   mdiAccount,
   mdiAccountMultipleOutline,
@@ -283,11 +283,12 @@ import {
   mdiLogout,
   mdiPlaySpeed,
   mdiVectorDifference,
+  mdiViewGridCompact,
 } from '@quasar/extras/mdi-v7';
 import { matArrowDropDown, matCheckBox, matDisabledByDefault, matExtension, matHelp, matHome, matSettings, matTerminal, matViewTimeline } from '@quasar/extras/material-icons';
-import { socketClient } from 'src/services/socket.service';
-import { useConsoleStore } from 'src/stores/console.store';
-import { useNotificationStore } from 'src/stores/notification-store';
+import { socketClient } from '@/services/socket.service';
+import { useConsoleStore } from '@/stores/console.store';
+import { useNotificationStore } from '@/stores/notification-store';
 
 const { style } = dom;
 const headerHeight = ref('0px');
@@ -312,6 +313,7 @@ const mlMode = computed(() => {
   if (currentPath.value.startsWith('/ml/train')) return 'train';
   if (currentPath.value.startsWith('/ml/predict')) return 'predict';
   if (currentPath.value.startsWith('/ml/segment')) return 'segment';
+  if (currentPath.value.startsWith('/ml/features')) return 'features';
   return null;
 });
 
@@ -323,6 +325,8 @@ const mlHeaders = computed(() => {
       return { label: 'Prédiction', icon: mdiCheckerboard };
     case 'segment':
       return { label: 'Segmentation', icon: mdiVectorDifference };
+    case 'features':
+      return { label: 'Features', icon: mdiVectorDifference };
     default:
       return { label: 'Machine Learning', icon: mdiPlaySpeed };
   }
@@ -332,6 +336,7 @@ const mlItems = computed(() => [
   { label: 'Entraînement', description: 'Entraîner un modèle de machine learning', path: '/ml/train', active: mlMode.value === 'train', icon: mdiCogOutline },
   { label: 'Prédiction', description: 'Effectuer des prédictions avec un modèle de machine learning', path: '/ml/predict', active: mlMode.value === 'predict', icon: mdiCheckerboard },
   // { label: 'Segmentation', description: 'A venir', path: '/ml/segment', active: mlMode.value === 'segment', icon: mdiVectorDifference },
+  { label: 'Calcul des features', description: "Calculer les features d'un nuage de points", path: 'ml/features', active: mlMode.value === 'features', icon: mdiCogOutline },
 ]);
 
 const { plugins } = storeToRefs(pluginStore);
@@ -341,6 +346,7 @@ const topMenu = [
   { icon: matHome, iconColor: undefined, label: 'Tableau de bord', bgColor: null, separator: false, link: '/home' },
   { icon: matTerminal, iconColor: undefined, label: 'Console', bgColor: null, separator: false, link: '' },
   { icon: matViewTimeline, iconColor: undefined, label: 'Logs', bgColor: null, separator: true, link: '' },
+  { icon: mdiViewGridCompact, iconColor: undefined, label: 'Viewer', bgColor: null, separator: true, link: '/viewer' },
 ];
 
 const bottomMenu = [

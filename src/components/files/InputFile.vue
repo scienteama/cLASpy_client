@@ -37,12 +37,12 @@
 
 <script setup lang="ts">
 import { ref, computed, onBeforeUnmount, watch } from 'vue';
-import { useFilesStore } from 'src/stores/files-store';
+import { useFilesStore } from '@/stores/files-store';
 import { storeToRefs } from 'pinia';
 import { matCloudUpload } from '@quasar/extras/material-icons';
-import { farFile, fasPaperclip } from '@quasar/extras/fontawesome-v6';
-import { useMLStore } from 'src/stores/ml-store';
-import { checkFileSize } from 'src/helpers/files-utils';
+import { farFile, fasPaperclip } from '@quasar/extras/fontawesome-v7';
+import { useMLStore } from '@/stores/ml-store';
+import { checkFileSize } from '@/helpers/files-utils';
 
 const props = defineProps({
   isTrainMode: { type: Boolean, default: false },

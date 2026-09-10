@@ -1,6 +1,6 @@
 import { useNotifier } from './composables/notifier';
 import { socketClient } from './services/socket.service';
-import { useConsoleStore } from './stores/console.store';
+import { type ComputeProgress, useConsoleStore } from './stores/console.store';
 import { useFilesStore } from './stores/files-store';
 import { useMetricsStore } from './stores/metrics-store';
 import { useNotificationStore } from './stores/notification-store';
@@ -28,7 +28,14 @@ export function initSocketEvents() {
 
   socketClient.on('ml_task_progress', (data) => {
     consoleStore.log(data.message);
-    if (!consoleStore.isOpen) {
+    if (!consoleStore.isOpen && !consoleStore.keepClosed) {
+      consoleStore.open();
+    }
+  });
+
+  socketClient.on('ml_task_feature_progress', (data: ComputeProgress) => {
+    consoleStore.updateProgressBar(data);
+    if (!consoleStore.isOpen && !consoleStore.keepClosed) {
       consoleStore.open();
     }
   });

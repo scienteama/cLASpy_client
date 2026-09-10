@@ -1,4 +1,4 @@
-import type { HSL } from 'src/models/types/global.types';
+import type { HSL } from '@/models/types/global.types';
 
 /**
  * Convertit une couleur hexadécimale en HSL.
@@ -47,9 +47,10 @@ export function hslToHex({ h, s, l }: HSL): string {
   const c = (1 - Math.abs(2 * l - 1)) * s;
   const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
   const m = l - c / 2;
-  let r = 0,
-    g = 0,
-    b = 0;
+
+  let r: number;
+  let g: number;
+  let b: number;
 
   if (h < 60) {
     r = c;
@@ -163,7 +164,7 @@ export function getTextColorForPalette(pal: string[]): { name: string; value: st
 export function getTextColorForHex(hexColor: string): string {
   const lum = getLuminance(hexColor);
   const threshold = 150;
-  return lum < threshold ? '#ffffff' : '#000000';
+  return lum < threshold ? 'white' : 'black';
 }
 
 /**

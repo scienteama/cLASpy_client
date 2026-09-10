@@ -1,6 +1,6 @@
-import { api } from 'src/boot/axios';
-import type { AuthResponse, WorkDone } from 'src/models/types/api.type';
-import { type LoginResponseDto } from 'src/models/types/auth.type';
+import { api } from '@/boot/axios';
+import type { AuthResponse, WorkDone } from '@/models/types/api.type';
+import { type LoginResponseDto } from '@/models/types/auth.type';
 
 /**
  * Centralise les appels API pour la gestion de l'authentification

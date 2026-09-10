@@ -1,8 +1,8 @@
-import { boot } from 'quasar/wrappers';
-import { socketClient } from 'src/services/socket.service';
-import { initSocketEvents } from 'src/ws-handlers';
+import { socketClient } from '@/services/socket.service';
+import { initSocketEvents } from '@/ws-handlers';
+import { defineBoot } from '#q-app';
 
-export default boot(() => {
+export default defineBoot(() => {
   socketClient.connect();
   initSocketEvents();
 });

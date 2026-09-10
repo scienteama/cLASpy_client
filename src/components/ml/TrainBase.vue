@@ -49,9 +49,9 @@ import TrainSummary from './TrainSummary.vue';
 import ConfirmDialog from '../tools/ConfirmDialog.vue';
 import { matCloudUpload } from '@quasar/extras/material-icons';
 import { mdiFileOutline } from '@quasar/extras/mdi-v7';
-import { fasGears, fasList } from '@quasar/extras/fontawesome-v6';
-import { useConfigStore } from 'src/stores/config-store';
-import { useMLStore } from 'src/stores/ml-store';
+import { fasGears, fasList } from '@quasar/extras/fontawesome-v7';
+import { useConfigStore } from '@/stores/config-store';
+import { useMLStore } from '@/stores/ml-store';
 
 const $q = useQuasar();
 const mlStore = useMLStore();

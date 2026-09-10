@@ -23,8 +23,8 @@
 import { matRefresh, matWarning } from '@quasar/extras/material-icons';
 import { mdiCogOffOutline } from '@quasar/extras/mdi-v7';
 import type { QTableColumn } from 'quasar';
-import { pluginService } from 'src/services/plugins.service';
-import type { TaskRunner } from 'src/models/types/plugins.types';
+import { pluginService } from '@/services/plugins.service';
+import type { TaskRunner } from '@/models/types/plugins.types';
 import { onMounted, ref } from 'vue';
 
 const loading = ref(true);

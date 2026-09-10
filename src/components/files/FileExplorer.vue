@@ -1,5 +1,5 @@
 <template>
-  <q-card class="column fit" flat>
+  <q-card flat :bordered="bordered">
     <div v-if="showTitle">
       <q-card-section class="text-h6">{{ titleName }}</q-card-section>
       <q-separator />
@@ -43,7 +43,7 @@
 
     <!-- Table de fichiers -->
     <q-card-section :style="computedStyle.background">
-      <q-table class="file-explorer-table q-mx-md" :rows="rows" :columns="computedColumns" row-key="id" flat bordered :loading="loading" @row-dblclick="onRowDblClick" virtual-scroll>
+      <q-table class="file-explorer-table" :rows="rows" :columns="computedColumns" row-key="id" flat bordered :loading="loading" @row-dblclick="onRowDblClick" virtual-scroll>
         <template v-slot:header-cell-actions>
           <q-th class="q-pa-none justify-center items-center">
             <q-btn color="secondary" :icon="matAdd" dense outline @click="startCreateDir()">
@@ -88,6 +88,22 @@
           <q-td align="center" auto-width>
             <div v-if="predictMode && scope.row.type === 'file' && ['application/model'].includes(scope.row.mimeType)">
               <q-toggle :model-value="isSelected(scope.row)" @update:model-value="toggleSelection(scope.row)" />
+            </div>
+          </q-td>
+        </template>
+
+        <template v-if="lasViewerMode" v-slot:body-cell-view="scope">
+          <q-td align="center" auto-width>
+            <div v-if="lasViewerMode && scope.row.type === 'file' && ['application/las'].includes(scope.row.mimeType)">
+              <q-btn
+                :outline="!(scope.row.id == viewedFile?.id)"
+                :icon="mdiEyeArrowLeftOutline"
+                size="md"
+                :color="scope.row.id == viewedFile?.id ? 'positive' : 'primary'"
+                @click="viewLasFile(scope.row)"
+              >
+                <q-tooltip>Voir</q-tooltip>
+              </q-btn>
             </div>
           </q-td>
         </template>
@@ -212,21 +228,21 @@
 </template>
 
 <script setup lang="ts">
-import type { FileModel, FolderModel } from 'src/models/types/files.type';
+import type { FileModel, FolderModel } from '@/models/types/files.type';
 import { ref, onMounted, computed, watch } from 'vue';
 import { storeToRefs } from 'pinia';
-import { useFilesStore } from 'src/stores/files-store';
+import { useFilesStore } from '@/stores/files-store';
 import { useQuasar, type QTableColumn } from 'quasar';
-import { useUserStore } from 'src/stores/users-store';
-import { fileService } from 'src/services/files.service';
-import { AllowedTypesForViewing, colorForFile, computeFolderSize, convertMimeType, formatFileSize, iconForFile, iconForFolder, splitFileName } from 'src/helpers/files-utils';
+import { useUserStore } from '@/stores/users-store';
+import { fileService } from '@/services/files.service';
+import { AllowedTypesForViewing, colorForFile, computeFolderSize, convertMimeType, formatFileSize, iconForFile, iconForFolder, splitFileName } from '@/helpers/files-utils';
 import ConfirmDialog from '../tools/ConfirmDialog.vue';
-import InputFile from 'src/components/files/InputFile.vue';
-import FileViewer from 'src/components/files/FileViewer.vue';
-import { mdiFormatListChecks, mdiTrashCanOutline } from '@quasar/extras/mdi-v7';
+import InputFile from '@/components/files/InputFile.vue';
+import FileViewer from '@/components/files/FileViewer.vue';
+import { mdiEyeArrowLeftOutline, mdiFormatListChecks, mdiTrashCanOutline } from '@quasar/extras/mdi-v7';
 import { matAdd, matArrowBack, matChevronRight, matHome, matMoreVert, matRefresh } from '@quasar/extras/material-icons';
-import { useConfigStore } from 'src/stores/config-store';
-import { useMLStore } from 'src/stores/ml-store';
+import { useConfigStore } from '@/stores/config-store';
+import { useMLStore } from '@/stores/ml-store';
 
 const filesStore = useFilesStore();
 const userStore = useUserStore();
@@ -236,11 +252,13 @@ const { computedStyle } = storeToRefs(configStore);
 const $q = useQuasar();
 
 const props = defineProps({
+  bordered: { type: Boolean, default: false },
   showInput: { type: Boolean, default: true },
   showTitle: { type: Boolean, default: true },
   trainMode: { type: Boolean, default: false },
   predictMode: { type: Boolean, default: false },
   titleName: { type: String, default: 'Explorateur de fichiers' },
+  lasViewerMode: { type: Boolean, default: false },
 });
 
 const selectedItems = ref<(FileModel | FolderModel)[]>([]);
@@ -255,6 +273,11 @@ const createFolderDialog = ref<{ show: boolean; folderName: string }>({ show: fa
 const viewFileDialog = ref(false);
 const fileViewerContent = ref<Blob | null>(null);
 const fileViewer = ref<FileModel | null>(null);
+const viewedFile = ref<FileModel | null>(null);
+
+const emit = defineEmits<{
+  (e: 'view:las', pointCloud: FileModel): void;
+}>();
 
 const renameDialog = ref<{
   show: boolean;
@@ -283,6 +306,10 @@ const computedColumns = computed(() => {
 
   if (props.trainMode && fileToUpload.value) {
     columns.splice(0, 1);
+  }
+
+  if (props.lasViewerMode) {
+    columns.unshift({ name: 'view', label: '', field: 'select', align: 'center', sortable: false });
   }
 
   return columns;
@@ -317,6 +344,11 @@ function colorForItem(item: { type: string; mimeType?: string }) {
 
 function onRowDblClick(evt: Event, row: FileModel | FolderModel) {
   if (row.type === 'folder') goToFolder(row);
+}
+
+function viewLasFile(file: FileModel) {
+  viewedFile.value = file;
+  emit('view:las', file);
 }
 
 function startRename(item: { id: string; name: string; type: string }) {

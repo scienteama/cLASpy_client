@@ -1,9 +1,9 @@
-import { farFile, farFileAudio, farFileExcel, farFileImage, farFileLines, farFilePdf, farFilePowerpoint, farFileVideo, farFileWord, farFolder, farFolderOpen } from '@quasar/extras/fontawesome-v6';
+import { farFile, farFileAudio, farFileExcel, farFileImage, farFileLines, farFilePdf, farFilePowerpoint, farFileVideo, farFileWord, farFolder, farFolderOpen } from '@quasar/extras/fontawesome-v7';
 import { mdiDataMatrix, mdiFileCog } from '@quasar/extras/mdi-v7';
 import { storeToRefs } from 'pinia';
-import { useNotifier } from 'src/composables/notifier';
-import type { FileModel, FolderModel } from 'src/models/types/files.type';
-import { useUserStore } from 'src/stores/users-store';
+import { useNotifier } from '@/composables/notifier';
+import type { FileModel, FolderModel } from '@/models/types/files.type';
+import { useUserStore } from '@/stores/users-store';
 
 /**
  * Retourne l’icône associée à un type MIME de fichier.

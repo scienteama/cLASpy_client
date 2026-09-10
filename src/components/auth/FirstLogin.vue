@@ -112,16 +112,16 @@
 </template>
 <script setup lang="ts">
 import { useQuasar } from 'quasar';
-import imgLogin from 'src/assets/pythie_alpha_hd_miroir_resized.png';
-import { formUserRules } from 'src/helpers/validation/rules';
+import imgLogin from '@/assets/pythie_alpha_hd_miroir_resized.png';
+import { formUserRules } from '@/helpers/validation/rules';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { matLock, matMail, matVisibility, matVisibilityOff } from '@quasar/extras/material-icons';
 import { mdiFormTextbox, mdiInformationOutline } from '@quasar/extras/mdi-v7';
-import type { User, UserIn } from 'src/models/types/users.type';
-import { UserRoleEnum } from 'src/models/enums/roles';
-import { useUserStore } from 'src/stores/users-store';
-import { useConfigStore } from 'src/stores/config-store';
+import type { User, UserIn } from '@/models/types/users.type';
+import { UserRoleEnum } from '@/models/enums/roles';
+import { useUserStore } from '@/stores/users-store';
+import { useConfigStore } from '@/stores/config-store';
 
 const isPwd = ref(true);
 const $q = useQuasar();

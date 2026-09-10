@@ -1,8 +1,8 @@
-import { boot } from 'quasar/wrappers';
-import { useConfigStore } from 'src/stores/config-store';
-import { usePluginStore } from 'src/stores/plugins-store';
+import { defineBoot } from '#q-app';
+import { useConfigStore } from '@/stores/config-store';
+import { usePluginStore } from '@/stores/plugins-store';
 
-export default boot(async () => {
+export default defineBoot(async () => {
   const pluginStore = usePluginStore();
   const configStore = useConfigStore();
   try {

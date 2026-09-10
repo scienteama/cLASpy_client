@@ -84,19 +84,19 @@
 
 <script setup lang="ts">
 import { storeToRefs } from 'pinia';
-import FileExplorer from 'src/components/files/FileExplorer.vue';
-import TaskRunner from 'src/components/widgets/TaskRunner.vue';
-import HourDate from 'src/components/widgets/HourDate.vue';
-import SpaceUsed from 'src/components/widgets/SpaceUsed.vue';
-import MetricsStats from 'src/components/widgets/MetricsStats.vue';
-import { useConfigStore } from 'src/stores/config-store';
-import { useUserStore } from 'src/stores/users-store';
+import FileExplorer from '@/components/files/FileExplorer.vue';
+import TaskRunner from '@/components/widgets/TaskRunner.vue';
+import HourDate from '@/components/widgets/HourDate.vue';
+import SpaceUsed from '@/components/widgets/SpaceUsed.vue';
+import MetricsStats from '@/components/widgets/MetricsStats.vue';
+import { useConfigStore } from '@/stores/config-store';
+import { useUserStore } from '@/stores/users-store';
 import { computed, onMounted, ref } from 'vue';
-import { usePluginStore } from 'src/stores/plugins-store';
-import { invertColor } from 'src/helpers/color-utils';
+import { usePluginStore } from '@/stores/plugins-store';
+import { invertColor } from '@/helpers/color-utils';
 import { matRefresh } from '@quasar/extras/material-icons';
-import { useMetricsStore } from 'src/stores/metrics-store';
-import { useAuth } from 'src/stores/auth-store';
+import { useMetricsStore } from '@/stores/metrics-store';
+import { useAuth } from '@/stores/auth-store';
 
 const auth = useAuth();
 const userStore = useUserStore();
