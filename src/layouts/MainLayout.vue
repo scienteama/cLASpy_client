@@ -59,8 +59,8 @@
 
                         <!-- Actions installer / désinstaller -->
                         <q-item-section side class="row justify-end">
-                          <q-btn v-if="!plugin.enable" size="sm" color="primary" flat round label="Installer" @click="installPlugin(plugin)" />
-                          <q-btn v-else size="sm" color="negative" flat round label="Désinstaller" @click="uninstallPlugin(plugin)" />
+                          <q-btn v-if="!plugin.enable" size="md" color="primary" flat dense :icon="mdiPlusBox" @click="installPlugin(plugin)" />
+                          <q-btn v-else size="md" color="negative" flat dense :icon="mdiDeleteForever" @click="uninstallPlugin(plugin)" />
                         </q-item-section>
                       </q-chip>
                     </q-item>
@@ -278,10 +278,12 @@ import {
   mdiCheckerboard,
   mdiCogOutline,
   mdiConsole,
+  mdiDeleteForever,
   mdiHelpBoxOutline,
   mdiHomeAccount,
   mdiLogout,
   mdiPlaySpeed,
+  mdiPlusBox,
   mdiVectorDifference,
   mdiViewGridCompact,
 } from '@quasar/extras/mdi-v7';

@@ -13,12 +13,17 @@ class AuthService {
   }
 
   async logout(): Promise<WorkDone<string>> {
-    const response = await api.post<WorkDone<string>>('auth/logout');
+    const response = await api.post<WorkDone<string>>('/auth/logout');
+    return response.data;
+  }
+
+  async resetPassword(payload: { email: string; recoveryCode: string; newPassword: string }): Promise<WorkDone<string>> {
+    const response = await api.post<WorkDone<string>>('/auth/reset-password', payload);
     return response.data;
   }
 
   async checkSession(): Promise<WorkDone<AuthResponse>> {
-    const response = await api.get<WorkDone<AuthResponse>>('auth/check-session');
+    const response = await api.get<WorkDone<AuthResponse>>('/auth/check-session');
     return response.data;
   }
 }

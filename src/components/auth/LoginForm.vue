@@ -85,7 +85,6 @@ async function onLogin() {
 }
 
 function onReset() {
-  if (!loginForm.value?.email) return;
   if (formUserRules.email(loginForm.value.email) === true) {
     $q.dialog({
       component: ConfirmDialog,
@@ -96,9 +95,10 @@ function onReset() {
         cancelLabel: 'Annuler',
       },
     }).onOk(() => {
-      void (async () => {
-        // call api
-      })();
+      void router.push({
+        name: 'reset-password',
+        query: { email: loginForm.value.email },
+      });
     });
   } else {
     $q.notify({ type: 'negative', message: 'Veuillez saisir une adresse mail valide.' });

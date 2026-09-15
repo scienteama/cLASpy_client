@@ -1,3 +1,5 @@
+import type { RecoveryCodes } from './auth.type';
+
 export interface User {
   id: number;
   firstname: string;
@@ -8,6 +10,7 @@ export interface User {
   last_login?: string;
   role_id: number;
   storage: UserStorage;
+  recovery_codes?: RecoveryCodes;
 }
 
 export interface UserStorage {

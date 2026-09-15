@@ -47,8 +47,26 @@ const routes: RouteRecordRaw[] = [
     path: '/auth',
     component: () => import('@/layouts/AuthLayout.vue'),
     children: [
-      { path: 'login', name: 'login', component: () => import('@/components/auth/LoginForm.vue') },
-      { path: 'first-login', name: 'first-login', meta: { firstUserOnly: true }, component: () => import('@/components/auth/FirstLogin.vue') },
+      {
+        path: '',
+        redirect: { name: 'login' },
+      },
+      {
+        path: 'login',
+        name: 'login',
+        component: () => import('@/components/auth/LoginForm.vue'),
+      },
+      {
+        path: 'first-login',
+        name: 'first-login',
+        meta: { firstUserOnly: true },
+        component: () => import('@/components/auth/FirstLogin.vue'),
+      },
+      {
+        path: 'reset-password',
+        name: 'reset-password',
+        component: () => import('@/components/auth/ResetPassword.vue'),
+      },
     ],
   },
   {

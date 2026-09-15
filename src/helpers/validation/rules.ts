@@ -147,3 +147,23 @@ export function isRequired(val: string) {
 export function isInvalid(row: any, rules: any[]) {
   return rules.some((r) => r(row.value) !== true);
 }
+
+/**
+ * Valide un code de récupération au format ABCD-EFGH-IJKL (majuscules et chiffres uniquement).
+ */
+export function isValidRecoveryCode(val: string) {
+  const recoveryCodeRegex = /^[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/;
+
+  return recoveryCodeRegex.test(val) || 'Le code de récupération doit être au format ABCD-EFGH-IJKL';
+}
+
+/**
+ * Tokens pour la validation d'un code de récupération.
+ */
+export const recoveryCodeTokens = {
+  X: {
+    pattern: '[0-9A-Za-z]',
+    negate: '[^0-9A-Za-z]',
+    transform: (v: string) => v.toUpperCase(),
+  },
+};

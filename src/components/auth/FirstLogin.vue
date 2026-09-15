@@ -109,6 +109,42 @@
       </q-card>
     </div>
   </div>
+
+  <q-dialog v-model="showCodes" persistent>
+    <q-card style="max-width: 600px">
+      <q-card-section class="row items-center q-pb-none">
+        <div class="text-h6">Codes de récupération</div>
+        <q-space />
+        <q-btn icon="close" flat round dense v-close-popup />
+      </q-card-section>
+
+      <q-card-section>
+        <div class="bg-grey-2 q-pa-md rounded-borders text-center" v-if="recoveryCodes?.formatted_codes?.length">
+          <q-btn
+            class="absolute-top-right q-ma-md"
+            v-if="recoveryCodes?.formatted_codes?.length"
+            flat
+            outline
+            icon="content_copy"
+            color="primary"
+            size="md"
+            @click="_copyToClipboard(recoveryCodes.formatted_codes.join('\n'))"
+          />
+          <div v-for="code in recoveryCodes.formatted_codes" :key="code" class="code-display text-h6 q-my-xs">
+            {{ code }}
+          </div>
+        </div>
+
+        <div class="text-weight-bold text-negative text-center q-mt-md">
+          {{ recoveryCodes?.warning || '' }}
+        </div>
+      </q-card-section>
+
+      <q-card-actions align="right">
+        <q-btn class="q-ma-md" outline label="Compris" color="primary" @click="confirmAndPurge" :loading="purging" />
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
 </template>
 <script setup lang="ts">
 import { useQuasar } from 'quasar';
@@ -118,10 +154,12 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { matLock, matMail, matVisibility, matVisibilityOff } from '@quasar/extras/material-icons';
 import { mdiFormTextbox, mdiInformationOutline } from '@quasar/extras/mdi-v7';
-import type { User, UserIn } from '@/models/types/users.type';
+import type { User } from '@/models/types/users.type';
 import { UserRoleEnum } from '@/models/enums/roles';
 import { useUserStore } from '@/stores/users-store';
 import { useConfigStore } from '@/stores/config-store';
+import { _copyToClipboard } from '@/helpers/global-utils';
+import type { RecoveryCodes } from '@/models/types/auth.type';
 
 const isPwd = ref(true);
 const $q = useQuasar();
@@ -136,16 +174,25 @@ const form = ref<Partial<User>>({
 const password = ref('');
 const checkPassword = ref('');
 
+const showCodes = ref(false);
+const purging = ref(false);
+const recoveryCodes = ref<RecoveryCodes>();
+
 function checkPasswordRules() {
   return [formUserRules.required('Mot de passe'), formUserRules.password];
 }
 
 async function submitForm() {
   if (!form.value.firstname || !form.value.lastname || !form.value.email || !password.value) {
+    $q.notify({
+      type: 'warning',
+      message: 'Veuillez remplir tous les champs.',
+      icon: 'warning',
+    });
     return;
   }
 
-  const firstUser: UserIn = {
+  const firstUser = {
     firstname: form.value.firstname,
     lastname: form.value.lastname,
     email: form.value.email,
@@ -155,15 +202,38 @@ async function submitForm() {
 
   const res = await userStore.createFirstUser(firstUser);
 
-  if (res.isOk) {
+  if (res.isOk && res.data) {
     await config.getSetupStatus();
-    $q.dialog({
-      title: 'Succès',
-      message: 'Votre compte a été créé avec succès. Vous pouvez maintenant vous connecter.',
-      ok: { label: 'OK', color: 'claspy-dark1' },
-    }).onOk(() => {
-      void router.push({ name: 'login', query: { email: form.value.email } });
+
+    if (res.data.recovery_codes) {
+      recoveryCodes.value = res.data.recovery_codes;
+      showCodes.value = true;
+    }
+  } else {
+    $q.notify({
+      type: 'negative',
+      message: res.result || 'Une erreur est survenue',
+      icon: 'error',
     });
   }
+}
+
+async function confirmAndPurge() {
+  purging.value = true;
+
+  // Copie auto
+  if (recoveryCodes.value?.formatted_codes?.length) {
+    await _copyToClipboard(recoveryCodes.value.formatted_codes.join('\n'));
+  }
+
+  showCodes.value = false;
+  recoveryCodes.value = undefined;
+
+  setTimeout(() => {
+    void router.push({
+      name: 'login',
+      query: { email: form.value.email },
+    });
+  }, 200);
 }
 </script>
